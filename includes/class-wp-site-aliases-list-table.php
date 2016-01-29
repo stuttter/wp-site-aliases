@@ -136,29 +136,6 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Output extra "navigation" fields (section before/after the table)
-	 *
-	 * Outputs our Add New button above the table
-	 *
-	 * @param string $which Which tablenav to use (top/bottom)
-	 */
-	protected function extra_tablenav( $which ) {
-
-		if ( $which !== 'bottom' ) {
-			return;
-		}
-
-		$add_link = add_query_arg( array(
-			'action' => 'site_alias_add',
-			'id'     => $this->_args['site_id'],
-		), network_admin_url( 'admin.php' ) );
-
-		echo '<div class="actions">';
-		echo '<a href="' . esc_url( $add_link ) . '" class="button-primary">' . esc_html_x( 'Add New', 'alias', 'wp-site-aliases' ) . '</a>';
-		echo '</div>';
-	}
-
-	/**
 	 * Get cell value for the checkbox column
 	 *
 	 * @param Alias $alias Current alias item

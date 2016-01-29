@@ -292,7 +292,7 @@ function wp_site_aliases_output_list_page() {
 				'activate'   => __( 'Activated %s',   'wp-site-aliases' ),
 				'deactivate' => __( 'Deactivated %s', 'wp-site-aliases' ),
 				'delete'     => __( 'Deleted %s',     'wp-site-aliases' ),
-				'add'        => __( 'Created %s',     'wp-site-aliases' ),
+				'add'        => __( 'Added %s',       'wp-site-aliases' ),
 				'edit'       => __( 'Updated %s',     'wp-site-aliases' ),
 			);
 			if ( $did_action !== 'delete' ) {
@@ -310,7 +310,7 @@ function wp_site_aliases_output_list_page() {
 				'activate'   => _n( '%s alias activated.',   '%s aliases activated.',   $processed ),
 				'deactivate' => _n( '%s alias deactivated.', '%s aliases deactivated.', $processed ),
 				'delete'     => _n( '%s alias deleted.',     '%s aliases deleted.',     $processed ),
-				'add'        => _n( '%s alias created.',     '%s aliases created.',     $processed ),
+				'add'        => _n( '%s alias added.',       '%s aliases added.',       $processed ),
 				'edit'       => _n( '%s alias updated.',     '%s aliases updated.',     $processed ),
 			);
 			$placeholder = number_format_i18n( $processed );
@@ -325,9 +325,49 @@ function wp_site_aliases_output_list_page() {
 
 	wp_site_aliases_output_page_header( $id, $messages ); ?>
 
-	<form method="post" action="admin.php?action=site_aliases">
-		<?php $wp_list_table->display(); ?>
-	</form>
+	<div id="col-container" style="margin-top: 20px;">
+		<div id="col-right">
+			<div class="col-wrap">
+				<div class="form-wrap">
+					<form method="post" action="admin.php?action=site_aliases">
+						<?php $wp_list_table->display(); ?>
+					</form>
+				</div>
+			</div>
+		</div>
+		<div id="col-left">
+			<div class="col-wrap">
+				<div class="form-wrap">
+					<h2><?php esc_html_e( 'Add New Alias', 'wp-site-aliases' ); ?></h2>
+					<form method="post" action="<?php echo esc_url( add_query_arg( array( 'action' => 'site_alias_add' ), network_admin_url( 'admin.php' ) ) ); ?>">
+						<div class="form-field form-required domain-wrap">
+							<label for="blog_alias"><?php echo esc_html_x( 'Domain Name', 'field name', 'wp-site-aliases' ) ?></label>
+							<input type="text" class="regular-text code" name="domain" id="blog_alias" value="" />
+							<p><?php esc_html_e( 'The fully qualified domain name that this site should load for.', 'wp-site-aliases' ); ?></p>
+						</div>
+						<div class="form-field form-required active-wrap">
+							<label for="active"><?php echo esc_html_x( 'Status', 'field name', 'wp-site-aliases' ) ?></label>
+							<label>
+								<input type="checkbox" name="active" <?php checked( true ); ?> />
+
+								<?php esc_html_e( 'Active', 'wp-site-aliases' ); ?>
+							</label>
+							<p><?php esc_html_e( 'Whether this domain is active and ready to accept requests.', 'wp-site-aliases' ); ?></p>
+						</div>
+
+						<input type="hidden" name="id" value="<?php echo esc_attr( $id ) ?>" />
+						<?php
+
+						wp_nonce_field( 'site_alias_add-' . $id );
+
+						submit_button( esc_html__( 'Add New Alias', 'wp-site-aliases' ) );
+
+						?>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
 
 <?php
 
@@ -469,7 +509,7 @@ function wp_site_aliases_output_edit_page() {
 	}
 
 	// Are we editing?
-	$alias     = null;
+	$alias       = null;
 	$form_action = network_admin_url( 'admin.php?action=site_alias_add' );
 
 	if ( ! empty( $_REQUEST['alias'] ) ) {
