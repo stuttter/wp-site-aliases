@@ -41,7 +41,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		return array(
 			'cb'     => '<input type="checkbox" />',
 			'domain' => _x( 'Domain', 'wp-site-aliases' ),
-			'active' => _x( 'Active', 'wp-site-aliases' ),
+			'active' => _x( 'Status', 'wp-site-aliases' ),
 		);
 	}
 

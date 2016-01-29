@@ -109,28 +109,30 @@ function wp_site_aliases_output_page_header( $id, $messages = array() ) {
 	$parent_file  = 'sites.php';
 	$submenu_file = 'sites.php';
 
+	// Pull in admin header
 	require_once ABSPATH . 'wp-admin/admin-header.php'; ?>
 
-<div class="wrap">
-	<h1 id="edit-site"><?php echo $title; ?></h1>
-	<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $id, '/' ) ); ?>"><?php _e( 'Visit' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $id ) ); ?>"><?php _e( 'Dashboard' ); ?></a></p>
+	<div class="wrap">
+		<h1 id="edit-site"><?php echo $title; ?></h1>
+		<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $id, '/' ) ); ?>"><?php _e( 'Visit' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $id ) ); ?>"><?php _e( 'Dashboard' ); ?></a></p>
 
-	<h3 class="nav-tab-wrapper"><?php
+		<h3 class="nav-tab-wrapper"><?php
 
-	$tabs = array(
-		'site-info'     => array( 'label' => __( 'Info'     ), 'url' => 'site-info.php'     ),
-		'site-users'    => array( 'label' => __( 'Users'    ), 'url' => 'site-users.php'    ),
-		'site-themes'   => array( 'label' => __( 'Themes'   ), 'url' => 'site-themes.php'   ),
-		'site-settings' => array( 'label' => __( 'Settings' ), 'url' => 'site-settings.php' ),
-	);
+		$tabs = array(
+			'site-info'     => array( 'label' => __( 'Info'     ), 'url' => 'site-info.php'     ),
+			'site-users'    => array( 'label' => __( 'Users'    ), 'url' => 'site-users.php'    ),
+			'site-themes'   => array( 'label' => __( 'Themes'   ), 'url' => 'site-themes.php'   ),
+			'site-settings' => array( 'label' => __( 'Settings' ), 'url' => 'site-settings.php' ),
+		);
 
-	foreach ( $tabs as $tab ) {
-		$class = ( $tab['url'] === $pagenow ) ? ' nav-tab-active' : '';
-		echo '<a href="' . esc_url( $tab['url'] ) . '?id=' . $id .'" class="nav-tab' . $class . '">' . esc_html( $tab['label'] ) . '</a>';
-	}
+		foreach ( $tabs as $tab ) {
+			$class = ( $tab['url'] === $pagenow ) ? ' nav-tab-active' : '';
+			echo '<a href="' . esc_url( add_query_arg( array( 'id' => $id ), $tab['url'] ) ) . '" class="nav-tab' . $class . '">' . esc_html( $tab['label'] ) . '</a>';
+		}
 
-	?></h3><?php
+		?></h3><?php
 
+	// Output feedback
 	if ( ! empty( $messages ) ) {
 		foreach ( $messages as $msg ) {
 			echo '<div id="message" class="updated"><p>' . $msg . '</p></div>';
