@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
  * @return  array
  */
 function wp_site_aliases_add_site_list_column( $columns ) {
-	$columns['aliases'] = __( 'Aliases', 'wp-site-aliases' );
+	$columns['aliases'] = esc_html__( 'Aliases', 'wp-site-aliases' );
 	return $columns;
 }
 
