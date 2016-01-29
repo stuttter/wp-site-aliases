@@ -150,7 +150,8 @@ class WP_Site_Alias {
 				return new WP_Error( 'wp_site_aliases_alias_domain_exists' );
 			}
 
-			$fields['domain'] = $data['domain'];
+			// No uppercase letters in domains
+			$fields['domain'] = strtolower( $data['domain'] );
 			$formats[]        = '%s';
 		}
 
@@ -177,7 +178,7 @@ class WP_Site_Alias {
 
 		// Update internal state
 		foreach ( $fields as $key => $val ) {
-			$this->data->$key = $val;
+			$this->data->{$key} = $val;
 		}
 
 		// Update the cache

@@ -85,7 +85,7 @@ function wp_site_aliases_maybe_output_site_tab() {
 		: ''; ?>
 
 	<span id="wp-site-aliases-nav-link" class="hide-if-no-js">
-		<a href="<?php echo network_admin_url( 'admin.php?action=site_aliases' ) . '&id=' . $id; ?>" class="nav-tab<?php echo esc_attr( $class ); ?>"><?php esc_html_e( 'Aliases', 'wp-site-aliases' ) ?></a>
+		<a href="<?php echo network_admin_url( add_query_arg( array( 'action' => 'site_aliases', 'id' => $id ), 'admin.php' ) ); ?>" class="nav-tab<?php echo esc_attr( $class ); ?>"><?php esc_html_e( 'Aliases', 'wp-site-aliases' ) ?></a>
 	</span>
 	<script>jQuery( function wp_site_aliases( $ ) { $( '#wp-site-aliases-nav-link' ).appendTo( $( '.nav-tab-wrapper' ) ); } );</script>
 
@@ -174,11 +174,12 @@ function wp_site_aliases_handle_list_page_submit( $id, $action ) {
 	}
 
 	// Get aliases being bulk actioned
-	$aliases = empty( $_REQUEST['aliases'] ) ? array() : (array) $_REQUEST['aliases'];
-	$aliases = array_map( 'absint', $aliases );
+	$aliases = empty( $_REQUEST['aliases'] )
+		? array()
+		: array_map( 'absint', (array) $_REQUEST['aliases'] );
 
 	// Bail if no aliases
-	if ( ! isset( $aliases ) ) {
+	if ( empty( $aliases ) ) {
 		wp_redirect( $redirect_to );
 		exit;
 	}
@@ -254,37 +255,40 @@ function wp_site_aliases_handle_list_page_submit( $id, $action ) {
  * @since 0.1.0
  */
 function wp_site_aliases_output_list_page() {
+	global $wp_list_table;
 
+	// Get site ID being requested
 	$id = isset( $_REQUEST['id'] )
 		? intval( $_REQUEST['id'] )
 		: 0;
 
+	// No site ID
 	if ( empty( $id ) ) {
 		wp_die( __( 'Invalid site ID.' ) );
 	}
 
+	// Get blog details
 	$id      = absint( $id );
 	$details = get_blog_details( $id );
 
+	// Bail if user cannot access this network
 	if ( ! can_edit_network( $details->site_id ) || (int) $details->blog_id !== $id ) {
-		wp_die( __( 'You do not have permission to access this page.' ) );
+		wp_die( __( 'You do not have permission to access this page.', 'wp-site-aliases' ) );
 	}
 
+	// Include the list table class
 	require_once dirname( __FILE__ ) . '/class-wp-site-aliases-list-table.php';
 
+	// Create a new list table object
 	$wp_list_table = new WP_Site_Aliases_List_Table( array(
 		'site_id' => $id,
 	) );
 
-	$messages = array();
-
+	$pagenum     = $wp_list_table->get_pagenum();
 	$bulk_action = $wp_list_table->current_action();
-
-	if ( $bulk_action ) {
-		$messages = wp_site_aliases_handle_list_page_submit( $id, $bulk_action );
-	}
-
-	$pagenum = $wp_list_table->get_pagenum();
+	$messages    = ! empty( $bulk_action )
+		? wp_site_aliases_handle_list_page_submit( $id, $bulk_action )
+		: array();
 
 	$wp_list_table->prepare_items( $id );
 
@@ -398,6 +402,9 @@ function wp_site_aliases_output_list_page() {
  */
 function wp_site_aliases_validate_alias_parameters( $params, $check_permission = true ) {
 	$valid = array();
+
+	// Strip schemes from domain
+	$params['domain'] = preg_replace( '#^https?://#', '', rtrim( $params['domain'], '/' ) );
 
 	// Bail if no domain name
 	if ( empty( $params['domain'] ) ) {
