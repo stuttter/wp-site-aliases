@@ -32,16 +32,24 @@ function wp_site_aliases_add_site_list_column( $columns ) {
  * @param  int     $site_id  Site ID
  */
 function wp_site_aliases_output_site_list_column( $column, $site_id ) {
-	switch ( $column ) {
-		case 'aliases':
-			$aliases = WP_Site_Alias::get_by_site( $site_id );
-			if ( ! empty( $aliases ) ) {
-				foreach ( $aliases as $alias ) {
-					echo esc_html( $alias->get_domain() ) . '<br />';
-				}
-			}
 
-			break;
+	// Bail if not for aliases column
+	if ( 'aliases' !== $column ) {
+		return;
+	}
+
+	// Get aliases
+	$aliases = WP_Site_Alias::get_by_site( $site_id );
+
+	// Show all aliases
+	if ( ! empty( $aliases ) ) {
+		foreach ( $aliases as $alias ) {
+			echo esc_html( $alias->get_domain() ) . '<br>';
+		}
+
+	// No aliases
+	} else {
+		esc_html_e( '&mdash;', 'wp-site-aliases' );
 	}
 }
 
