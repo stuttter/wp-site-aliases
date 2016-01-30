@@ -109,6 +109,9 @@ function wp_site_aliases_register_url_filters() {
 	// Set global for future mappings
 	$GLOBALS['wp_current_site_alias'] = $alias;
 
+	// Skip canonical for now
+	remove_filter( 'template_redirect', 'redirect_canonical' );
+
 	// Filter home & site URLs
 	add_filter( 'site_url', 'wp_site_aliases_mangle_site_url', -PHP_INT_MAX, 4 );
 	add_filter( 'home_url', 'wp_site_aliases_mangle_site_url', -PHP_INT_MAX, 4 );
