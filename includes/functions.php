@@ -27,7 +27,10 @@ function wp_site_aliases_check_domain_alias( $site, $domain ) {
 		$www    = 'www.' . $domain;
 	}
 
+	// Get the alias
 	$alias = WP_Site_Alias::get_by_domain( array( $www, $no_www ) );
+
+	// Bail if no alias
 	if ( empty( $alias ) || is_wp_error( $alias ) ) {
 		return $site;
 	}
@@ -74,8 +77,10 @@ function wp_site_aliases_clear_aliases_on_delete( $site_id = 0 ) {
 
 /**
  * Register filters for URLs, if we've mapped
+ *
+ * @since 0.1.0
  */
-function wp_site_aliases_register_site_filters() {
+function wp_site_aliases_register_url_filters() {
 
 	// Look for aliases
 	$current_site = $GLOBALS['current_blog'];
@@ -101,15 +106,17 @@ function wp_site_aliases_register_site_filters() {
 		return;
 	}
 
-	$GLOBALS['mercator_current_alias'] = $alias;
+	// Set global for future mappings
+	$GLOBALS['wp_current_site_alias'] = $alias;
 
-	add_filter( 'site_url', 'wp_site_aliases_mangle_site_url', -10, 4 );
-	add_filter( 'home_url', 'wp_site_aliases_mangle_site_url', -10, 4 );
+	// Filter home & site URLs
+	add_filter( 'site_url', 'wp_site_aliases_mangle_site_url', -PHP_INT_MAX, 4 );
+	add_filter( 'home_url', 'wp_site_aliases_mangle_site_url', -PHP_INT_MAX, 4 );
 
-	// If on network site, also filter network urls
+	// If on main site of network, also filter network urls
 	if ( is_main_site() ) {
-		add_filter( 'network_site_url', 'wp_site_aliases_mangle_network_url', -10, 3 );
-		add_filter( 'network_home_url', 'wp_site_aliases_mangle_network_url', -10, 3 );
+		add_filter( 'network_site_url', 'wp_site_aliases_mangle_network_url', -PHP_INT_MAX, 3 );
+		add_filter( 'network_home_url', 'wp_site_aliases_mangle_network_url', -PHP_INT_MAX, 3 );
 	}
 }
 
@@ -127,25 +134,29 @@ function wp_site_aliases_register_site_filters() {
  */
 function wp_site_aliases_mangle_site_url( $url, $path, $orig_scheme, $site_id = 0 ) {
 
+	// Set to current site if empty
 	if ( empty( $site_id ) ) {
 		$site_id = get_current_blog_id();
 	}
 
-	$current_alias = $GLOBALS['mercator_current_alias'];
-	if ( empty( $current_alias ) || $site_id !== (int) $current_alias->get_site_id() ) {
+	// Get the current alias
+	$current_alias = $GLOBALS['wp_current_site_alias'];
+
+	// Bail if no alias
+	if ( empty( $current_alias ) || ( $site_id !== $current_alias->get_site_id() ) ) {
 		return $url;
 	}
 
-	// Replace the domain
-	$domain  = parse_url( $url, PHP_URL_HOST );
-	$regex   = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
-	$mangled = preg_replace( $regex, '${1}' . $current_alias->get_domain(), $url );
+	// Alias the URLs
+	$current_home = $GLOBALS['current_blog']->domain . $GLOBALS['current_blog']->path;
+	$alias_home   = $current_alias->get_domain() . '/';
+	$url          = str_replace( $current_home, $alias_home, $url );
 
-	return $mangled;
+	return $url;
 }
 
 /**
- * Check if a domain belongs to a mapped network
+ * Check if a domain belongs to a mapped site
  *
  * @since 0.1.0
  *
@@ -155,98 +166,42 @@ function wp_site_aliases_mangle_site_url( $url, $path, $orig_scheme, $site_id = 
  * @return stdClass|null Site object if already found, null otherwise
  */
 function wp_site_aliases_check_aliases_for_site( $site, $domain, $path, $path_segments ) {
+	global $current_blog, $current_site;
 
 	// Have we already matched? (Allows other plugins to match first)
 	if ( ! empty( $site ) ) {
 		return $site;
 	}
 
-	$domains = get_possible_mapped_domains( $domain );
-	$alias = Network_WP_Site_Alias::get_active_by_domain( $domains );
+	// Get possible domains and look for aliases
+	$domains = wp_site_aliases_get_possible_domains( $domain );
+	$alias   = WP_Site_Alias::get_by_domain( $domains );
 
+	// Bail if no alias
 	if ( empty( $alias ) || is_wp_error( $alias ) ) {
 		return $site;
 	}
 
-	// Fetch the actual data for the site
-	$mapped_network = $alias->get_network();
-	if ( empty( $mapped_network ) ) {
-		return $site;
-	}
+	// Set site & network
+	$site         = get_blog_details( $alias->get_site_id() );
+	$current_site = wp_get_network( $site->site_id );
 
 	// We found a network, now check for the site. Replace mapped domain with
 	// network's original to find.
 	$mapped_domain = $alias->get_domain();
-	if ( substr( $mapped_domain, 0, 4 ) === 'www.' ) {
-		$mapped_domain = substr( $mapped_domain, 4 );
+	$subdomain     = substr( $domain, 0, -strlen( $mapped_domain ) );
+	$domain        = $subdomain . $current_site->domain;
+	$current_blog  = get_site_by_path( $domain, $path, $path_segments );
+
+	// Return site or network
+	switch ( current_filter() ) {
+		case 'pre_get_site_by_path' :
+			return $current_blog;
+		case 'pre_get_network_by_path' :
+			return $current_site;
+		default :
+			return $site;
 	}
-
-	$subdomain = substr( $domain, 0, -strlen( $mapped_domain ) );
-
-	return get_site_by_path( $subdomain . $mapped_network->domain, $path, $path_segments );
-}
-
-/**
- * Check if a domain has a network alias available
- *
- * @since 0.1.0
- *
- * @param  stdClass|null  $network  Site object if already found, null otherwise
- * @param  string         $domain   Domain we're looking for
- *
- * @return stdClass|null Site object if already found, null otherwise
- */
-function wp_site_aliases_check_aliases_for_network( $network, $domain ) {
-
-	// Have we already matched? (Allows other plugins to match first)
-	if ( ! empty( $network ) ) {
-		return $network;
-	}
-
-	$domains = get_possible_mapped_domains( $domain );
-	$alias = Network_WP_Site_Alias::get_active_by_domain( $domains );
-
-	if ( empty( $alias ) || is_wp_error( $alias ) ) {
-		return $network;
-	}
-
-	// Fetch the actual data for the site
-	$mapped_network = $alias->get_network();
-
-	if ( empty( $mapped_network ) ) {
-		return $network;
-	}
-
-	return $mapped_network;
-}
-
-/**
- * Register filters for URLs, if we've mapped
- *
- * @since 0.1.0
- */
-function wp_site_aliases_register_network_filters() {
-
-	$current_site = $GLOBALS['current_blog'];
-	$real_domain  = $current_site->domain;
-	$domain       = $_SERVER['HTTP_HOST'];
-
-	// Domain hasn't been mapped
-	if ( $domain === $real_domain ) {
-		return;
-	}
-
-	$domains = get_possible_mapped_domains( $domain );
-	$alias = Network_WP_Site_Alias::get_active_by_domain( $domains );
-
-	if ( empty( $alias ) || is_wp_error( $alias ) ) {
-		return;
-	}
-
-	$GLOBALS['mercator_current_network_alias'] = $alias;
-
-	add_filter( 'site_url', 'wp_site_aliases_mangle_network_url', -11, 4 );
-	add_filter( 'home_url', 'wp_site_aliases_mangle_network_url', -11, 4 );
 }
 
 /**
@@ -267,29 +222,17 @@ function wp_site_aliases_mangle_network_url( $url, $path, $orig_scheme, $site_id
 		$site_id = get_current_blog_id();
 	}
 
-	$current_alias = $GLOBALS['mercator_current_network_alias'];
+	$current_alias   = $GLOBALS['wp_current_site_alias'];
 	$current_network = get_current_site();
 
 	if ( empty( $current_alias ) || (int) $current_network->id !== (int) $current_alias->get_network_id() ) {
 		return $url;
 	}
 
-	$mapped_network = $current_alias->get_network();
-
-	// Replace the domain
-	$domain = parse_url( $url, PHP_URL_HOST );
-	$regex = '#(://|\.)' . preg_quote( $mapped_network->domain, '#' ) . '$#i';
-	$mapped_domain = $current_alias->get_domain();
-	if ( substr( $mapped_domain, 0, 4 ) === 'www.' ) {
-		$mapped_domain = substr( $mapped_domain, 4 );
-	}
-	$mangled_domain = preg_replace( $regex, '\1' . $mapped_domain, $domain );
-
-	// Then correct the URL
-	$regex = '#^(\w+://)' . preg_quote( $domain, '#' ) . '#i';
-	$mangled = preg_replace( $regex, '\1' . $mangled_domain, $url );
-
-	return $mangled;
+	// Alias the URLs
+	$current_home = $GLOBALS['current_blog']->domain . $GLOBALS['current_blog']->path;
+	$alias_home   = $current_alias->get_domain() . '/';
+	$url          = str_replace( $current_home, $alias_home, $url );
 }
 
 /**
@@ -304,11 +247,9 @@ function wp_site_aliases_mangle_network_url( $url, $path, $orig_scheme, $site_id
  *
  * @return array
  */
-function wp_site_aliases_get_possible_network_domains( $domain ) {
+function wp_site_aliases_get_possible_domains( $domain = '' ) {
 
-	$no_www = ( strpos( $domain, 'www.' ) === 0 )
-		? substr( $domain, 4 )
-		: $domain;
+	$no_www = maybe_strip_www( $domain );
 
 	// Explode domain on tld and return an array element for each explode point
 	// Ensures subdomains of a mapped network are matched
@@ -332,11 +273,12 @@ function wp_site_aliases_get_possible_network_domains( $domain ) {
  *
  * @since 0.1.0
  *
- * @param $domain - A url to explode, i.e. site.example.com
- * @param int $segments - Number of segments to explode and return
- * @return array - Exploded urls
+ * @param  string  $domain    A url to explode, i.e. site.example.com
+ * @param  int     $segments  Number of segments to explode and return
+ *
+ * @return array Exploded urls
  */
-function wp_site_aliases_explode_domain( $domain, $segments = 2 ) {
+function wp_site_aliases_explode_domain( $domain, $segments = 1 ) {
 
 	$host_segments = explode( '.', trim( $domain, '.' ), (int) $segments );
 
@@ -352,4 +294,22 @@ function wp_site_aliases_explode_domain( $domain, $segments = 2 ) {
 	$domains[] = array_shift( $host_segments );
 
 	return $domains;
+}
+
+/**
+ * Maybe remove "www." from domain
+ *
+ * @since 0.1.0
+ *
+ * @param  string  $domain
+ * @return string
+ */
+function maybe_strip_www( $domain = '' ) {
+
+	// Remove www.
+	if ( substr( $domain, 0, 4 ) === 'www.' ) {
+		$domain = substr( $domain, 4 );
+	}
+
+	return $domain;
 }

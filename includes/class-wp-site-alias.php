@@ -54,7 +54,7 @@ class WP_Site_Alias {
 	 * @return int Alias ID
 	 */
 	public function get_id() {
-		return $this->data->id;
+		return (int) $this->data->id;
 	}
 
 	/**
@@ -76,7 +76,7 @@ class WP_Site_Alias {
 	 * @return int Site ID
 	 */
 	public function get_site_id() {
-		return $this->data->blog_id;
+		return (int) $this->data->blog_id;
 	}
 
 	/**
@@ -87,7 +87,7 @@ class WP_Site_Alias {
 	 * @return string
 	 */
 	public function get_domain() {
-		return $this->data->domain;
+		return maybe_strip_www( $this->data->domain );
 	}
 
 	/**

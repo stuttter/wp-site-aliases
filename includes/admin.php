@@ -471,10 +471,11 @@ function wp_site_aliases_handle_edit_page_submit( $id, $alias ) {
 
 	// Create the actual alias
 	if ( empty( $alias ) ) {
-		$result = WP_Site_Alias::create( $params['site'], $params['domain'], $params['active'] );
+		$alias = WP_Site_Alias::create( $params['site'], $params['domain'], $params['active'] );
 
-		if ( ! is_wp_error( $result ) ) {
-			$alias = $result;
+		// Set result as an error for later
+		if ( is_wp_error( $alias ) ) {
+			$result = $alias;
 		}
 
 	// Update our existing
@@ -482,9 +483,9 @@ function wp_site_aliases_handle_edit_page_submit( $id, $alias ) {
 		$result = $alias->update( $params );
 	}
 
+	// Bail if an error occurred
 	if ( is_wp_error( $result ) ) {
 		$messages[] = $result->get_error_message();
-
 		return $messages;
 	}
 

@@ -18,37 +18,25 @@ defined( 'ABSPATH' ) || exit;
 
 // Define the table variables
 if ( empty( $GLOBALS['wpdb']->site_aliases ) ) {
-	$GLOBALS['wpdb']->site_aliases       = $GLOBALS['wpdb']->base_prefix . 'site_aliases';
-	$GLOBALS['wpdb']->ms_global_tables[] = 'site_aliases';
+	$GLOBALS['wpdb']->site_aliases       = $GLOBALS['wpdb']->base_prefix . 'blog_aliases';
+	$GLOBALS['wpdb']->ms_global_tables[] = 'blog_aliases';
 }
 
 // Ensure cache is shared
 wp_cache_add_global_groups( array( 'site_aliases', 'network_alias' ) );
 
-/**
- * Enqueue assets
- *
- * @since 0.1.0
- */
-function _wp_site_aliases() {
+// Get the plugin path
+$plugin_path = dirname( __FILE__ ) . '/';
 
-	// Get the plugin path
-	$plugin_path = plugin_dir_path( __FILE__ );
+// Classes
+require_once $plugin_path . 'includes/class-wp-site-alias.php';
+require_once $plugin_path . 'includes/class-wp-site-alias-network.php';
+require_once $plugin_path . 'includes/class-wp-site-aliases-db-table.php';
 
-	// Classes
-	require_once $plugin_path . 'includes/class-wp-site-alias.php';
-	require_once $plugin_path . 'includes/class-wp-site-aliases-db-table.php';
-
-	//require_once $plugin_path . 'includes/class-wp-site-alias-network.php';
-
-	// Required Files
-	require_once $plugin_path . 'includes/admin.php';
-	//require_once $plugin_path . 'includes/capabilities.php';
-	require_once $plugin_path . 'includes/functions.php';
-	//require_once $plugin_path . 'includes/metaboxes.php';
-	require_once $plugin_path . 'includes/hooks.php';
-}
-add_action( 'plugins_loaded', '_wp_site_aliases' );
+// Required Files
+require_once $plugin_path . 'includes/admin.php';
+require_once $plugin_path . 'includes/functions.php';
+require_once $plugin_path . 'includes/hooks.php';
 
 /**
  * Return the plugin's root file

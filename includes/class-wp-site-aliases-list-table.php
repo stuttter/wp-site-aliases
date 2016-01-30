@@ -156,11 +156,8 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 */
 	protected function column_domain( $alias ) {
 
-		// Strip WWW
+		// Strip www.
 		$domain = $alias->get_domain();
-		if ( substr( $domain, 0, 4 ) === 'www.' ) {
-			$domain = substr( $domain, 4 );
-		}
 
 		// Setup default args
 		$args = array(

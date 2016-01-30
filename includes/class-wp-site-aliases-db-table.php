@@ -219,5 +219,12 @@ final class WP_Site_Aliases_DB {
 	}
 }
 
-// Create the object
-new WP_Site_Aliases_DB();
+/**
+ * Load the DB as early as possible, but after WordPress core is included
+ *
+ * @since 0.1.0
+ */
+function wp_site_aliases_db() {
+	new WP_Site_Aliases_DB();
+}
+add_action( 'muplugins_loaded', 'wp_site_aliases_db', -PHP_INT_MAX );

@@ -129,10 +129,13 @@ class WP_Site_Alias_Network {
 	 *
 	 * See also, {@see set_domain} and {@see set_active} as convenience methods.
 	 *
-	 * @param array|stdClass $data Alias fields (associative array or object properties)
+	 * @since 0.1.0
+	 *
+	 * @param  array|stdClass  $data  Alias fields (associative array or object properties)
+	 *
 	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
-	public function update( $data ) {
+	public function update( $data = array() ) {
 		global $wpdb;
 
 		$data   = (array) $data;
@@ -141,9 +144,8 @@ class WP_Site_Alias_Network {
 		// Were we given a domain (and is it not the current one)?
 		if ( ! empty( $data['domain'] ) && ( $this->data->domain !== $data['domain'] ) ) {
 
-			// Did we get a full URL?
+			// Parse just the domain out
 			if ( strpos( $data['domain'], '://' ) !== false ) {
-				// Parse just the domain out
 				$data['domain'] = parse_url( $data['domain'], PHP_URL_HOST );
 			}
 
@@ -324,10 +326,13 @@ class WP_Site_Alias_Network {
 	/**
 	 * Get alias by domain(s)
 	 *
-	 * @param string|array $domains Domain(s) to match against
+	 * @since 0.1.0
+	 *
+	 * @param  string|array  $domains  Domain(s) to match against
+	 *
 	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
-	public static function get_by_domain( $domains ) {
+	public static function get_by_domain( $domains = array() ) {
 		global $wpdb;
 
 		$domains = (array) $domains;
@@ -340,7 +345,7 @@ class WP_Site_Alias_Network {
 			$key = static::key_for_domain( $domain );
 			$row = wp_cache_get( 'domain:' . $key, 'network_alias' );
 
-			if ( ! empty( $row ) && ( $row !== 'notexists' ) ) {
+			if ( ( false !== $row ) && ( $row !== 'notexists' ) ) {
 				return static::to_instance( $row );
 			} elseif ( $row === 'notexists' ) {
 				$not_exists++;
@@ -359,7 +364,7 @@ class WP_Site_Alias_Network {
 		$placeholders_in = implode( ',', $placeholders );
 
 		// Prepare the query
-		$query = "SELECT * FROM {$wpdb->sitemeta} WHERE meta_key IN ($placeholders_in) ORDER BY CHAR_LENGTH(meta_value) DESC LIMIT 1";
+		$query = "SELECT * FROM {$wpdb->sitemeta} WHERE meta_key IN ({$placeholders_in}) ORDER BY CHAR_LENGTH(meta_value) DESC LIMIT 1";
 		$query = $wpdb->prepare( $query, $keys );
 
 		// Suppress errors in case the table doesn't exist
@@ -372,7 +377,7 @@ class WP_Site_Alias_Network {
 			// Cache that it doesn't exist
 			foreach ( $domains as $domain ) {
 				$key = static::key_for_domain( $domain );
-				wp_cache_set( 'domain:' . $key, 'notexists', 'network_alias' );
+				wp_cache_set( "domain:{$key}", 'notexists', 'network_alias' );
 			}
 
 			return null;
@@ -382,7 +387,7 @@ class WP_Site_Alias_Network {
 		usort( $rows, array( get_called_class(), 'sort_rows_by_domain_length' ) );
 		$row = array_pop( $rows );
 
-		wp_cache_set( 'domain:' . $row->meta_key, $row, 'network_alias' );
+		wp_cache_set( "domain:{$row->meta_key}", $row, 'network_alias' );
 
 		return static::to_instance( $row );
 	}
@@ -390,16 +395,19 @@ class WP_Site_Alias_Network {
 	/**
 	 * Get alias by domain, but filter to ensure only active mapped domains are returned
 	 *
-	 * @param string|array $domains Domain(s) to match against
+	 * @since 0.1.0
+	 *
+	 * @param  string|array  $domains  Domain(s) to match against
+	 *
 	 * @return Alias|null Alias on success, or null if no alias found
 	 */
-	public static function get_active_by_domain( $domains ) {
+	public static function get_active_by_domain( $domains = array() ) {
 		$mapped = array();
 
 		foreach ( $domains as $domain ) {
 			$single_mapped = self::get_by_domain( array( $domain ) );
 
-			if ( $single_mapped && ! is_wp_error( $single_mapped ) && $single_mapped->is_active() ) {
+			if ( ! empty( $single_mapped ) && ! is_wp_error( $single_mapped ) && $single_mapped->is_active() ) {
 				$mapped[] = $single_mapped;
 			}
 		}
@@ -416,8 +424,12 @@ class WP_Site_Alias_Network {
 	 * Compare alias rows by domain length
 	 *
 	 * Comparison callback for `usort`, matches result format of `strcmp`
+	 *
+	 * @since 0.1.0
+	 *
 	 * @param stdClass $a First row
 	 * @param stdClass $b Second row
+	 *
 	 * @return int <0 if $a is "less" (shorter), 0 if equal, >0 if $a is "more" (longer)
 	 */
 	protected static function sort_rows_by_domain_length( $a, $b ) {
@@ -432,12 +444,15 @@ class WP_Site_Alias_Network {
 	/**
 	 * Create a new domain alias
 	 *
-	 * @param $site Site ID, or site object from {@see get_blog_details}
+	 * @since 0.1.0
+	 *
+	 * @param  $site  Site ID, or site object from {@see get_blog_details}
+	 *
 	 * @return bool
 	 */
 	public static function create( $network, $domain, $active = false ) {
 		global $wpdb;
-
+var_dump( 'here' );
 		// Allow passing a site object in
 		if ( is_object( $network ) && isset( $network->network_id ) ) {
 			$network = $network->network_id;
@@ -450,9 +465,8 @@ class WP_Site_Alias_Network {
 		$network = absint( $network );
 		$active = (bool) $active;
 
-		// Did we get a full URL?
+		// Parse just the domain out
 		if ( strpos( $domain, '://' ) !== false ) {
-			// Parse just the domain out
 			$domain = parse_url( $domain, PHP_URL_HOST );
 		}
 
