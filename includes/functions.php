@@ -102,7 +102,7 @@ function wp_site_aliases_register_url_filters() {
 	}
 
 	$alias = WP_Site_Alias::get_by_domain( array( $www, $nowww ) );
-	if ( empty( $alias ) || is_wp_error( $alias ) ) {
+	if ( empty( $alias ) || is_wp_error( $alias ) || ! $alias->is_active() ) {
 		return;
 	}
 
@@ -182,6 +182,11 @@ function wp_site_aliases_check_aliases_for_site( $site, $domain, $path, $path_se
 
 	// Bail if no alias
 	if ( empty( $alias ) || is_wp_error( $alias ) ) {
+		return $site;
+	}
+
+	// Ignore non-active aliases
+	if ( ! $alias->is_active() ) {
 		return $site;
 	}
 
