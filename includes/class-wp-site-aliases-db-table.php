@@ -135,7 +135,7 @@ final class WP_Site_Aliases_DB {
 	private function upgrade_database( $old_version = 0 ) {
 
 		// The main column alter
-		if ( version_compare( (int) $old_version, 201601270001, '>=' ) ) {
+		if ( version_compare( (int) $old_version, $this->db_version, '>=' ) ) {
 			return;
 		}
 
