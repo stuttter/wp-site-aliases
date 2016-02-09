@@ -174,9 +174,10 @@ final class WP_Site_Aliases_DB {
 				id bigint(20) NOT NULL auto_increment,
 				blog_id bigint(20) NOT NULL,
 				domain varchar(255) NOT NULL,
-				active tinyint(4) default 1,
+				created datetime NOT NULL default '0000-00-00 00:00:00',
+				status varchar(20) NOT NULL default 'active',
 				PRIMARY KEY (id),
-				KEY blog_id (blog_id),
+				KEY blog_id (blog_id,domain(50),status),
 				KEY domain (domain({$max_index_length}))
 			) {$charset_collate};"
 		) );
