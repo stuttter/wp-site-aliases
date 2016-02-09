@@ -193,8 +193,8 @@ class WP_Site_Alias_Network {
 		$this->data = $new_data;
 
 		// Update the cache
-		wp_cache_delete( 'id:' . $this->get_network_id(), 'network_alias' );
-		wp_cache_set( 'domain:' . $fields['meta_key'], $this->data, 'network_alias' );
+		wp_cache_delete( 'id:' . $this->get_network_id(), 'network_aliases' );
+		wp_cache_set( 'domain:' . $fields['meta_key'], $this->data, 'network_aliases' );
 
 		return true;
 	}
@@ -216,8 +216,8 @@ class WP_Site_Alias_Network {
 		}
 
 		// Update the cache
-		wp_cache_delete( 'id:' . $this->get_network_id(), 'network_alias' );
-		wp_cache_delete( 'domain:' . static::key_for_domain( $this->get_domain() ), 'network_alias' );
+		wp_cache_delete( 'id:' . $this->get_network_id(), 'network_aliases' );
+		wp_cache_delete( 'domain:' . static::key_for_domain( $this->get_domain() ), 'network_aliases' );
 
 		return true;
 	}
@@ -303,7 +303,7 @@ class WP_Site_Alias_Network {
 		$network = absint( $network );
 
 		// Check cache first
-		$aliases = wp_cache_get( 'id:' . $network, 'network_alias' );
+		$aliases = wp_cache_get( 'id:' . $network, 'network_aliases' );
 		if ( ! empty( $aliases ) ) {
 			return static::to_instances( $aliases );
 		}
@@ -318,7 +318,7 @@ class WP_Site_Alias_Network {
 			return null;
 		}
 
-		wp_cache_set( 'id:' . $network, $rows, 'network_alias' );
+		wp_cache_set( 'id:' . $network, $rows, 'network_aliases' );
 
 		return static::to_instances( $rows );
 	}
@@ -343,7 +343,7 @@ class WP_Site_Alias_Network {
 		foreach ( $domains as $domain ) {
 
 			$key = static::key_for_domain( $domain );
-			$row = wp_cache_get( 'domain:' . $key, 'network_alias' );
+			$row = wp_cache_get( 'domain:' . $key, 'network_aliases' );
 
 			if ( ( false !== $row ) && ( $row !== 'notexists' ) ) {
 				return static::to_instance( $row );
@@ -377,7 +377,7 @@ class WP_Site_Alias_Network {
 			// Cache that it doesn't exist
 			foreach ( $domains as $domain ) {
 				$key = static::key_for_domain( $domain );
-				wp_cache_set( "domain:{$key}", 'notexists', 'network_alias' );
+				wp_cache_set( "domain:{$key}", 'notexists', 'network_aliases' );
 			}
 
 			return null;
@@ -387,7 +387,7 @@ class WP_Site_Alias_Network {
 		usort( $rows, array( get_called_class(), 'sort_rows_by_domain_length' ) );
 		$row = array_pop( $rows );
 
-		wp_cache_set( "domain:{$row->meta_key}", $row, 'network_alias' );
+		wp_cache_set( "domain:{$row->meta_key}", $row, 'network_aliases' );
 
 		return static::to_instance( $row );
 	}
@@ -504,8 +504,8 @@ var_dump( 'here' );
 		}
 
 		// Ensure the cache is flushed
-		wp_cache_delete( 'id:' . $network, 'network_alias' );
-		wp_cache_delete( 'domain:' . $key, 'network_alias' );
+		wp_cache_delete( 'id:' . $network, 'network_aliases' );
+		wp_cache_delete( 'domain:' . $key, 'network_aliases' );
 
 		return static::get( $wpdb->insert_id );
 	}

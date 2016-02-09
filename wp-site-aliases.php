@@ -23,7 +23,7 @@ if ( empty( $GLOBALS['wpdb']->site_aliases ) ) {
 }
 
 // Ensure cache is shared
-wp_cache_add_global_groups( array( 'site_aliases', 'network_alias' ) );
+wp_cache_add_global_groups( array( 'site_aliases', 'network_aliases' ) );
 
 // Get the plugin path
 $plugin_path = dirname( __FILE__ ) . '/';
