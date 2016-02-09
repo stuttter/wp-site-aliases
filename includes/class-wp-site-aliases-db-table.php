@@ -167,6 +167,8 @@ final class WP_Site_Aliases_DB {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		}
 
+		$max_index_length = 191;
+
 		dbDelta( array(
 			"CREATE TABLE {$this->db->blog_aliases} (
 				id bigint(20) NOT NULL auto_increment,
@@ -175,7 +177,7 @@ final class WP_Site_Aliases_DB {
 				active tinyint(4) default 1,
 				PRIMARY KEY (id),
 				KEY blog_id (blog_id,domain,active),
-				KEY domain (domain)
+				KEY domain (domain({$max_index_length}))
 			) {$charset_collate};"
 		) );
 
