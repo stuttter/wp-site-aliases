@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Plugin Name: WP Site Aliases
  * Plugin URI:  http://wordpress.org/plugins/wp-site-aliases/
  * Author:      John James Jacoby
