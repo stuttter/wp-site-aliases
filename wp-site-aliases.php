@@ -17,8 +17,8 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define the table variables
-if ( empty( $GLOBALS['wpdb']->site_aliases ) ) {
-	$GLOBALS['wpdb']->site_aliases       = $GLOBALS['wpdb']->base_prefix . 'blog_aliases';
+if ( empty( $GLOBALS['wpdb']->blog_aliases ) ) {
+	$GLOBALS['wpdb']->blog_aliases       = $GLOBALS['wpdb']->base_prefix . 'blog_aliases';
 	$GLOBALS['wpdb']->ms_global_tables[] = 'blog_aliases';
 }
 

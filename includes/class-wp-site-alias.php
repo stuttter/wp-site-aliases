@@ -168,7 +168,7 @@ class WP_Site_Alias {
 
 		$where        = array( 'id' => $this->get_id() );
 		$where_format = array( '%d' );
-		$result       = $wpdb->update( $wpdb->site_aliases, $fields, $where, $formats, $where_format );
+		$result       = $wpdb->update( $wpdb->blog_aliases, $fields, $where, $formats, $where_format );
 
 		if ( empty( $result ) && ! empty( $wpdb->last_error ) ) {
 			return new WP_Error( 'wp_site_aliases_alias_update_failed' );
@@ -208,7 +208,7 @@ class WP_Site_Alias {
 
 		$where        = array( 'id' => $this->get_id() );
 		$where_format = array( '%d' );
-		$result       = $wpdb->delete( $wpdb->site_aliases, $where, $where_format );
+		$result       = $wpdb->delete( $wpdb->blog_aliases, $where, $where_format );
 
 		if ( empty( $result ) ) {
 			return new WP_Error( 'wp_site_aliases_alias_delete_failed' );
@@ -278,7 +278,7 @@ class WP_Site_Alias {
 
 		// Suppress errors in case the table doesn't exist
 		$suppress = $wpdb->suppress_errors();
-		$alias  = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->site_aliases} WHERE id = %d", $alias ) );
+		$alias  = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE id = %d", $alias ) );
 
 		$wpdb->suppress_errors( $suppress );
 
@@ -320,7 +320,7 @@ class WP_Site_Alias {
 		// Cache missed, fetch from DB
 		// Suppress errors in case the table doesn't exist
 		$suppress = $wpdb->suppress_errors();
-		$aliases = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->site_aliases . ' WHERE blog_id = %d', $site ) );
+		$aliases = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->blog_aliases . ' WHERE blog_id = %d', $site ) );
 		$wpdb->suppress_errors( $suppress );
 
 		if ( ! $aliases ) {
@@ -365,7 +365,7 @@ class WP_Site_Alias {
 		$placeholders_in = implode( ',', $placeholders );
 
 		// Prepare the query
-		$query = "SELECT * FROM {$wpdb->site_aliases} WHERE domain IN ($placeholders_in) ORDER BY CHAR_LENGTH(domain) DESC LIMIT 1";
+		$query = "SELECT * FROM {$wpdb->blog_aliases} WHERE domain IN ($placeholders_in) ORDER BY CHAR_LENGTH(domain) DESC LIMIT 1";
 		$query = $wpdb->prepare( $query, $domains );
 
 		// Suppress errors in case the table doesn't exist
@@ -435,7 +435,7 @@ class WP_Site_Alias {
 		$prev_errors = ! empty( $GLOBALS['EZSQL_ERROR'] ) ? $GLOBALS['EZSQL_ERROR'] : array();
 		$suppress    = $wpdb->suppress_errors( true );
 		$result      = $wpdb->insert(
-			$wpdb->site_aliases,
+			$wpdb->blog_aliases,
 			array(
 				'blog_id' => $site,
 				'domain'  => $domain,

@@ -79,7 +79,7 @@ final class WP_Site_Aliases_DB {
 	 * @since 0.1.0
 	 */
 	public function add_table_to_db_object() {
-		$this->db->site_aliases       = "{$this->db->prefix}blog_aliases";
+		$this->db->blog_aliases       = "{$this->db->prefix}blog_aliases";
 		$this->db->ms_global_tables[] = "blog_aliases";
 	}
 
@@ -168,7 +168,7 @@ final class WP_Site_Aliases_DB {
 		}
 
 		dbDelta( array(
-			"CREATE TABLE {$this->db->site_aliases} (
+			"CREATE TABLE {$this->db->blog_aliases} (
 				id bigint(20) NOT NULL auto_increment,
 				blog_id bigint(20) NOT NULL,
 				domain varchar(255) NOT NULL,
@@ -200,7 +200,7 @@ final class WP_Site_Aliases_DB {
 		$this->add_table_to_db_object();
 
 		// Query the DB for metad ID's to delete
-		$query     = "SELECT id FROM {$this->db->site_aliases} WHERE blog_id = %d";
+		$query     = "SELECT id FROM {$this->db->blog_aliases} WHERE blog_id = %d";
 		$prepared  = $this->db->prepare( $query, $site_id );
 		$alias_ids = $this->db->get_col( $prepared );
 
@@ -211,7 +211,7 @@ final class WP_Site_Aliases_DB {
 
 		// Loop through and delete all meta by ID
 		foreach ( $alias_ids as $id ) {
-			$result = (bool) $this->db->delete( $this->db->site_aliases, array( $id => $site_id ) );
+			$result = (bool) $this->db->delete( $this->db->blog_aliases, array( $id => $site_id ) );
 
 			// Clear the caches.
 			wp_cache_delete($object_id, $meta_type . '_meta');
