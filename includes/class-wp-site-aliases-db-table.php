@@ -79,7 +79,7 @@ final class WP_Site_Aliases_DB {
 	 * @since 0.1.0
 	 */
 	public function add_table_to_db_object() {
-		$this->db->blog_aliases       = "{$this->db->prefix}blog_aliases";
+		$this->db->blog_aliases       = "{$this->db->base_prefix}blog_aliases";
 		$this->db->ms_global_tables[] = "blog_aliases";
 	}
 
