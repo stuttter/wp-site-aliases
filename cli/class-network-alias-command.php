@@ -16,20 +16,23 @@ class WP_Site_Alias_Network_Command extends WP_CLI_Command {
 	 * @param array $options
 	 */
 	protected function display( $aliases, $options ) {
-		$defaults = array(
+
+		$options = wp_parse_args( $options, array(
 			'format' => 'table',
-			'fields' => array( 'id', 'domain', 'network', 'active' ),
-		);
-		$options = wp_parse_args( $options, $defaults );
+			'fields' => array( 'id', 'domain', 'network', 'status' ),
+		) );
 
 		$mapper = function ( WP_Site_Alias_Network $alias ) {
 			return array(
-				'id'      => (int) $alias->get_id(),
+				'id'      => $alias->get_id(),
 				'domain'  => $alias->get_domain(),
-				'network' => (int) $alias->get_network_id(),
-				'active'  => $alias->is_active() ? __( 'Active', 'wp-site-aliases' ) : __( 'Inactive', 'wp-site-aliases' ),
+				'network' => $alias->get_network_id(),
+				'status'  => ( 'active' === $alias->get_status() )
+					? __( 'Active',   'wp-site-aliases' )
+					: __( 'Inactive', 'wp-site-aliases' ),
 			);
 		};
+
 		$display_items = Utils\iterator_map( $aliases, $mapper );
 
 		$formatter = new Formatter( $options );
@@ -48,7 +51,9 @@ class WP_Site_Alias_Network_Command extends WP_CLI_Command {
 	 * @subcommand list
 	 */
 	public function list_( $args, $assoc_args ) {
-		$id = empty( $args[0] ) ? get_current_site()->id : absint( $args[0] );
+		$id = empty( $args[0] )
+			? get_current_site()->id
+			: absint( $args[0] );
 
 		$aliases = WP_Site_Alias_Network::get_by_network( $id );
 
@@ -82,6 +87,7 @@ class WP_Site_Alias_Network_Command extends WP_CLI_Command {
 		}
 
 		$aliases = array( $alias );
+
 		$this->display( $aliases, $assoc_args );
 	}
 
@@ -105,6 +111,7 @@ class WP_Site_Alias_Network_Command extends WP_CLI_Command {
 		}
 
 		$result = $alias->delete();
+
 		if ( empty( $result ) || is_wp_error( $result ) ) {
 			return WP_CLI::error( __( 'Could not delete alias', 'wp-site-aliases' ) );
 		}

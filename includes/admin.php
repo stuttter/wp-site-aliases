@@ -199,7 +199,7 @@ function wp_site_aliases_handle_list_page_submit( $id, $action ) {
 					continue;
 				}
 
-				if ( $alias->set_active( true ) ) {
+				if ( $alias->set_status( 'active' ) ) {
 					$processed++;
 				}
 			}
@@ -213,7 +213,7 @@ function wp_site_aliases_handle_list_page_submit( $id, $action ) {
 					continue;
 				}
 
-				if ( $alias->set_active( false ) ) {
+				if ( $alias->set_status( 'inactive' ) ) {
 					$processed++;
 				}
 			}
@@ -355,21 +355,21 @@ function wp_site_aliases_output_list_page() {
 					<h2><?php esc_html_e( 'Add New Alias', 'wp-site-aliases' ); ?></h2>
 					<form method="post" action="<?php echo esc_url( add_query_arg( array( 'action' => 'site_alias_add' ), network_admin_url( 'admin.php' ) ) ); ?>">
 						<div class="form-field form-required domain-wrap">
-							<label for="blog_alias"><?php echo esc_html_x( 'Domain Name', 'field name', 'wp-site-aliases' ) ?></label>
+							<label for="blog_alias"><?php echo esc_html_x( 'Domain Name', 'field name', 'wp-site-aliases' ); ?></label>
 							<input type="text" class="regular-text code" name="domain" id="blog_alias" value="" />
 							<p><?php esc_html_e( 'The fully qualified domain name that this site should load for.', 'wp-site-aliases' ); ?></p>
 						</div>
-						<div class="form-field form-required active-wrap">
-							<label for="active"><?php echo esc_html_x( 'Status', 'field name', 'wp-site-aliases' ) ?></label>
+						<div class="form-field form-required status-wrap">
+							<label for="status"><?php echo esc_html_x( 'Status', 'field name', 'wp-site-aliases' ); ?></label>
 							<label>
-								<input type="checkbox" name="active" <?php checked( true ); ?> />
+								<input type="checkbox" name="status" <?php checked( true ); ?> />
 
 								<?php esc_html_e( 'Active', 'wp-site-aliases' ); ?>
 							</label>
 							<p><?php esc_html_e( 'Whether this domain is active and ready to accept requests.', 'wp-site-aliases' ); ?></p>
 						</div>
 
-						<input type="hidden" name="id" value="<?php echo esc_attr( $id ) ?>" />
+						<input type="hidden" name="id" value="<?php echo esc_attr( $id ); ?>" />
 						<?php
 
 						wp_nonce_field( 'site_alias_add-' . $id );
@@ -433,8 +433,10 @@ function wp_site_aliases_validate_alias_parameters( $params, $check_permission =
 		}
 	}
 
-	// Validate active flag
-	$valid['active'] = empty( $params['active'] ) ? false : true;
+	// Validate status
+	$valid['status'] = empty( $params['status'] )
+		? 'inactive'
+		: 'active';
 
 	return $valid;
 }
@@ -459,6 +461,7 @@ function wp_site_aliases_handle_edit_page_submit( $id, $alias ) {
 
 	// Check that the parameters are correct first
 	$params = wp_site_aliases_validate_alias_parameters( wp_unslash( $_POST ) );
+
 	if ( is_wp_error( $params ) ) {
 		$messages[] = $params->get_error_message();
 
@@ -471,7 +474,7 @@ function wp_site_aliases_handle_edit_page_submit( $id, $alias ) {
 
 	// Create the actual alias
 	if ( empty( $alias ) ) {
-		$alias = WP_Site_Alias::create( $params['site'], $params['domain'], $params['active'] );
+		$alias = WP_Site_Alias::create( $params['site'], $params['domain'], $params['status'] );
 
 		// Set result as an error for later
 		if ( is_wp_error( $alias ) ) {
@@ -555,7 +558,7 @@ function wp_site_aliases_output_edit_page() {
 		$active = ! empty( $_POST['active'] );
 	} else {
 		$domain = $alias->get_domain();
-		$active = $alias->is_active();
+		$active = ( 'status' === $alias->get_status() );
 	} ?>
 
 	<form method="post" action="<?php echo esc_url( $form_action ) ?>">
@@ -574,7 +577,7 @@ function wp_site_aliases_output_edit_page() {
 				</th>
 				<td>
 					<label>
-						<input type="checkbox" name="active" <?php checked( $active ) ?> />
+						<input type="checkbox" name="status" <?php checked( $active ) ?> />
 
 						<?php esc_html_e( 'Active', 'wp-site-aliases' ); ?>
 					</label>

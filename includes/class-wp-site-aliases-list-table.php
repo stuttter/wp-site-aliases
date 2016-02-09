@@ -16,6 +16,8 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 
 	/**
 	 * Prepare items for the list table
+	 *
+	 * @since 0.1.0
 	 */
 	public function prepare_items() {
 		$this->items = array();
@@ -35,13 +37,15 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get columns for the table
 	 *
+	 * @since 0.1.0
+	 *
 	 * @return array Map of column ID => title
 	 */
 	public function get_columns() {
 		return array(
 			'cb'     => '<input type="checkbox" />',
 			'domain' => _x( 'Domain', 'wp-site-aliases' ),
-			'active' => _x( 'Status', 'wp-site-aliases' ),
+			'status' => _x( 'Status', 'wp-site-aliases' ),
 		);
 	}
 
@@ -65,7 +69,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Display the bulk actions dropdown.
 	 *
-	 * @since 3.1.0
+	 * @since 0.1.0
 	 * @access protected
 	 *
 	 * @param string $which The location of the bulk actions: 'top' or 'bottom'.
@@ -117,8 +121,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get the current action selected from the bulk actions dropdown.
 	 *
-	 * @since 3.1.0
-	 * @access public
+	 * @since 0.1.0
 	 *
 	 * @return string|bool The action name or False if no action was selected
 	 */
@@ -138,6 +141,9 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get cell value for the checkbox column
 	 *
+	 * @since 0.1.0
+	 * @access protected
+	 *
 	 * @param Alias $alias Current alias item
 	 * @return string HTML for the cell
 	 */
@@ -151,6 +157,9 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get cell value for the domain column
 	 *
+	 * @since 0.1.0
+	 * @access protected
+	 *
 	 * @param Alias $alias Current alias item
 	 * @return string HTML for the cell
 	 */
@@ -158,6 +167,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 
 		// Strip www.
 		$domain = $alias->get_domain();
+		$status = $alias->get_status();
 
 		// Setup default args
 		$args = array(
@@ -167,12 +177,12 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 			'_wpnonce' => wp_create_nonce( 'site_aliases-bulk-' . $this->_args['site_id'] )
 		);
 
-		if ( false === $alias->is_active() ) {
-			$text   = __( 'Activate', 'wp-site-aliases' );
-			$action = 'activate';
-		} else {
+		if ( 'active' === $status ) {
 			$text   = __( 'Deactivate', 'wp-site-aliases' );
 			$action = 'deactivate';
+		} else {
+			$text   = __( 'Activate', 'wp-site-aliases' );
+			$action = 'activate';
 		}
 
 		$args['bulk_action'] = $action;
@@ -195,7 +205,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 
 		$actions = array(
 			'edit'   => sprintf( '<a href="%s">%s</a>', esc_url( $edit_link ), esc_html__( 'Edit', 'wp-site-aliases' ) ),
-			$action  => sprintf( '<a href="%s">%s</a>', esc_url( $link ), esc_html( $text ) ),
+			$action  => sprintf( '<a href="%s">%s</a>', esc_url( $link ),      esc_html( $text ) ),
 			'delete' => sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $delete_link ), esc_html__( 'Delete', 'wp-site-aliases' ) ),
 		);
 
@@ -205,13 +215,16 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Get cell value for the active column
+	 * Get value for the status column
+	 *
+	 * @since 0.1.0
+	 * @access protected
 	 *
 	 * @param Alias $alias Current alias item
 	 * @return string HTML for the cell
 	 */
-	protected function column_active( $alias ) {
-		return ( true === $alias->is_active() )
+	protected function column_status( $alias ) {
+		return ( 'active' === $alias->get_status() )
 			? esc_html__( 'Active',   'wp-site-aliases' )
 			: esc_html__( 'Inactive', 'wp-site-aliases' );
 	}

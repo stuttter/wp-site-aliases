@@ -45,9 +45,11 @@ class WP_Site_Alias_Network {
 	/**
 	 * Constructor
 	 *
-	 * @param int $id Alias ID
-	 * @param int $network Network ID
-	 * @param array $data Alias data
+	 * @since 0.1.0
+	 *
+	 * @param  int    $id       Alias ID
+	 * @param  int    $network  Network ID
+	 * @param  array  $data     Alias data
 	 */
 	protected function __construct( $id, $network, $data ) {
 		$this->id      = $id;
@@ -58,6 +60,8 @@ class WP_Site_Alias_Network {
 	/**
 	 * Get alias ID
 	 *
+	 * @since 0.1.0
+	 *
 	 * @return int Alias ID
 	 */
 	public function get_id() {
@@ -65,25 +69,9 @@ class WP_Site_Alias_Network {
 	}
 
 	/**
-	 * Is the alias active?
-	 *
-	 * @return boolean
-	 */
-	public function is_active() {
-		return $this->data->active == 1;
-	}
-
-	/**
-	 * Get network object
-	 *
-	 * @return stdClass|boolean {@see get_blog_details}
-	 */
-	public function get_network() {
-		return wp_get_network( $this->network );
-	}
-
-	/**
 	 * Get network ID
+	 *
+	 * @since 0.1.0
 	 *
 	 * @return int Network ID
 	 */
@@ -94,6 +82,8 @@ class WP_Site_Alias_Network {
 	/**
 	 * Get the domain from the alias
 	 *
+	 * @since 0.1.0
+	 *
 	 * @return string
 	 */
 	public function get_domain() {
@@ -101,33 +91,61 @@ class WP_Site_Alias_Network {
 	}
 
 	/**
-	 * Set whether the alias is active
+	 * Get the alias status
 	 *
-	 * @param bool $active Should the alias be active? (True for active, false for inactive)
+	 * @since 0.1.0
+	 *
+	 * @return boolean
+	 */
+	public function get_status() {
+		return $this->data->status;
+	}
+
+	/**
+	 * Get network object
+	 *
+	 * @since 0.1.0
+	 *
+	 * @return stdClass|boolean {@see get_blog_details}
+	 */
+	public function get_network() {
+		return wp_get_network( $this->network );
+	}
+
+	/**
+	 * Set the status for the the alias
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param bool $status Status should be 'active' or 'inactive'
+	 *
 	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
-	public function set_active( $active ) {
+	public function set_status( $status = 'active' ) {
 		return $this->update( array(
-			'active' => (bool) $active,
+			'status' => $status
 		) );
 	}
 
 	/**
 	 * Set the domain for the alias
 	 *
+	 * @since 0.1.0
+	 *
 	 * @param string $domain Domain name
+	 *
 	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function set_domain( $domain ) {
 		return $this->update( array(
-			'domain' => $domain,
+			'domain' => $domain
 		) );
 	}
 
 	/**
 	 * Update the alias
 	 *
-	 * See also, {@see set_domain} and {@see set_active} as convenience methods.
+	 * See also, {@see set_domain} and {@see set_status} as convenience methods.
 	 *
 	 * @since 0.1.0
 	 *
@@ -141,7 +159,7 @@ class WP_Site_Alias_Network {
 		$data   = (array) $data;
 		$fields = array();
 
-		// Were we given a domain (and is it not the current one)?
+		// Were we given a domain (and is it not the current one?)
 		if ( ! empty( $data['domain'] ) && ( $this->data->domain !== $data['domain'] ) ) {
 
 			// Parse just the domain out
@@ -163,9 +181,9 @@ class WP_Site_Alias_Network {
 			$fields['domain'] = $data['domain'];
 		}
 
-		// Were we given an active flag (and is it not current)?
-		if ( isset( $data['active'] ) && $this->is_active() !== (bool) $data['active'] ) {
-			$fields['active'] = (bool) $data['active'];
+		// Were we given a status (and is it not the current one?)
+		if ( ! empty( $data['status'] ) && ( $this->data->status !== $data['status'] ) ) {
+			$fields['status'] = $data['status'];
 		}
 
 		// Do we have things to update?
@@ -174,7 +192,7 @@ class WP_Site_Alias_Network {
 		}
 
 		$current_data = (array) $this->data;
-		$new_data = (object) array_merge( $current_data, $fields );
+		$new_data     = (object) array_merge( $current_data, $fields );
 		$fields = array(
 			'meta_key'   => static::key_for_domain( $new_data->domain ),
 			'meta_value' => serialize( $new_data ),
@@ -267,7 +285,8 @@ class WP_Site_Alias_Network {
 
 		// Suppress errors in case the table doesn't exist
 		$suppress = $wpdb->suppress_errors();
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->sitemeta . ' WHERE meta_id = %d', $alias ) );
+		$row      = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->sitemeta} WHERE meta_id = %d", $alias ) );
+
 		$wpdb->suppress_errors( $suppress );
 
 		if ( empty( $row ) ) {
@@ -343,7 +362,7 @@ class WP_Site_Alias_Network {
 		foreach ( $domains as $domain ) {
 
 			$key = static::key_for_domain( $domain );
-			$row = wp_cache_get( 'domain:' . $key, 'network_aliases' );
+			$row = wp_cache_get( "domain:{$key}", 'network_aliases' );
 
 			if ( ( false !== $row ) && ( $row !== 'notexists' ) ) {
 				return static::to_instance( $row );
@@ -370,6 +389,7 @@ class WP_Site_Alias_Network {
 		// Suppress errors in case the table doesn't exist
 		$suppress = $wpdb->suppress_errors();
 		$rows     = $wpdb->get_results( $query );
+
 		$wpdb->suppress_errors( $suppress );
 
 		if ( empty( $rows ) ) {
@@ -393,7 +413,7 @@ class WP_Site_Alias_Network {
 	}
 
 	/**
-	 * Get alias by domain, but filter to ensure only active mapped domains are returned
+	 * Get alias by domain, but filter to ensure only active aliases are returned
 	 *
 	 * @since 0.1.0
 	 *
@@ -407,7 +427,7 @@ class WP_Site_Alias_Network {
 		foreach ( $domains as $domain ) {
 			$single_mapped = self::get_by_domain( array( $domain ) );
 
-			if ( ! empty( $single_mapped ) && ! is_wp_error( $single_mapped ) && $single_mapped->is_active() ) {
+			if ( ! empty( $single_mapped ) && ! is_wp_error( $single_mapped ) && ( 'active' === $single_mapped->get_status() ) ) {
 				$mapped[] = $single_mapped;
 			}
 		}
@@ -450,9 +470,9 @@ class WP_Site_Alias_Network {
 	 *
 	 * @return bool
 	 */
-	public static function create( $network, $domain, $active = false ) {
+	public static function create( $network, $domain, $status = 'active' ) {
 		global $wpdb;
-var_dump( 'here' );
+
 		// Allow passing a site object in
 		if ( is_object( $network ) && isset( $network->network_id ) ) {
 			$network = $network->network_id;
@@ -463,7 +483,7 @@ var_dump( 'here' );
 		}
 
 		$network = absint( $network );
-		$active = (bool) $active;
+		$status  = sanitize_key( $status );
 
 		// Parse just the domain out
 		if ( strpos( $domain, '://' ) !== false ) {
@@ -490,22 +510,26 @@ var_dump( 'here' );
 		$key  = static::key_for_domain( $domain );
 		$data = (object) array(
 			'domain' => $domain,
-			'active' => $active,
+			'status' => $status,
 		);
 
 		$result = $wpdb->insert(
 			$wpdb->sitemeta,
-			array( 'site_id' => $network, 'meta_key' => $key, 'meta_value' => serialize( $data ) ),
+			array(
+				'site_id'    => $network,
+				'meta_key'   => $key,
+				'meta_value' => serialize( $data )
+			),
 			array( '%d', '%s', '%s' )
 		);
 
 		if ( empty( $result ) ) {
-			return static::create( $network, $domain, $active );
+			return static::create( $network, $domain, $status );
 		}
 
 		// Ensure the cache is flushed
-		wp_cache_delete( 'id:' . $network, 'network_aliases' );
-		wp_cache_delete( 'domain:' . $key, 'network_aliases' );
+		wp_cache_delete( "id:{$network}", 'network_aliases' );
+		wp_cache_delete( "domain:{$key}", 'network_aliases' );
 
 		return static::get( $wpdb->insert_id );
 	}

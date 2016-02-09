@@ -58,14 +58,14 @@ class WP_Site_Alias {
 	}
 
 	/**
-	 * Is the alias active?
+	 * Get the alias status
 	 *
 	 * @since 0.1.0
 	 *
 	 * @return boolean
 	 */
-	public function is_active() {
-		return (bool) ( 1 === (int) $this->data->active );
+	public function get_status() {
+		return $this->data->status;
 	}
 
 	/**
@@ -91,17 +91,17 @@ class WP_Site_Alias {
 	}
 
 	/**
-	 * Set whether the alias is active
+	 * Set the status for the alias
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  bool $active Should the alias be active? (True for active, false for inactive)
+	 * @param  bool $status Status should be 'active' or 'inactive'
 	 *
 	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
-	public function set_active( $active = false ) {
+	public function set_status( $status = 'active' ) {
 		return $this->update( array(
-			'active' => (bool) $active,
+			'status' => $status,
 		) );
 	}
 
@@ -111,6 +111,7 @@ class WP_Site_Alias {
 	 * @since 0.1.0
 	 *
 	 * @param string $domain Domain name
+	 *
 	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function set_domain( $domain ) {
@@ -122,7 +123,7 @@ class WP_Site_Alias {
 	/**
 	 * Update the alias
 	 *
-	 * See also, {@see set_domain} and {@see set_active} as convenience methods.
+	 * See also, {@see set_domain} and {@see set_status} as convenience methods.
 	 *
 	 * @since 0.1.0
 	 *
@@ -136,7 +137,7 @@ class WP_Site_Alias {
 		$fields  = array();
 		$formats = array();
 
-		// Were we given a domain (and is it not the current one)?
+		// Were we given a domain (and is it not the current one?)
 		if ( ! empty( $data['domain'] ) && ( $this->data->domain !== $data['domain'] ) ) {
 
 			// Does this domain exist already?
@@ -155,10 +156,10 @@ class WP_Site_Alias {
 			$formats[]        = '%s';
 		}
 
-		// Were we given an active flag (and is it not current)?
-		if ( isset( $data['active'] ) && ( $this->is_active() !== (bool) $data['active'] ) ) {
-			$fields['active'] = (bool) $data['active'];
-			$formats[]        = '%d';
+		// Were we given a status (and is it not the current one?)
+		if ( ! empty( $data['status'] ) && ( $this->data->status !== $data['status'] ) ) {
+			$fields['status'] = sanitize_key( $data['status'] );
+			$formats[]        = '%s';
 		}
 
 		// Do we have things to update?
@@ -394,7 +395,7 @@ class WP_Site_Alias {
 	 * @param $site Site ID, or site object from {@see get_blog_details}
 	 * @return Alias|WP_Error
 	 */
-	public static function create( $site, $domain, $active = false ) {
+	public static function create( $site, $domain, $status ) {
 		global $wpdb;
 
 		// Allow passing a site object in
@@ -407,7 +408,7 @@ class WP_Site_Alias {
 		}
 
 		$site   = absint( $site );
-		$active = (bool) $active;
+		$status = sanitize_key( $status );
 
 		// Did we get a full URL?
 		if ( strpos( $domain, '://' ) !== false ) {
@@ -439,7 +440,8 @@ class WP_Site_Alias {
 			array(
 				'blog_id' => $site,
 				'domain'  => $domain,
-				'active'  => $active
+				'created' => current_time( 'mysql' ),
+				'status'  => $status
 			),
 			array( '%d', '%s', '%d' )
 		);
@@ -459,8 +461,8 @@ class WP_Site_Alias {
 		}
 
 		// Ensure the cache is flushed
-		wp_cache_delete( 'id:' . $site, 'site_aliases' );
-		wp_cache_delete( 'domain:' . $domain, 'site_aliases' );
+		wp_cache_delete( "id:{$site}",       'site_aliases' );
+		wp_cache_delete( "domain:{$domain}", 'site_aliases' );
 
 		$alias = static::get( $wpdb->insert_id );
 

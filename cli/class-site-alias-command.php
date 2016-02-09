@@ -17,24 +17,28 @@ class Alias_Command extends WP_CLI_Command {
 	 * @param array $options
 	 */
 	protected function display( $aliases, $options ) {
-		$defaults = array(
+
+		$options = wp_parse_args( $options, array(
 			'format' => 'table',
-			'fields' => array( 'id', 'domain', 'site', 'active' ),
-		);
-		$options = wp_parse_args( $options, $defaults );
+			'fields' => array( 'id', 'domain', 'site', 'created', 'status' ),
+		) );
 
 		$mapper = function ( Alias $alias ) {
 			return array(
-				'id'     => (int) $alias->get_id(),
-				'domain' => $alias->get_domain(),
-				'site'   => (int) $alias->get_site_id(),
-				'active' => $alias->is_active() ? __( 'Active', 'wp-site-aliases' ) : __( 'Inactive', 'wp-site-aliases' ),
+				'id'      => $alias->get_id(),
+				'domain'  => $alias->get_domain(),
+				'site'    => $alias->get_site_id(),
+				'created' => $alias->get_created(),
+				'status'  => ( 'active' === $alias->get_status() )
+					? __( 'Active',   'wp-site-aliases' )
+					: __( 'Inactive', 'wp-site-aliases' )
 			);
 		};
 
 		$display_items = Utils\iterator_map( $aliases, $mapper );
 
 		$formatter = new Formatter( $options );
+
 		$formatter->display_items( $display_items );
 	}
 
@@ -50,7 +54,9 @@ class Alias_Command extends WP_CLI_Command {
 	 * @subcommand list
 	 */
 	public function list_( $args, $assoc_args ) {
-		$id = empty( $args[0] ) ? get_current_blog_id() : absint( $args[0] );
+		$id = empty( $args[0] )
+			? get_current_blog_id()
+			: absint( $args[0] );
 
 		$aliases = WP_Site_Alias::get_by_site( $id );
 
@@ -84,6 +90,7 @@ class Alias_Command extends WP_CLI_Command {
 		}
 
 		$aliases = array( $alias );
+
 		$this->display( $aliases, $assoc_args );
 	}
 
@@ -107,6 +114,7 @@ class Alias_Command extends WP_CLI_Command {
 		}
 
 		$result = $alias->delete();
+
 		if ( empty( $result ) || is_wp_error( $result ) ) {
 			return WP_CLI::error( __( 'Could not delete alias', 'wp-site-aliases' ) );
 		}
