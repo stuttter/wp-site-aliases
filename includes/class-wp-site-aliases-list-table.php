@@ -43,9 +43,10 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 */
 	public function get_columns() {
 		return array(
-			'cb'     => '<input type="checkbox" />',
-			'domain' => _x( 'Domain', 'wp-site-aliases' ),
-			'status' => _x( 'Status', 'wp-site-aliases' ),
+			'cb'      => '<input type="checkbox" />',
+			'domain'  => _x( 'Domain',  'wp-site-aliases' ),
+			'status'  => _x( 'Status',  'wp-site-aliases' ),
+			'created' => _x( 'Created', 'wp-site-aliases' )
 		);
 	}
 
@@ -227,5 +228,20 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		return ( 'active' === $alias->get_status() )
 			? esc_html__( 'Active',   'wp-site-aliases' )
 			: esc_html__( 'Inactive', 'wp-site-aliases' );
+	}
+
+	/**
+	 * Get value for the status column
+	 *
+	 * @since 0.1.0
+	 * @access protected
+	 *
+	 * @param Alias $alias Current alias item
+	 *
+	 * @return string HTML for the cell
+	 */
+	protected function column_created( $alias ) {
+		return mysql2date( get_option( 'date_format' ), $alias->get_created() ) . '<br>' .
+			   mysql2date( get_option( 'time_format' ), $alias->get_created() );
 	}
 }

@@ -187,7 +187,7 @@ function wp_site_aliases_handle_list_page_submit( $id, $action ) {
 	$processed = 0;
 	$args = array(
 		'did_action' => $action,
-		'aliases'    => join( ',', $aliases ),
+		'aliases'    => join( ',', $aliases )
 	);
 
 	switch ( $action ) {

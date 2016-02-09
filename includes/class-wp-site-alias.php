@@ -58,17 +58,6 @@ class WP_Site_Alias {
 	}
 
 	/**
-	 * Get the alias status
-	 *
-	 * @since 0.1.0
-	 *
-	 * @return boolean
-	 */
-	public function get_status() {
-		return $this->data->status;
-	}
-
-	/**
 	 * Get site ID
 	 *
 	 * @since 0.1.0
@@ -88,6 +77,28 @@ class WP_Site_Alias {
 	 */
 	public function get_domain() {
 		return maybe_strip_www( $this->data->domain );
+	}
+
+	/**
+	 * Get the alias created date
+	 *
+	 * @since 0.1.0
+	 *
+	 * @return boolean
+	 */
+	public function get_created() {
+		return $this->data->created;
+	}
+
+	/**
+	 * Get the alias status
+	 *
+	 * @since 0.1.0
+	 *
+	 * @return boolean
+	 */
+	public function get_status() {
+		return $this->data->status;
 	}
 
 	/**
@@ -128,6 +139,7 @@ class WP_Site_Alias {
 	 * @since 0.1.0
 	 *
 	 * @param array|stdClass $data Alias fields (associative array or object properties)
+	 *
 	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function update( $data = array() ) {
@@ -167,7 +179,8 @@ class WP_Site_Alias {
 			return false;
 		}
 
-		$where        = array( 'id' => $this->get_id() );
+		$id           = $this->get_id();
+		$where        = array( 'id' => $id );
 		$where_format = array( '%d' );
 		$result       = $wpdb->update( $wpdb->blog_aliases, $fields, $where, $formats, $where_format );
 
@@ -182,9 +195,13 @@ class WP_Site_Alias {
 			$this->data->{$key} = $val;
 		}
 
-		// Update the cache
-		wp_cache_delete( 'id:' . $this->get_site_id(), 'site_aliases' );
-		wp_cache_set( 'domain:' . $this->get_domain(), $this->data, 'site_aliases' );
+		$domain = $this->get_domain();
+
+		// Delete the ID cache
+		wp_cache_delete( "id:{$id}", 'site_aliases' );
+
+		// Update the domain cache
+		wp_cache_set( "domain:{$domain}", $this->data, 'site_aliases' );
 
 		/**
 		 * Fires after a alias has been updated.
@@ -267,7 +284,7 @@ class WP_Site_Alias {
 		global $wpdb;
 
 		// Allow passing a site object in
-		if ( $alias instanceof Alias ) {
+		if ( $alias instanceof WP_Site_Alias ) {
 			return $alias;
 		}
 
@@ -279,7 +296,7 @@ class WP_Site_Alias {
 
 		// Suppress errors in case the table doesn't exist
 		$suppress = $wpdb->suppress_errors();
-		$alias  = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE id = %d", $alias ) );
+		$alias    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE id = %d", $alias ) );
 
 		$wpdb->suppress_errors( $suppress );
 
@@ -296,9 +313,10 @@ class WP_Site_Alias {
 	 * @since 0.1.0
 	 *
 	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
+	 *
 	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
-	public static function get_by_site( $site ) {
+	public static function get_by_site( $site = null ) {
 		global $wpdb;
 
 		// Allow passing a site object in
@@ -313,22 +331,24 @@ class WP_Site_Alias {
 		$site = absint( $site );
 
 		// Check cache first
-		$aliases = wp_cache_get( 'id:' . $site, 'site_aliases' );
-		if ( ! empty( $aliases ) ) {
+		$aliases = wp_cache_get( "id:{$site}", 'site_aliases' );
+		if ( false !== $aliases ) {
 			return static::to_instances( $aliases );
 		}
 
 		// Cache missed, fetch from DB
 		// Suppress errors in case the table doesn't exist
 		$suppress = $wpdb->suppress_errors();
-		$aliases = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->blog_aliases . ' WHERE blog_id = %d', $site ) );
+		$aliases  = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE blog_id = %d", $site ) );
+
 		$wpdb->suppress_errors( $suppress );
 
-		if ( ! $aliases ) {
+		if ( empty( $aliases ) ) {
 			return null;
 		}
 
-		wp_cache_set( 'id:' . $site, $aliases, 'site_aliases' );
+		wp_cache_set( "id:{$site}", $aliases, 'site_aliases' );
+
 		return static::to_instances( $aliases );
 	}
 
@@ -340,7 +360,7 @@ class WP_Site_Alias {
 	 * @param string|array $domains Domain(s) to match against
 	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
-	public static function get_by_domain( $domains ) {
+	public static function get_by_domain( $domains = array() ) {
 		global $wpdb;
 
 		$domains = (array) $domains;
@@ -348,21 +368,21 @@ class WP_Site_Alias {
 		// Check cache first
 		$not_exists = 0;
 		foreach ( $domains as $domain ) {
-			$data = wp_cache_get( 'domain:' . $domain, 'site_aliases' );
-			if ( ! empty( $data ) && $data !== 'notexists' ) {
+			$data = wp_cache_get( "domain:{$domain}", 'site_aliases' );
+
+			if ( ! empty( $data ) && ( 'notexists' !== $data ) ) {
 				return new static( $data );
-			}
-			elseif ( $data === 'notexists' ) {
+			} elseif ( 'notexists' === $data ) {
 				$not_exists++;
 			}
 		}
+
+		// Every domain was found in the cache, but doesn't exist
 		if ( $not_exists === count( $domains ) ) {
-			// Every domain we checked was found in the cache, but doesn't exist
-			// so skip the query
 			return null;
 		}
 
-		$placeholders = array_fill( 0, count( $domains ), '%s' );
+		$placeholders    = array_fill( 0, count( $domains ), '%s' );
 		$placeholders_in = implode( ',', $placeholders );
 
 		// Prepare the query
@@ -371,20 +391,20 @@ class WP_Site_Alias {
 
 		// Suppress errors in case the table doesn't exist
 		$suppress = $wpdb->suppress_errors();
-		$alias  = $wpdb->get_row( $query );
+		$alias    = $wpdb->get_row( $query );
 
 		$wpdb->suppress_errors( $suppress );
 
 		// Cache that it doesn't exist
 		if ( empty( $alias ) ) {
 			foreach ( $domains as $domain ) {
-				wp_cache_set( 'domain:' . $domain, 'notexists', 'site_aliases' );
+				wp_cache_set( "domain:{$domain}", 'notexists', 'site_aliases' );
 			}
 
 			return null;
 		}
 
-		wp_cache_set( 'domain:' . $alias->domain, $alias, 'site_aliases' );
+		wp_cache_set( "domain:{$alias->domain}", $alias, 'site_aliases' );
 
 		return new static( $alias );
 	}
@@ -452,6 +472,7 @@ class WP_Site_Alias {
 		// we handle that now.
 		if ( empty( $result ) ) {
 			$recent_errors = array_diff_key( $GLOBALS['EZSQL_ERROR'], $prev_errors );
+
 			while ( count( $recent_errors ) > 0 ) {
 				$error = array_shift( $recent_errors );
 				$wpdb->print_error( $error['error_str'] );

@@ -29,11 +29,11 @@ class WP_Site_Alias_Network {
 	protected $id;
 
 	/**
-	 * Site ID
+	 * Network ID
 	 *
 	 * @var int
 	 */
-	protected $network;
+	protected $network_id;
 
 	/**
 	 * Alias data
@@ -47,14 +47,14 @@ class WP_Site_Alias_Network {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param  int    $id       Alias ID
-	 * @param  int    $network  Network ID
-	 * @param  array  $data     Alias data
+	 * @param  int    $id          Alias ID
+	 * @param  int    $network_id  Network ID
+	 * @param  array  $data        Alias data
 	 */
-	protected function __construct( $id, $network, $data ) {
-		$this->id      = $id;
-		$this->network = $network;
-		$this->data    = (object) $data;
+	protected function __construct( $id, $network_id, $data ) {
+		$this->id         = $id;
+		$this->network_id = $network_id;
+		$this->data       = (object) $data;
 	}
 
 	/**
@@ -76,7 +76,7 @@ class WP_Site_Alias_Network {
 	 * @return int Network ID
 	 */
 	public function get_network_id() {
-		return $this->network;
+		return $this->network_id;
 	}
 
 	/**
@@ -109,7 +109,7 @@ class WP_Site_Alias_Network {
 	 * @return stdClass|boolean {@see get_blog_details}
 	 */
 	public function get_network() {
-		return wp_get_network( $this->network );
+		return wp_get_network( $this->network_id );
 	}
 
 	/**
@@ -220,6 +220,8 @@ class WP_Site_Alias_Network {
 	/**
 	 * Delete the alias
 	 *
+	 * @since 0.1.0
+	 *
 	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
 	public function delete() {
@@ -245,7 +247,10 @@ class WP_Site_Alias_Network {
 	 *
 	 * Allows use as a callback, such as in `array_map`
 	 *
+	 * @since 0.1.0
+	 *
 	 * @param stdClass $row Raw alias row
+	 *
 	 * @return Alias
 	 */
 	protected static function to_instance( $row ) {
@@ -256,7 +261,10 @@ class WP_Site_Alias_Network {
 	/**
 	 * Convert list of data to Alias instances
 	 *
+	 * @since 0.1.0
+	 *
 	 * @param stdClass[] $rows Raw alias rows
+	 *
 	 * @return Alias[]
 	 */
 	protected static function to_instances( $rows ) {
@@ -266,14 +274,17 @@ class WP_Site_Alias_Network {
 	/**
 	 * Get alias by alias ID
 	 *
+	 * @since 0.1.0
+	 *
 	 * @param int|Alias $alias Alias ID or instance
+	 *
 	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get( $alias ) {
 		global $wpdb;
 
 		// Allow passing a site object in
-		if ( $alias instanceof Alias ) {
+		if ( $alias instanceof WP_Site_Alias_Network ) {
 			return $alias;
 		}
 
@@ -304,7 +315,10 @@ class WP_Site_Alias_Network {
 	/**
 	 * Get alias by network ID
 	 *
+	 * @since 0.1.0
+	 *
 	 * @param int|stdClass $network Network ID, or network object from {@see wp_get_network}
+	 *
 	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get_by_network( $network ) {
@@ -322,22 +336,24 @@ class WP_Site_Alias_Network {
 		$network = absint( $network );
 
 		// Check cache first
-		$aliases = wp_cache_get( 'id:' . $network, 'network_aliases' );
-		if ( ! empty( $aliases ) ) {
+		$aliases = wp_cache_get( "id:{$network}", 'network_aliases' );
+
+		if ( false !== $aliases ) {
 			return static::to_instances( $aliases );
 		}
 
 		// Cache missed, fetch from DB
 		// Suppress errors in case the table doesn't exist
 		$suppress = $wpdb->suppress_errors();
-		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->sitemeta . ' WHERE site_id = %d AND meta_key LIKE "' . static::KEY_PREFIX . '%%"', $network ) );
+		$rows     = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM ' . $wpdb->sitemeta . ' WHERE site_id = %d AND meta_key LIKE "' . static::KEY_PREFIX . '%%"', $network ) );
+
 		$wpdb->suppress_errors( $suppress );
 
 		if ( empty( $rows ) ) {
 			return null;
 		}
 
-		wp_cache_set( 'id:' . $network, $rows, 'network_aliases' );
+		wp_cache_set( "id:{$network}", $rows, 'network_aliases' );
 
 		return static::to_instances( $rows );
 	}
