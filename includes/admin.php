@@ -78,6 +78,11 @@ function wp_site_aliases_output_site_list_column( $column, $site_id ) {
  */
 function wp_site_aliases_maybe_output_site_tab() {
 
+	// Bail for WordPress 4.6 - uses wp_site_aliases_add_site_tab()
+	if ( function_exists( 'network_edit_site_tabs' ) ) {
+		return;
+	}
+
 	// Bail if not in network admin
 	if ( ! is_network_admin() ) {
 		return;
@@ -105,6 +110,27 @@ function wp_site_aliases_maybe_output_site_tab() {
 	<script>jQuery( function wp_site_aliases( $ ) { $( '#wp-site-aliases-nav-link' ).appendTo( $( '.nav-tab-wrapper' ) ); } );</script>
 
 <?php
+}
+
+/**
+ * Add tab to end of tabs array
+ *
+ * @since 0.1.0
+ *
+ * @param array $tabs
+ * @return array
+ */
+function wp_site_aliases_add_site_tab( $tabs = array() ) {
+
+	// "Aliases" tab
+	$tabs['site-aliases'] = array(
+		'label' => __( 'Aliases', 'wp-site-aliases' ),
+		'url'   => add_query_arg( array( 'action' => 'site-aliases' ), network_admin_url( 'admin.php' ) ),
+		'cap'   => 'manage_site_aliases'
+	);
+
+	// Return tabs
+	return $tabs;
 }
 
 /**
