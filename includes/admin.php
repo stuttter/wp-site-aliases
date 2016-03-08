@@ -57,15 +57,15 @@ function wp_site_aliases_add_menu_item() {
 
 	// Network admin page
 	if ( is_network_admin() ) {
-		$hooks[] = add_submenu_page( 'sites.php', esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_aliases', 'site_aliases',    'wp_site_aliases_output_list_page' );
-		$hooks[] = add_submenu_page( 'sites.php', esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_aliases', 'site_alias_edit', 'wp_site_aliases_output_edit_page' );
+		$hooks[] = add_submenu_page( 'sites.php', esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_site_aliases', 'site_aliases',    'wp_site_aliases_output_list_page' );
+		$hooks[] = add_submenu_page( 'sites.php', esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'edit_site_aliases',   'site_alias_edit', 'wp_site_aliases_output_edit_page' );
 		remove_submenu_page( 'sites.php', 'site_aliases'    );
 		remove_submenu_page( 'sites.php', 'site_alias_edit' );
 
 	// Blog admin page
 	} elseif ( is_blog_admin() ) {
 		$hooks[] = add_dashboard_page( esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_aliases', 'site_aliases',    'wp_site_aliases_output_list_page' );
-		$hooks[] = add_dashboard_page( esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_aliases', 'site_alias_edit', 'wp_site_aliases_output_edit_page' );
+		$hooks[] = add_dashboard_page( esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'edit_aliases',   'site_alias_edit', 'wp_site_aliases_output_edit_page' );
 		remove_submenu_page( 'index.php', 'site_alias_edit' );
 	}
 

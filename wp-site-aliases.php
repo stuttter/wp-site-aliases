@@ -35,6 +35,7 @@ require_once $plugin_path . 'includes/class-wp-site-aliases-db-table.php';
 
 // Required Files
 require_once $plugin_path . 'includes/admin.php';
+require_once $plugin_path . 'includes/capabilities.php';
 require_once $plugin_path . 'includes/functions.php';
 require_once $plugin_path . 'includes/hooks.php';
 

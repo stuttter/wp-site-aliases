@@ -12,6 +12,9 @@ defined( 'ABSPATH' ) || exit;
 // Assets
 add_action( 'admin_enqueue_scripts', 'wp_site_aliases_admin_enqueue_scripts' );
 
+// Capabilities
+add_filter( 'map_meta_cap', 'wp_site_aliases_map_meta_cap', 10, 4 );
+
 // Multiple Sites
 add_filter( 'pre_get_site_by_path',    'wp_site_aliases_check_domain_alias',     10, 2 );
 add_filter( 'pre_get_site_by_path',    'wp_site_aliases_check_aliases_for_site', 20, 4 );
