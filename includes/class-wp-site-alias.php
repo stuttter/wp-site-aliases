@@ -277,8 +277,8 @@ class WP_Site_Alias {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param int|Alias $alias Alias ID or instance
-	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
+	 * @param int|WP_Site_Alias $alias Alias ID or instance
+	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get( $alias ) {
 		global $wpdb;
@@ -314,7 +314,7 @@ class WP_Site_Alias {
 	 *
 	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
 	 *
-	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
+	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get_by_site( $site = null ) {
 		global $wpdb;
@@ -358,7 +358,7 @@ class WP_Site_Alias {
 	 * @since 0.1.0
 	 *
 	 * @param string|array $domains Domain(s) to match against
-	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
+	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get_by_domain( $domains = array() ) {
 		global $wpdb;
@@ -413,7 +413,7 @@ class WP_Site_Alias {
 	 * Create a new domain alias
 	 *
 	 * @param $site Site ID, or site object from {@see get_blog_details}
-	 * @return Alias|WP_Error
+	 * @return WP_Site_Alias|WP_Error
 	 */
 	public static function create( $site, $domain, $status ) {
 		global $wpdb;

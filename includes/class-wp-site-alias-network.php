@@ -276,9 +276,9 @@ class WP_Site_Alias_Network {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param int|Alias $alias Alias ID or instance
+	 * @param int|WP_Site_Alias $alias Alias ID or instance
 	 *
-	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
+	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get( $alias ) {
 		global $wpdb;
@@ -319,7 +319,7 @@ class WP_Site_Alias_Network {
 	 *
 	 * @param int|stdClass $network Network ID, or network object from {@see wp_get_network}
 	 *
-	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
+	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get_by_network( $network ) {
 		global $wpdb;
@@ -365,7 +365,7 @@ class WP_Site_Alias_Network {
 	 *
 	 * @param  string|array  $domains  Domain(s) to match against
 	 *
-	 * @return Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
+	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get_by_domain( $domains = array() ) {
 		global $wpdb;
@@ -435,7 +435,7 @@ class WP_Site_Alias_Network {
 	 *
 	 * @param  string|array  $domains  Domain(s) to match against
 	 *
-	 * @return Alias|null Alias on success, or null if no alias found
+	 * @return WP_Site_Alias|null Alias on success, or null if no alias found
 	 */
 	public static function get_active_by_domain( $domains = array() ) {
 		$mapped = array();

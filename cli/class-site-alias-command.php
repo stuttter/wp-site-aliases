@@ -23,7 +23,7 @@ class Alias_Command extends WP_CLI_Command {
 			'fields' => array( 'id', 'domain', 'site', 'created', 'status' ),
 		) );
 
-		$mapper = function ( Alias $alias ) {
+		$mapper = function ( WP_Site_Alias $alias ) {
 			return array(
 				'id'      => $alias->get_id(),
 				'domain'  => $alias->get_domain(),

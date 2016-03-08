@@ -94,8 +94,8 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
 			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );
 			$two = '';
-			echo '<input type="hidden" name="id" value="' . $this->_args['site_id'] . '" />';
-			wp_nonce_field( 'site_aliases-bulk-' . $this->_args['site_id'] );
+			echo '<input type="hidden" name="id" value="' . esc_attr( $this->_args['site_id'] ) . '" />';
+			wp_nonce_field( "site_aliases-bulk-{$this->_args['site_id']}" );
 		} else {
 			$two = '2';
 		}
@@ -145,14 +145,17 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @since 0.1.0
 	 * @access protected
 	 *
-	 * @param Alias $alias Current alias item
+	 * @param WP_Site_Alias $alias Current alias item
 	 * @return string HTML for the cell
 	 */
 	protected function column_cb( $alias ) {
-		return '<label class="screen-reader-text" for="cb-select-' . $alias->get_id() . '">'
-			. sprintf( __( 'Select %s' ), esc_html( $alias->get_domain() ) ) . '</label>'
-			. '<input type="checkbox" name="aliases[]" value="' . esc_attr( $alias->get_id() )
-			. '" id="cb-select-' . esc_attr( $alias->get_id() ) . '" />';
+		$alias_id = $alias->get_id();
+		$domain   = $alias->get_domain();
+
+		return '<label class="screen-reader-text" for="cb-select-' . esc_attr( $alias_id ) . '">'
+			. sprintf( __( 'Select %s' ), esc_html( $domain ) ) . '</label>'
+			. '<input type="checkbox" name="aliases[]" value="' . esc_attr( $alias_id )
+			. '" id="cb-select-' . esc_attr( $alias_id ) . '" />';
 	}
 
 	/**
@@ -161,7 +164,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @since 0.1.0
 	 * @access protected
 	 *
-	 * @param Alias $alias Current alias item
+	 * @param WP_Site_Alias $alias Current alias item
 	 * @return string HTML for the cell
 	 */
 	protected function column_domain( $alias ) {
@@ -191,7 +194,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 			'action'   => $action,
 			'id'       => $alias->get_site_id(),
 			'aliases'  => $alias->get_id(),
-			'_wpnonce' => wp_create_nonce( 'site_aliases-bulk-' . $this->_args['site_id'] )
+			'_wpnonce' => wp_create_nonce( "site_aliases-bulk-{$this->_args['site_id']}" )
 		);
 
 		$status_link = wp_site_aliases_admin_url( $args );
@@ -219,7 +222,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @since 0.1.0
 	 * @access protected
 	 *
-	 * @param Alias $alias Current alias item
+	 * @param WP_Site_Alias $alias Current alias item
 	 * @return string HTML for the cell
 	 */
 	protected function column_status( $alias ) {
@@ -234,7 +237,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @since 0.1.0
 	 * @access protected
 	 *
-	 * @param Alias $alias Current alias item
+	 * @param WP_Site_Alias $alias Current alias item
 	 *
 	 * @return string HTML for the cell
 	 */
