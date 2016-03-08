@@ -298,7 +298,7 @@ function wp_site_aliases_handle_actions() {
 	// Get action
 	$action      = sanitize_key( $_REQUEST['action'] );
 	$site_id     = wp_site_aliases_get_site_id();
-	$redirect_to = remove_query_arg( array( 'did_action', 'aliases', '_wpnonce' ), wp_get_referer() );
+	$redirect_to = remove_query_arg( array( 'did_action', 'processed', 'aliases', '_wpnonce' ), wp_get_referer() );
 
 	// Maybe fallback redirect
 	if ( empty( $redirect_to ) ) {
