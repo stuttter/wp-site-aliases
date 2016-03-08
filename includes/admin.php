@@ -708,7 +708,7 @@ function wp_site_aliases_output_admin_notices() {
 				? $_REQUEST['domains'][0]
 				: array();
 		} else {
-			$alias  = WP_Site_Alias::get( $aliases[0] );
+			$alias  = WP_Site_Alias::get( $processed[0] );
 			$domain = $alias->get_domain();
 		}
 
@@ -717,14 +717,15 @@ function wp_site_aliases_output_admin_notices() {
 	// Note: we still use _n for languages which have special cases on
 	// e.g. 3, 5, 10, etc
 	} else {
+		$count         = count( $processed );
+		$placeholder   = number_format_i18n( $count );
 		$bulk_messages = array(
-			'activate'   => _n( '%s alias activated.',   '%s aliases activated.',   $processed ),
-			'deactivate' => _n( '%s alias deactivated.', '%s aliases deactivated.', $processed ),
-			'delete'     => _n( '%s alias deleted.',     '%s aliases deleted.',     $processed ),
-			'add'        => _n( '%s alias added.',       '%s aliases added.',       $processed ),
-			'edit'       => _n( '%s alias updated.',     '%s aliases updated.',     $processed ),
+			'activate'   => _n( '%s alias activated.',   '%s aliases activated.',   $count, 'wp-site-aliases' ),
+			'deactivate' => _n( '%s alias deactivated.', '%s aliases deactivated.', $count, 'wp-site-aliases' ),
+			'delete'     => _n( '%s alias deleted.',     '%s aliases deleted.',     $count, 'wp-site-aliases' ),
+			'add'        => _n( '%s alias added.',       '%s aliases added.',       $count, 'wp-site-aliases' ),
+			'edit'       => _n( '%s alias updated.',     '%s aliases updated.',     $count, 'wp-site-aliases' )
 		);
-		$placeholder = number_format_i18n( $processed );
 	}
 
 	$bulk_messages = apply_filters( 'aliases_bulk_messages', $bulk_messages, $processed );
