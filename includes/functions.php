@@ -45,7 +45,6 @@ function wp_site_aliases_get_site_id() {
 	return (int) $details->blog_id;
 }
 
-
 /**
  * Validate alias parameters
  *
