@@ -528,18 +528,22 @@ function wp_site_aliases_output_edit_page() {
 
 	// Edit
 	if ( ! empty( $_REQUEST['aliases'] ) ) {
-		$alias_id   = absint( $_REQUEST['aliases'] );
-		$alias      = WP_Site_Alias::get( $alias_id );
-		$action     = 'edit';
-		$action_url = wp_site_aliases_admin_url( array( 'page' => 'site_aliases', 'action' => 'edit' ) );
+		$alias_id = absint( $_REQUEST['aliases'] );
+		$alias    = WP_Site_Alias::get( $alias_id );
+		$action   = 'edit';
 
 	// Add
 	} else {
-		$alias_id   = 0;
-		$alias      = null;
-		$action     = 'add';
-		$action_url = wp_site_aliases_admin_url( array( 'page' => 'site_aliases', 'action' => 'add' ) );
+		$alias_id = 0;
+		$alias    = null;
+		$action   = 'add';
 	}
+
+	// URL
+	$action_url = wp_site_aliases_admin_url( array(
+		'page'   => 'site_aliases',
+		'action' => $action
+	) );
 
 	// Add
 	if ( empty( $alias ) || ! empty( $_POST['_wpnonce'] ) ) {
