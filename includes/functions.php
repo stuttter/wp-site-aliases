@@ -1,6 +1,98 @@
 <?php
 
 /**
+ * Site Aliases Functions
+ *
+ * @package Plugins/Site/Aliases/Functions
+ */
+
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Return the site ID being modified
+ *
+ * @since 0.1.0
+ *
+ * @return int
+ */
+function wp_site_aliases_get_site_id() {
+
+	// Set the default
+	$default_id = is_blog_admin()
+		? get_current_blog_id()
+		: 0;
+
+	// Get site ID being requested
+	$site_id = isset( $_REQUEST['id'] )
+		? intval( $_REQUEST['id'] )
+		: $default_id;
+
+	// No site ID
+	if ( empty( $site_id ) ) {
+		wp_die( esc_html__( 'Invalid site ID.', 'wp-site-aliases' ) );
+	}
+
+	// Get the blog details
+	$details = get_blog_details( $site_id );
+
+	// No blog details
+	if ( empty( $details ) ) {
+		wp_die( esc_html__( 'Invalid site ID.', 'wp-site-aliases' ) );
+	}
+
+	// Return the blog ID
+	return (int) $details->blog_id;
+}
+
+
+/**
+ * Validate alias parameters
+ *
+ * @since 0.1.0
+ *
+ * @param  array  $params  Raw input parameters
+ *
+ * @return array|WP_Error Validated parameters on success, WP_Error otherwise
+ */
+function wp_site_aliases_validate_alias_parameters( $params = array() ) {
+	$valid = array();
+
+	// Prevent debug notices
+	if ( empty( $params['domain'] ) || empty( $params['id'] ) ) {
+		return new WP_Error( 'wp_site_aliases_no_domain', esc_html__( 'Aliases require a domain name', 'wp-site-aliases' ) );
+	}
+
+	// Strip schemes from domain
+	$params['domain'] = preg_replace( '#^https?://#', '', rtrim( $params['domain'], '/' ) );
+
+	// Bail if no domain name
+	if ( empty( $params['domain'] ) ) {
+		return new WP_Error( 'wp_site_aliases_no_domain', esc_html__( 'Aliases require a domain name', 'wp-site-aliases' ) );
+	}
+
+	// Bail if domain name using invalid characters
+	if ( ! preg_match( '#^[a-z0-9\-.]+$#i', $params['domain'] ) ) {
+		return new WP_Error( 'wp_site_aliases_domain_invalid_chars', esc_html__( 'Domains can only contain alphanumeric characters, dashes (-) and periods (.)', 'wp-site-aliases' ) );
+	}
+
+	$valid['domain'] = $params['domain'];
+
+	// Bail if site ID is not valid
+	$valid['site'] = absint( $params['id'] );
+	if ( empty( $valid['site'] ) ) {
+		return new WP_Error( 'wp_site_aliases_invalid_site', esc_html__( 'Invalid site ID', 'wp-site-aliases' ) );
+	}
+
+	// Validate status
+	$valid['status'] = empty( $params['status'] )
+		? 'inactive'
+		: 'active';
+
+	return $valid;
+}
+
+/**
  * Wrapper for admin URLs
  *
  * @since 0.1.0
