@@ -29,7 +29,13 @@ function wp_site_aliases_map_meta_cap( $caps = array(), $cap = '', $user_id = 0,
 			$caps = array( 'manage_site_info' );
 			break;
 
-		// Site edit
+		// Site edit (single)
+		case 'edit_alias' :
+		case 'activate_alias' :
+		case 'deactivate_alias' :
+		case 'delete_alias' :
+
+		// Site edit (many)
 		case 'manage_aliases' :
 		case 'edit_aliases' :
 		case 'create_aliases' :
