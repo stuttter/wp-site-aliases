@@ -69,5 +69,5 @@ function wp_site_aliases_get_plugin_url() {
  * @return int
  */
 function wp_site_aliases_get_asset_version() {
-	return 201601270001;
+	return 201603080001;
 }
