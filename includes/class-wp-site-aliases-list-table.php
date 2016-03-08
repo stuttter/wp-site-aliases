@@ -173,7 +173,6 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		// Edit
 		$edit_link = wp_site_aliases_admin_url( array(
 			'page'    => 'site_alias_edit',
-			'action'  => 'edit',
 			'id'      => $alias->get_site_id(),
 			'aliases' => $alias->get_id(),
 		) );

@@ -30,7 +30,7 @@ add_action( 'admin_menu',             'wp_site_aliases_add_menu_item' );
 add_action( 'network_admin_menu',     'wp_site_aliases_add_menu_item' );
 
 // Notices
-add_action( 'wp_site_aliases_admin_notices', 'wp_site_aliases_admin_notices' );
+add_action( 'wp_site_aliases_admin_notices', 'wp_site_aliases_output_admin_notices' );
 
 // WordPress 4.5 and lower
 add_action( 'admin_footer', 'wp_site_aliases_maybe_output_site_tab' );
