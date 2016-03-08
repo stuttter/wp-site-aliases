@@ -9,6 +9,12 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+function wp_site_aliases_add_menu_item() {
+	$hook = add_dashboard_page( esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_aliases', 'site_aliases', 'wp_site_aliases_output_list_page' );
+	//add_action( $hook, 'wp_die', 9 );
+	//remove_submenu_page( 'admin.php', 'site-aliases' );
+}
+
 /**
  * Enqueue admin scripts
  *
@@ -125,7 +131,7 @@ function wp_site_aliases_add_site_tab( $tabs = array() ) {
 	// "Aliases" tab
 	$tabs['site-aliases'] = array(
 		'label' => __( 'Aliases', 'wp-site-aliases' ),
-		'url'   => add_query_arg( array( 'action' => 'site-aliases' ), network_admin_url( 'admin.php' ) ),
+		'url'   => add_query_arg( array( 'action' => 'site_aliases' ), 'admin.php' ),
 		'cap'   => 'manage_site_aliases'
 	);
 
@@ -142,7 +148,7 @@ function wp_site_aliases_add_site_tab( $tabs = array() ) {
  * @param  array  $messages  Messages to display
  */
 function wp_site_aliases_output_page_header( $id, $messages = array() ) {
-	global $title, $parent_file, $submenu_file, $pagenow;
+	global $title, $parent_file, $submenu_file;
 
 	// Header
 	$details      = get_blog_details( $id );
@@ -150,28 +156,24 @@ function wp_site_aliases_output_page_header( $id, $messages = array() ) {
 	$parent_file  = 'sites.php';
 	$submenu_file = 'sites.php';
 
-	// Pull in admin header
-	require_once ABSPATH . 'wp-admin/admin-header.php'; ?>
+	// Network
+	if ( is_network_admin() ) :
+		require_once ABSPATH . 'wp-admin/admin-header.php';
 
-	<div class="wrap">
-		<h1 id="edit-site"><?php echo $title; ?></h1>
-		<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $id, '/' ) ); ?>"><?php _e( 'Visit' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $id ) ); ?>"><?php _e( 'Dashboard' ); ?></a></p>
+		?><div class="wrap">
+			<h1 id="edit-site"><?php echo $title; ?></h1>
+			<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $id, '/' ) ); ?>"><?php _e( 'Visit' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $id ) ); ?>"><?php _e( 'Dashboard' ); ?></a></p><?php
 
-		<h3 class="nav-tab-wrapper"><?php
+			// Tabs in network admin
+			network_edit_site_tabs( array(
+				'blog_id'  => $id,
+				'selected' => 'site-aliases'
+			) );
 
-		$tabs = array(
-			'site-info'     => array( 'label' => __( 'Info'     ), 'url' => 'site-info.php'     ),
-			'site-users'    => array( 'label' => __( 'Users'    ), 'url' => 'site-users.php'    ),
-			'site-themes'   => array( 'label' => __( 'Themes'   ), 'url' => 'site-themes.php'   ),
-			'site-settings' => array( 'label' => __( 'Settings' ), 'url' => 'site-settings.php' ),
-		);
-
-		foreach ( $tabs as $tab ) {
-			$class = ( $tab['url'] === $pagenow ) ? ' nav-tab-active' : '';
-			echo '<a href="' . esc_url( add_query_arg( array( 'id' => $id ), $tab['url'] ) ) . '" class="nav-tab' . $class . '">' . esc_html( $tab['label'] ) . '</a>';
-		}
-
-		?></h3><?php
+	// Site
+	else :
+		?><div class="wrap"><h1 id="edit-site"><?php esc_html_e( 'Site Aliases', 'wp-site-aliases' ); ?></h1><?php
+	endif;
 
 	// Output feedback
 	if ( ! empty( $messages ) ) {
@@ -188,6 +190,11 @@ function wp_site_aliases_output_page_header( $id, $messages = array() ) {
  */
 function wp_site_aliases_output_page_footer() {
 	echo '</div>';
+
+	// Bail if network admin
+	if ( ! is_network_admin() ) {
+		return;
+	}
 
 	require_once ABSPATH . 'wp-admin/admin-footer.php';
 }
@@ -298,24 +305,33 @@ function wp_site_aliases_handle_list_page_submit( $id, $action ) {
 function wp_site_aliases_output_list_page() {
 	global $wp_list_table;
 
-	// Get site ID being requested
-	$id = isset( $_REQUEST['id'] )
-		? intval( $_REQUEST['id'] )
-		: 0;
+	// Network admin
+	if ( is_network_admin() ) {
 
-	// No site ID
-	if ( empty( $id ) ) {
-		wp_die( __( 'Invalid site ID.' ) );
+		// Get site ID being requested
+		$id = isset( $_REQUEST['id'] )
+			? intval( $_REQUEST['id'] )
+			: 0;
+
+		// No site ID
+		if ( empty( $id ) ) {
+			wp_die( __( 'Invalid site ID.' ) );
+		}
+
+		$details = get_blog_details( $id );
+
+		// Bail if user cannot access this network
+		if ( ! can_edit_network( $details->site_id ) || (int) $details->blog_id !== $id ) {
+			wp_die( __( 'You do not have permission to access this page.', 'wp-site-aliases' ) );
+		}
+
+	// Blog admin
+	} else {
+		$id = get_current_blog_id();
 	}
 
 	// Get blog details
-	$id      = absint( $id );
-	$details = get_blog_details( $id );
-
-	// Bail if user cannot access this network
-	if ( ! can_edit_network( $details->site_id ) || (int) $details->blog_id !== $id ) {
-		wp_die( __( 'You do not have permission to access this page.', 'wp-site-aliases' ) );
-	}
+	$id = absint( $id );
 
 	// Include the list table class
 	require_once dirname( __FILE__ ) . '/class-wp-site-aliases-list-table.php';

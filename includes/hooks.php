@@ -34,3 +34,4 @@ add_action( 'admin_action_site_alias_edit', 'wp_site_aliases_output_edit_page' )
 
 // Tabs
 add_filter( 'network_edit_site_tabs', 'wp_site_aliases_add_site_tab' );
+add_action( 'admin_menu',             'wp_site_aliases_add_menu_item' );
