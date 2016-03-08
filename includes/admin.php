@@ -523,12 +523,8 @@ function wp_site_aliases_validate_alias_parameters( $params, $check_permission =
  */
 function wp_site_aliases_output_edit_page() {
 
-	// Defaults of Add
-	$alias_id   = 0;
-	$alias      = null;
-	$site_id    = wp_site_aliases_get_site_id();
-	$action     = 'add';
-	$action_url = wp_site_aliases_admin_url( array( 'page' => 'site_aliases', 'action' => 'add' ) );
+	// Get site ID
+	$site_id = wp_site_aliases_get_site_id();
 
 	// Edit
 	if ( ! empty( $_REQUEST['aliases'] ) ) {
@@ -536,23 +532,32 @@ function wp_site_aliases_output_edit_page() {
 		$alias      = WP_Site_Alias::get( $alias_id );
 		$action     = 'edit';
 		$action_url = wp_site_aliases_admin_url( array( 'page' => 'site_aliases', 'action' => 'edit' ) );
+
+	// Add
+	} else {
+		$alias_id   = 0;
+		$alias      = null;
+		$action     = 'add';
+		$action_url = wp_site_aliases_admin_url( array( 'page' => 'site_aliases', 'action' => 'add' ) );
+	}
+
+	// Add
+	if ( empty( $alias ) || ! empty( $_POST['_wpnonce'] ) ) {
+		$active = ! empty( $_POST['active'] );
+		$domain = ! empty( $_POST['domain'] )
+			? wp_unslash( $_POST['domain'] )
+			: '';
+
+	// Edit
+	} else {
+		$active = ( 'active' === $alias->get_status() );
+		$domain = $alias->get_domain();
 	}
 
 	// Output the header, maybe with network site tabs
 	wp_site_aliases_output_page_header( $site_id );
 
-	// Add
-	if ( empty( $alias ) || ! empty( $_POST['_wpnonce'] ) ) {
-		$domain = empty( $_POST['domain'] ) ? '' : wp_unslash( $_POST['domain'] );
-		$active = ! empty( $_POST['active'] );
-
-	// Edit
-	} else {
-		$domain = $alias->get_domain();
-		$active = ( 'active' === $alias->get_status() );
-	} ?>
-
-	<form method="post" action="<?php echo esc_url( $action_url ); ?>">
+	?><form method="post" action="<?php echo esc_url( $action_url ); ?>">
 		<table class="form-table">
 			<tr>
 				<th scope="row">
