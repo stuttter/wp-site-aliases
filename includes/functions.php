@@ -1,6 +1,27 @@
 <?php
 
 /**
+ * Wrapper for admin URLs
+ *
+ * @since 0.1.0
+ *
+ * @param array $args
+ * @return array
+ */
+function wp_site_aliases_admin_url( $args = array() ) {
+
+	// Action
+	if ( is_network_admin() ) {
+		$admin_url = network_admin_url( 'sites.php' );
+	} else {
+		$admin_url = admin_url( 'index.php' );
+	}
+
+	// Add args and return
+	return add_query_arg( $args, $admin_url );
+}
+
+/**
  * Check if a domain has a alias available
  *
  * @since 0.1.0

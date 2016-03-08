@@ -170,13 +170,13 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		$domain = $alias->get_domain();
 		$status = $alias->get_status();
 
-		// Setup default args
-		$args = array(
-			'action'   => 'site_aliases',
-			'id'       => $alias->get_site_id(),
-			'aliases'  => $alias->get_id(),
-			'_wpnonce' => wp_create_nonce( 'site_aliases-bulk-' . $this->_args['site_id'] )
-		);
+		// Edit
+		$edit_link = wp_site_aliases_admin_url( array(
+			'page'    => 'site_alias_edit',
+			'action'  => 'edit',
+			'id'      => $alias->get_site_id(),
+			'aliases' => $alias->get_id(),
+		) );
 
 		if ( 'active' === $status ) {
 			$text   = __( 'Deactivate', 'wp-site-aliases' );
@@ -186,27 +186,26 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 			$action = 'activate';
 		}
 
-		$args['bulk_action'] = $action;
+		// Setup default args
+		$args = array(
+			'page'     => 'site_aliases',
+			'action'   => $action,
+			'id'       => $alias->get_site_id(),
+			'aliases'  => $alias->get_id(),
+			'_wpnonce' => wp_create_nonce( 'site_aliases-bulk-' . $this->_args['site_id'] )
+		);
 
-		// Action
-		$admin_url = network_admin_url( 'admin.php' );
-		$link      = add_query_arg( $args, $admin_url );
+		$status_link = wp_site_aliases_admin_url( $args );
 
 		// Delete
-		$delete_args                = $args;
-		$delete_args['bulk_action'] = 'delete';
-		$delete_link                = add_query_arg( $delete_args, $admin_url );
+		$delete_args           = $args;
+		$delete_args['action'] = 'delete';
+		$delete_link           = wp_site_aliases_admin_url( $delete_args );
 
-		// Edit
-		$edit_link = add_query_arg( array(
-			'action' => 'site_alias_edit',
-			'id'     => $alias->get_site_id(),
-			'alias'  => $alias->get_id(),
-		), $admin_url );
-
+		// Setup actions
 		$actions = array(
-			'edit'   => sprintf( '<a href="%s">%s</a>', esc_url( $edit_link ), esc_html__( 'Edit', 'wp-site-aliases' ) ),
-			$action  => sprintf( '<a href="%s">%s</a>', esc_url( $link ),      esc_html( $text ) ),
+			'edit'   => sprintf( '<a href="%s">%s</a>',                      esc_url( $edit_link   ), esc_html__( 'Edit', 'wp-site-aliases' ) ),
+			$action  => sprintf( '<a href="%s">%s</a>',                      esc_url( $status_link ), esc_html( $text ) ),
 			'delete' => sprintf( '<a href="%s" class="submitdelete">%s</a>', esc_url( $delete_link ), esc_html__( 'Delete', 'wp-site-aliases' ) ),
 		);
 
