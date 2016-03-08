@@ -67,7 +67,7 @@ function wp_site_aliases_validate_alias_parameters( $params = array() ) {
 	$params['domain'] = preg_replace( '#^https?://#', '', rtrim( $params['domain'], '/' ) );
 
 	// Bail if no domain name
-	if ( empty( $params['domain'] ) ) {
+	if ( empty( $params['domain'] ) || ! strpos( $params['domain'], '.' ) ) {
 		return new WP_Error( 'wp_site_aliases_no_domain', esc_html__( 'Aliases require a domain name', 'wp-site-aliases' ) );
 	}
 
