@@ -45,6 +45,11 @@ function wp_site_aliases_get_site_id() {
 	return (int) $details->blog_id;
 }
 
+/**
+ * Add menus in network and site dashboards
+ *
+ * @since 0.1.0
+ */
 function wp_site_aliases_add_menu_item() {
 
 	// Define empty array
@@ -61,12 +66,14 @@ function wp_site_aliases_add_menu_item() {
 	} elseif ( is_blog_admin() ) {
 		$hooks[] = add_dashboard_page( esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_aliases', 'site_aliases',    'wp_site_aliases_output_list_page' );
 		$hooks[] = add_dashboard_page( esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_aliases', 'site_alias_edit', 'wp_site_aliases_output_edit_page' );
+		remove_submenu_page( 'index.php', 'site_alias_edit' );
 	}
 
 	// Load the list table
 	foreach ( $hooks as $hook ) {
-		add_action( "load-{$hook}", 'wp_site_aliases_handle_actions'  );
-		add_action( "load-{$hook}", 'wp_site_aliases_load_list_table' );
+		add_action( "load-{$hook}", 'wp_site_aliases_handle_actions'     );
+		add_action( "load-{$hook}", 'wp_site_aliases_load_list_table'    );
+		add_action( "load-{$hook}", 'wp_site_aliases_fix_menu_highlight' );
 	}
 }
 
@@ -90,9 +97,6 @@ function wp_site_aliases_load_list_table() {
 	) );
 
 	$wp_list_table->prepare_items( $site_id );
-
-	// Correct menu highlighting
-	wp_site_aliases_override_network_files();
 }
 
 /**
@@ -103,12 +107,15 @@ function wp_site_aliases_load_list_table() {
  * @global string $parent_file
  * @global string $submenu_file
  */
-function wp_site_aliases_override_network_files() {
+function wp_site_aliases_fix_menu_highlight() {
 	global $parent_file, $submenu_file;
 
 	if ( is_network_admin() ) {
 		$parent_file  = 'sites.php';
 		$submenu_file = 'sites.php';
+	} elseif ( is_blog_admin() ) {
+		$parent_file  = 'index.php';
+		$submenu_file = 'site_aliases';
 	}
 }
 
@@ -241,7 +248,7 @@ function wp_site_aliases_add_site_tab( $tabs = array() ) {
  *
  * @since 0.1.0
  *
- * @param  int    $site_id        Site ID
+ * @param  int  $site_id  Site ID
  */
 function wp_site_aliases_output_page_header( $site_id ) {
 	global $title;
@@ -249,16 +256,14 @@ function wp_site_aliases_output_page_header( $site_id ) {
 	// Network
 	if ( is_network_admin() ) :
 
-		// Correct menu highlighting
-		wp_site_aliases_override_network_files();
-
 		// Header
 		$details = get_blog_details( $site_id );
 		$title   = sprintf( esc_html__( 'Edit Site: %s' ), esc_html( $details->blogname ) );
 
+		// This is copied from WordPress core (sic)
 		?><div class="wrap">
 			<h1 id="edit-site"><?php echo $title; ?></h1>
-			<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $site_id, '/' ) ); ?>"><?php _e( 'Visit' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $site_id ) ); ?>"><?php _e( 'Dashboard' ); ?></a></p><?php
+			<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $site_id, '/' ) ); ?>"><?php esc_html_e( 'Visit', 'wp-site-aliases' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $site_id ) ); ?>"><?php esc_html_e( 'Dashboard', 'wp-site-aliases' ); ?></a></p><?php
 
 			// Admin notices
 			do_action( 'wp_site_aliases_admin_notices' );
@@ -271,11 +276,21 @@ function wp_site_aliases_output_page_header( $site_id ) {
 
 	// Site
 	else :
-		?><div class="wrap"><h1 id="edit-site"><?php esc_html_e( 'Site Aliases', 'wp-site-aliases' ); ?></h1><?php
+		?><div class="wrap">
+			<h1 id="edit-site"><?php esc_html_e( 'Site Aliases', 'wp-site-aliases' ); ?></h1><?php
 
 		// Admin notices
 		do_action( 'wp_site_aliases_admin_notices' );
 	endif;
+}
+
+/**
+ * Close the .wrap div
+ *
+ * @since 0.1.0
+ */
+function wp_site_aliases_output_page_footer() {
+	?></div><?php
 }
 
 /**
@@ -592,17 +607,21 @@ function wp_site_aliases_output_edit_page() {
 		// Add
 		if ( 'add' === $action ) {
 			wp_nonce_field( "site_alias_add-{$site_id}" );
-			submit_button( esc_html__( 'Add Alias', 'wp-site-aliases' ) );
+			$submit_text = esc_html__( 'Add Alias', 'wp-site-aliases' );
 
 		// Edit
 		} else {
 			wp_nonce_field( "site_alias_edit-{$site_id}" );
-			submit_button( esc_html__( 'Save Alias', 'wp-site-aliases' ) );
+			$submit_text = esc_html__( 'Save Alias', 'wp-site-aliases' );
 		}
 
-	?></form>
+		// Submit button
+		submit_button( $submit_text );
 
-<?php
+	?></form><?php
+
+	// Footer
+	wp_site_aliases_output_page_footer();
 }
 
 
@@ -651,7 +670,7 @@ function wp_site_aliases_output_list_page() {
 
 								<?php esc_html_e( 'Active', 'wp-site-aliases' ); ?>
 							</label>
-							<p><?php esc_html_e( 'Whether this domain is active and ready to accept requests.', 'wp-site-aliases' ); ?></p>
+							<p><?php esc_html_e( 'Whether this domain is ready to accept incoming requests.', 'wp-site-aliases' ); ?></p>
 						</div>
 
 						<input type="hidden" name="action" value="add">
@@ -666,6 +685,9 @@ function wp_site_aliases_output_list_page() {
 			</div>
 		</div>
 	</div><?php
+
+	// Footer
+	wp_site_aliases_output_page_footer();
 }
 
 /**
@@ -676,13 +698,9 @@ function wp_site_aliases_output_list_page() {
  * @global type $wp_list_table
  */
 function wp_site_aliases_output_admin_notices() {
-	global $wp_list_table;
 
-	$site_id     = wp_site_aliases_get_site_id();
-	$bulk_action = $wp_list_table->current_action();
-	$messages    = ! empty( $bulk_action )
-		? wp_site_aliases_handle_list_page_submit( $site_id, $bulk_action )
-		: array();
+	// Default messages array
+	$messages = array();
 
 	// Add messages for bulk actions
 	if ( empty( $_REQUEST['did_action'] ) ) {
@@ -690,7 +708,7 @@ function wp_site_aliases_output_admin_notices() {
 	}
 
 	$did_action = sanitize_key( $_REQUEST['did_action'] );
-	$processed  = empty( $_REQUEST['processed'] ) ? array() : wp_parse_id_list( (array) $_REQUEST['processed'] );
+	$processed  = ! empty( $_REQUEST['processed'] ) ? wp_parse_id_list( (array) $_REQUEST['processed'] ) : array();
 	$processed  = array_map( 'absint', $processed );
 
 	// Special case for single, as it's not really a "bulk" action
@@ -728,8 +746,10 @@ function wp_site_aliases_output_admin_notices() {
 		);
 	}
 
-	$bulk_messages = apply_filters( 'aliases_bulk_messages', $bulk_messages, $processed );
+	// Filter bulk messages, allowing for custom ones
+	$bulk_messages = apply_filters( 'wp_site_aliases_bulk_messages', $bulk_messages, $processed );
 
+	// Insert the placeholder
 	if ( ! empty( $bulk_messages[ $did_action ] ) ) {
 		$messages[] = sprintf( $bulk_messages[ $did_action ], $placeholder );
 	}
@@ -739,9 +759,11 @@ function wp_site_aliases_output_admin_notices() {
 		return;
 	}
 
+	// Start a buffer
 	ob_start();
 
 	?><div id="message" class="notice notice-success"><p><?php echo implode( '</p><p>', $messages ); ?></p></div><?php
 
+	// Output the buffer
 	ob_end_flush();
 }
