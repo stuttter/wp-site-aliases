@@ -257,8 +257,7 @@ function wp_site_aliases_output_page_header( $site_id ) {
 	if ( is_network_admin() ) :
 
 		// Header
-		$details = get_blog_details( $site_id );
-		$title   = sprintf( esc_html__( 'Edit Site: %s' ), esc_html( $details->blogname ) );
+		$title = sprintf( esc_html__( 'Edit Site: %s' ), get_blog_option( $site_id, 'blogname' ) );
 
 		// This is copied from WordPress core (sic)
 		?><div class="wrap">
@@ -484,14 +483,17 @@ function wp_site_aliases_handle_actions() {
  *
  * @since 0.1.0
  *
- * @param  array    $params            Raw input parameters
- * @param  boolean  $check_permission  Should we check that the user can edit
- *                                     the network?
+ * @param  array  $params  Raw input parameters
  *
  * @return array|WP_Error Validated parameters on success, WP_Error otherwise
  */
-function wp_site_aliases_validate_alias_parameters( $params, $check_permission = true ) {
+function wp_site_aliases_validate_alias_parameters( $params = array() ) {
 	$valid = array();
+
+	// Prevent debug notices
+	if ( empty( $params['domain'] ) || empty( $params['id'] ) ) {
+		return new WP_Error( 'wp_site_aliases_no_domain', esc_html__( 'Aliases require a domain name', 'wp-site-aliases' ) );
+	}
 
 	// Strip schemes from domain
 	$params['domain'] = preg_replace( '#^https?://#', '', rtrim( $params['domain'], '/' ) );
@@ -512,15 +514,6 @@ function wp_site_aliases_validate_alias_parameters( $params, $check_permission =
 	$valid['site'] = absint( $params['id'] );
 	if ( empty( $valid['site'] ) ) {
 		return new WP_Error( 'wp_site_aliases_invalid_site', esc_html__( 'Invalid site ID', 'wp-site-aliases' ) );
-	}
-
-	if ( true === $check_permission ) {
-		$details = get_blog_details( $valid['site'] );
-
-		// Bail if user cannot edit the network
-		if ( ! can_edit_network( $details->site_id ) ) {
-			return new WP_Error( 'wp_site_aliases_cannot_edit', esc_html__( 'You do not have permission to edit this site', 'wp-site-aliases' ) );
-		}
 	}
 
 	// Validate status
