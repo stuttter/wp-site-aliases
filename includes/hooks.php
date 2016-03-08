@@ -31,3 +31,6 @@ add_action( 'admin_footer',               'wp_site_aliases_maybe_output_site_tab
 add_action( 'admin_action_site_aliases',    'wp_site_aliases_output_list_page' );
 add_action( 'admin_action_site_alias_add',  'wp_site_aliases_output_edit_page' );
 add_action( 'admin_action_site_alias_edit', 'wp_site_aliases_output_edit_page' );
+
+// Tabs
+add_filter( 'network_edit_site_tabs', 'wp_site_aliases_add_site_tab' );
