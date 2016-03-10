@@ -463,7 +463,7 @@ class WP_Site_Alias {
 				'created' => current_time( 'mysql' ),
 				'status'  => $status
 			),
-			array( '%d', '%s', '%s', '%d' )
+			array( '%d', '%s', '%s', '%s' )
 		);
 
 		$wpdb->suppress_errors( $suppress );
