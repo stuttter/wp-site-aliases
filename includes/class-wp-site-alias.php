@@ -179,6 +179,7 @@ class WP_Site_Alias {
 			return false;
 		}
 
+		$site         = $this->get_site_id();
 		$id           = $this->get_id();
 		$where        = array( 'id' => $id );
 		$where_format = array( '%d' );
@@ -198,7 +199,7 @@ class WP_Site_Alias {
 		$domain = $this->get_domain();
 
 		// Delete the ID cache
-		wp_cache_delete( "id:{$id}", 'site_aliases' );
+		wp_cache_delete( "id:{$site}", 'site_aliases' );
 
 		// Update the domain cache
 		wp_cache_set( "domain:{$domain}", $this->data, 'site_aliases' );
