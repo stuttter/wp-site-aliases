@@ -138,7 +138,7 @@ function wp_site_aliases_output_site_list_column( $column, $site_id ) {
 function wp_site_aliases_maybe_output_site_tab() {
 
 	// Bail for WordPress 4.6 - uses wp_site_aliases_add_site_tab()
-	if ( function_exists( 'network_edit_site_tabs' ) ) {
+	if ( function_exists( 'network_edit_site_nav' ) ) {
 		return;
 	}
 
@@ -159,7 +159,7 @@ function wp_site_aliases_maybe_output_site_tab() {
 	}
 
 	// Look for active tab
-	$class  = ! empty( $_REQUEST['action'] ) && in_array( sanitize_key( $_REQUEST['action'] ), array( 'site_aliases', 'site_alias_edit', 'site_alias_add' ), true )
+	$class = ! empty( $_REQUEST['action'] ) && in_array( sanitize_key( $_REQUEST['action'] ), array( 'site_aliases', 'site_alias_edit', 'site_alias_add' ), true )
 		? ' nav-tab-active'
 		: ''; ?>
 
@@ -199,7 +199,7 @@ function wp_site_aliases_add_site_tab( $tabs = array() ) {
  *
  * @param  int  $site_id  Site ID
  */
-function wp_site_aliases_output_page_header( $site_id ) {
+function wp_site_aliases_output_page_header( $site_id = 0 ) {
 	global $title;
 
 	// Network
@@ -217,7 +217,7 @@ function wp_site_aliases_output_page_header( $site_id ) {
 			do_action( 'wp_site_aliases_admin_notices' );
 
 			// Tabs in network admin
-			network_edit_site_tabs( array(
+			network_edit_site_nav( array(
 				'blog_id'  => $site_id,
 				'selected' => 'site-aliases'
 			) );
