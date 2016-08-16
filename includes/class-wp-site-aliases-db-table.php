@@ -214,10 +214,7 @@ final class WP_Site_Aliases_DB {
 
 		// Loop through and delete all meta by ID
 		foreach ( $alias_ids as $id ) {
-			$result = (bool) $this->db->delete( $this->db->blog_aliases, array( $id => $site_id ) );
-
-			// Clear the caches.
-			wp_cache_delete($object_id, $meta_type . '_meta');
+			$this->db->delete( $this->db->blog_aliases, array( $id => $site_id ) );
 		}
 	}
 }
