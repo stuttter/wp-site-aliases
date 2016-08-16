@@ -7,7 +7,7 @@
  * Author URI:  https://profiles.wordpress.org/johnjamesjacoby/
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Description: Allow parent users to manage their children
+ * Description: User-defined site-aliases for your multisite installation
  * Version:     2.0.0
  * Text Domain: wp-site-aliases
  * Domain Path: /assets/lang/
