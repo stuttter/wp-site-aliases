@@ -26,6 +26,10 @@ function wp_site_aliases_add_menu_item() {
 		remove_submenu_page( 'sites.php', 'site_aliases'    );
 		remove_submenu_page( 'sites.php', 'site_alias_edit' );
 
+		// Network management of all aliases
+		$top_level = add_menu_page( esc_html__( 'All Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_network_options', 'site_aliases_all', 'wp_site_aliases_output_all_aliases', 'dashicons-randomize', 6 );
+		$top_level = add_submenu_page( 'site_aliases_all', esc_html__( 'Add New Alias', 'wp-site-aliases' ), esc_html__( 'Add New', 'wp-site-aliases' ), 'manage_network_options', 'site_alias_add', 'wp_site_aliases_output_add_new_alias' );
+
 	// Blog admin page
 	} elseif ( is_blog_admin() ) {
 		$hooks[] = add_dashboard_page( esc_html__( 'Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_aliases', 'site_aliases',    'wp_site_aliases_output_list_page' );
@@ -35,10 +39,28 @@ function wp_site_aliases_add_menu_item() {
 
 	// Load the list table
 	foreach ( $hooks as $hook ) {
-		add_action( "load-{$hook}", 'wp_site_aliases_handle_actions'     );
-		add_action( "load-{$hook}", 'wp_site_aliases_load_list_table'    );
-		add_action( "load-{$hook}", 'wp_site_aliases_fix_menu_highlight' );
+		add_action( "load-{$hook}", 'wp_site_aliases_handle_site_actions'       );
+		add_action( "load-{$hook}", 'wp_site_aliases_load_site_list_table'      );
+		add_action( "load-{$hook}", 'wp_site_aliases_fix_hidden_menu_highlight' );
 	}
+}
+
+/**
+ * Output UI for viewing all aliases
+ *
+ * @since 2.0.0
+ */
+function wp_site_aliases_output_all_aliases() {
+	
+}
+
+/**
+ * Output UI for adding a new alias to a site
+ *
+ * @since 2.0.0
+ */
+function wp_site_aliases_output_add_new_alias() {
+	
 }
 
 /**
@@ -46,7 +68,7 @@ function wp_site_aliases_add_menu_item() {
  *
  * @since 0.1.0
  */
-function wp_site_aliases_load_list_table() {
+function wp_site_aliases_load_site_list_table() {
 	global $wp_list_table;
 
 	// Include the list table class
@@ -71,7 +93,7 @@ function wp_site_aliases_load_list_table() {
  * @global string $parent_file
  * @global string $submenu_file
  */
-function wp_site_aliases_fix_menu_highlight() {
+function wp_site_aliases_fix_hidden_menu_highlight() {
 	global $parent_file, $submenu_file;
 
 	if ( is_network_admin() ) {
@@ -251,7 +273,7 @@ function wp_site_aliases_output_page_footer() {
  *
  * @param  string  $action  Action to perform
  */
-function wp_site_aliases_handle_actions() {
+function wp_site_aliases_handle_site_actions() {
 
 	// Bail if no action
 	if ( empty( $_REQUEST['action'] ) ) {
