@@ -433,3 +433,82 @@ function maybe_strip_www( $domain = '' ) {
 
 	return $domain;
 }
+
+/**
+ * Retrieves site alias data given a site alias ID or site alias object.
+ *
+ * Site alias data will be cached and returned after being passed through a filter.
+ *
+ * @since 2.0.0
+ *
+ * @param WP_Site_Alias|int|null $alias Optional. Site alias to retrieve.
+ * @return WP_Site_Alias|null The site object or null if not found.
+ */
+function get_site_alias( $alias = null ) {
+	if ( empty( $alias ) ) {
+		return null;
+	}
+
+	if ( $alias instanceof WP_Site_Alias ) {
+		$_alias = $alias;
+	} elseif ( is_object( $alias ) ) {
+		$_alias = new WP_Site_Alias( $alias );
+	} else {
+		$_alias = WP_Site_Alias::get_instance( $alias );
+	}
+
+	if ( ! $_alias ) {
+		return null;
+	}
+
+	/**
+	 * Fires after a site alias is retrieved.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param WP_Site_Alias $_alias Site alias data.
+	 */
+	$_alias = apply_filters( 'get_site_alias', $_alias );
+
+	return $_alias;
+}
+
+/**
+ * Adds any site aliases from the given ids to the cache that do not already
+ * exist in cache.
+ *
+ * @since 2.0.0
+ * @access private
+ *
+ * @see update_site_cache()
+ * @global wpdb $wpdb WordPress database abstraction object.
+ *
+ * @param array $ids ID list.
+ */
+function _prime_site_alias_caches( $ids ) {
+	global $wpdb;
+
+	$non_cached_ids = _get_non_cached_ids( $ids, 'site_aliases' );
+	if ( ! empty( $non_cached_ids ) ) {
+		$fresh_aliases = $wpdb->get_results( sprintf( "SELECT * FROM {$wpdb->blog_aliases} WHERE id IN (%s)", join( ",", array_map( 'intval', $non_cached_ids ) ) ) );
+
+		update_site_alias_cache( $fresh_aliases );
+	}
+}
+
+/**
+ * Updates site aliases in cache.
+ *
+ * @since 2.0.0
+ *
+ * @param array $aliases Array of site alias objects.
+ */
+function update_site_alias_cache( $aliases = array() ) {
+	if ( empty( $aliases ) ) {
+		return;
+	}
+
+	foreach ( $aliases as $alias ) {
+		wp_cache_add( $alias->id, $alias, 'site_aliases' );
+	}
+}

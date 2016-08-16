@@ -248,64 +248,38 @@ class WP_Site_Alias {
 	}
 
 	/**
-	 * Convert data to Alias instance
+	 * Retrieves a site alias from the database by its ID.
 	 *
-	 * Allows use as a callback, such as in `array_map`
+	 * @static
+	 * @since 2.0.0
+	 * @access public
 	 *
-	 * @since 0.1.0
+	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
-	 * @param stdClass $data Raw alias data
-	 * @return Alias
+	 * @param int $alias_id The ID of the site to retrieve.
+	 * @return WP_Site_Alias|false The site alias's object if found. False if not.
 	 */
-	protected static function to_instance( $data ) {
-		return new static( $data );
-	}
-
-	/**
-	 * Convert list of data to Alias instances
-	 *
-	 * @since 0.1.0
-	 *
-	 * @param stdClass[] $data Raw alias rows
-	 * @return Alias[]
-	 */
-	protected static function to_instances( $data ) {
-		return array_map( array( get_called_class(), 'to_instance' ), $data );
-	}
-
-	/**
-	 * Get alias by alias ID
-	 *
-	 * @since 0.1.0
-	 *
-	 * @param int|WP_Site_Alias $alias Alias ID or instance
-	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
-	 */
-	public static function get( $alias ) {
+	public static function get_instance( $alias_id ) {
 		global $wpdb;
 
-		// Allow passing a site object in
-		if ( $alias instanceof WP_Site_Alias ) {
-			return $alias;
+		$alias_id = (int) $alias_id;
+		if ( ! $alias_id ) {
+			return false;
 		}
 
-		if ( ! is_numeric( $alias ) ) {
-			return new WP_Error( 'wp_site_aliases_alias_invalid_id' );
+		$_alias = wp_cache_get( $alias_id, 'sites_aliases' );
+
+		if ( false === $_alias ) {
+			$_alias = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE id = %d LIMIT 1", $alias_id ) );
+
+			if ( empty( $_alias ) || is_wp_error( $_alias ) ) {
+				return false;
+			}
+
+			wp_cache_add( $alias_id, $_alias, 'sites_aliases' );
 		}
 
-		$alias = absint( $alias );
-
-		// Suppress errors in case the table doesn't exist
-		$suppress = $wpdb->suppress_errors();
-		$alias    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE id = %d", $alias ) );
-
-		$wpdb->suppress_errors( $suppress );
-
-		if ( empty( $alias ) ) {
-			return null;
-		}
-
-		return new static( $alias );
+		return new WP_Site_Alias( $_alias );
 	}
 
 	/**
@@ -318,7 +292,6 @@ class WP_Site_Alias {
 	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get_by_site( $site = null ) {
-		global $wpdb;
 
 		// Allow passing a site object in
 		if ( is_object( $site ) && isset( $site->blog_id ) ) {
@@ -329,28 +302,17 @@ class WP_Site_Alias {
 			return new WP_Error( 'wp_site_aliases_alias_invalid_id' );
 		}
 
-		$site = absint( $site );
+		// Get aliases
+		$aliases = new WP_Site_Alias_Query( array(
+			'site_id' => absint( $site )
+		) );
 
-		// Check cache first
-		$aliases = wp_cache_get( "id:{$site}", 'site_aliases' );
-		if ( false !== $aliases ) {
-			return static::to_instances( $aliases );
-		}
-
-		// Cache missed, fetch from DB
-		// Suppress errors in case the table doesn't exist
-		$suppress = $wpdb->suppress_errors();
-		$aliases  = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE blog_id = %d", $site ) );
-
-		$wpdb->suppress_errors( $suppress );
-
-		if ( empty( $aliases ) ) {
+		// Bail if no aliases
+		if ( empty( $aliases->found_site_aliases ) ) {
 			return null;
 		}
 
-		wp_cache_set( "id:{$site}", $aliases, 'site_aliases' );
-
-		return static::to_instances( $aliases );
+		return $aliases->aliases;
 	}
 
 	/**
@@ -362,52 +324,18 @@ class WP_Site_Alias {
 	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
 	 */
 	public static function get_by_domain( $domains = array() ) {
-		global $wpdb;
 
-		$domains = (array) $domains;
+		// Get aliases
+		$aliases = new WP_Site_Alias_Query( array(
+			'domain__in' => (array) $domains
+		) );
 
-		// Check cache first
-		$not_exists = 0;
-		foreach ( $domains as $domain ) {
-			$data = wp_cache_get( "domain:{$domain}", 'site_aliases' );
-
-			if ( ! empty( $data ) && ( 'notexists' !== $data ) ) {
-				return new static( $data );
-			} elseif ( 'notexists' === $data ) {
-				$not_exists++;
-			}
-		}
-
-		// Every domain was found in the cache, but doesn't exist
-		if ( $not_exists === count( $domains ) ) {
+		// Bail if no aliases
+		if ( empty( $aliases->found_site_aliases ) ) {
 			return null;
 		}
 
-		$placeholders    = array_fill( 0, count( $domains ), '%s' );
-		$placeholders_in = implode( ',', $placeholders );
-
-		// Prepare the query
-		$query = "SELECT * FROM {$wpdb->blog_aliases} WHERE domain IN ($placeholders_in) ORDER BY CHAR_LENGTH(domain) DESC LIMIT 1";
-		$query = $wpdb->prepare( $query, $domains );
-
-		// Suppress errors in case the table doesn't exist
-		$suppress = $wpdb->suppress_errors();
-		$alias    = $wpdb->get_row( $query );
-
-		$wpdb->suppress_errors( $suppress );
-
-		// Cache that it doesn't exist
-		if ( empty( $alias ) ) {
-			foreach ( $domains as $domain ) {
-				wp_cache_set( "domain:{$domain}", 'notexists', 'site_aliases' );
-			}
-
-			return null;
-		}
-
-		wp_cache_set( "domain:{$alias->domain}", $alias, 'site_aliases' );
-
-		return new static( $alias );
+		return reset( $aliases->aliases );
 	}
 
 	/**
@@ -440,17 +368,10 @@ class WP_Site_Alias {
 		$existing = static::get_by_domain( $domain );
 		if ( is_wp_error( $existing ) ) {
 			return $existing;
-		}
 
 		// Domain exists already...
-		if ( ! empty( $existing ) ) {
-
-			if ( $site !== $existing->get_site_id() ) {
-				return new WP_Error( 'wp_site_aliases_alias_domain_exists', esc_html__( 'That alias is already in use.', 'wp-site-aliases' ) );
-			}
-
-			// ...and points to this site, so nothing to do
-			return $existing;
+		} elseif ( ! empty( $existing ) ) {
+			return new WP_Error( 'wp_site_aliases_alias_domain_exists', esc_html__( 'That alias is already in use.', 'wp-site-aliases' ) );
 		}
 
 		// Create the alias!
@@ -486,7 +407,7 @@ class WP_Site_Alias {
 		wp_cache_delete( "id:{$site}",       'site_aliases' );
 		wp_cache_delete( "domain:{$domain}", 'site_aliases' );
 
-		$alias = static::get( $wpdb->insert_id );
+		$alias = static::get_instance( $wpdb->insert_id );
 
 		/**
 		 * Fires after a alias has been created.

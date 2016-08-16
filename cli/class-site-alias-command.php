@@ -79,7 +79,7 @@ class Alias_Command extends WP_CLI_Command {
 	 * : Format to display as (table, json, csv, count)
 	 */
 	public function get( $args, $assoc_args ) {
-		$alias = WP_Site_Alias::get( $args[0] );
+		$alias = WP_Site_Alias::get_instance( $args[0] );
 
 		if ( empty( $alias ) ) {
 			$alias = new WP_Error( 'wp_site_aliases_cli_alias_not_found', __( 'Invalid alias ID', 'wp-site-aliases' ) );
@@ -103,7 +103,7 @@ class Alias_Command extends WP_CLI_Command {
 	 * : Alias ID
 	 */
 	public function delete( $args ) {
-		$alias = WP_Site_Alias::get( $args[0] );
+		$alias = WP_Site_Alias::get_instance( $args[0] );
 
 		if ( empty( $alias ) ) {
 			$alias = new WP_Error( 'wp_site_aliases_cli_alias_not_found', __( 'Invalid alias ID', 'wp-site-aliases' ) );

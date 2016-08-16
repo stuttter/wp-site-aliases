@@ -287,7 +287,7 @@ function wp_site_aliases_handle_actions() {
 		// Bulk activate
 		case 'activate':
 			foreach ( $aliases as $alias_id ) {
-				$alias = WP_Site_Alias::get( $alias_id );
+				$alias = WP_Site_Alias::get_instance( $alias_id );
 
 				// Skip erroneous aliases
 				if ( is_wp_error( $alias ) ) {
@@ -304,7 +304,7 @@ function wp_site_aliases_handle_actions() {
 		// Bulk deactivate
 		case 'deactivate':
 			foreach ( $aliases as $alias_id ) {
-				$alias = WP_Site_Alias::get( $alias_id );
+				$alias = WP_Site_Alias::get_instance( $alias_id );
 
 				// Skip erroneous aliases
 				if ( is_wp_error( $alias ) ) {
@@ -323,7 +323,7 @@ function wp_site_aliases_handle_actions() {
 			$args['domains'] = array();
 
 			foreach ( $aliases as $alias_id ) {
-				$alias = WP_Site_Alias::get( $alias_id );
+				$alias = WP_Site_Alias::get_instance( $alias_id );
 
 				// Skip erroneous aliases
 				if ( is_wp_error( $alias ) ) {
@@ -390,7 +390,7 @@ function wp_site_aliases_handle_actions() {
 			}
 
 			$alias_id = $aliases[0];
-			$alias    = WP_Site_Alias::get( $alias_id );
+			$alias    = WP_Site_Alias::get_instance( $alias_id );
 
 			if ( is_wp_error( $alias ) ) {
 				$messages[] = $alias->get_error_message();
@@ -440,7 +440,7 @@ function wp_site_aliases_output_edit_page() {
 	// Edit
 	if ( ! empty( $_REQUEST['aliases'] ) ) {
 		$alias_id = absint( $_REQUEST['aliases'] );
-		$alias    = WP_Site_Alias::get( $alias_id );
+		$alias    = WP_Site_Alias::get_instance( $alias_id );
 		$action   = 'edit';
 
 	// Add
@@ -622,7 +622,7 @@ function wp_site_aliases_output_admin_notices() {
 				? $_REQUEST['domains'][0]
 				: array();
 		} else {
-			$alias  = WP_Site_Alias::get( $processed[0] );
+			$alias  = WP_Site_Alias::get_instance( $processed[0] );
 			$domain = $alias->get_domain();
 		}
 

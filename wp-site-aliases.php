@@ -8,7 +8,7 @@
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Description: Allow parent users to manage their children
- * Version:     0.1.0
+ * Version:     2.0.0
  * Text Domain: wp-site-aliases
  * Domain Path: /assets/lang/
  */
@@ -30,6 +30,7 @@ $plugin_path = dirname( __FILE__ ) . '/';
 
 // Classes
 require_once $plugin_path . 'includes/class-wp-site-alias.php';
+require_once $plugin_path . 'includes/class-wp-site-aliases-query.php';
 require_once $plugin_path . 'includes/class-wp-site-alias-network.php';
 require_once $plugin_path . 'includes/class-wp-site-aliases-db-table.php';
 
