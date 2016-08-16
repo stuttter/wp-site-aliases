@@ -30,8 +30,7 @@ $plugin_path = dirname( __FILE__ ) . '/';
 
 // Classes
 require_once $plugin_path . 'includes/class-wp-site-alias.php';
-require_once $plugin_path . 'includes/class-wp-site-aliases-query.php';
-require_once $plugin_path . 'includes/class-wp-site-alias-network.php';
+require_once $plugin_path . 'includes/class-wp-site-alias-query.php';
 require_once $plugin_path . 'includes/class-wp-site-aliases-db-table.php';
 
 // Required Files
@@ -40,6 +39,9 @@ require_once $plugin_path . 'includes/assets.php';
 require_once $plugin_path . 'includes/capabilities.php';
 require_once $plugin_path . 'includes/functions.php';
 require_once $plugin_path . 'includes/hooks.php';
+
+// Clean up the plugin path
+unset( $plugin_path );
 
 /**
  * Return the plugin's root file
