@@ -175,7 +175,7 @@ function wp_site_aliases_maybe_output_site_tab() {
 	}
 
 	// Bail if no ID
-	$site_id = isset( $_REQUEST['site_id'] ) ? absint( $_REQUEST['site_id'] ) : 0;
+	$site_id = isset( $_REQUEST['id'] ) ? absint( $_REQUEST['id'] ) : 0;
 	if ( empty( $site_id ) ) {
 		return;
 	}
@@ -186,7 +186,7 @@ function wp_site_aliases_maybe_output_site_tab() {
 		: ''; ?>
 
 	<span id="wp-site-aliases-nav-link" class="hide-if-no-js">
-		<a href="<?php echo network_admin_url( add_query_arg( array( 'page' => 'site_aliases', 'site_id' => $site_id ), 'sites.php' ) ); ?>" class="nav-tab<?php echo esc_attr( $class ); ?>"><?php esc_html_e( 'Aliases', 'wp-site-aliases' ) ?></a>
+		<a href="<?php echo network_admin_url( add_query_arg( array( 'page' => 'site_aliases', 'id' => $site_id ), 'sites.php' ) ); ?>" class="nav-tab<?php echo esc_attr( $class ); ?>"><?php esc_html_e( 'Aliases', 'wp-site-aliases' ) ?></a>
 	</span>
 	<script>jQuery( function wp_site_aliases( $ ) { $( '#wp-site-aliases-nav-link' ).appendTo( $( '.nav-tab-wrapper' ) ); } );</script>
 
@@ -296,10 +296,10 @@ function wp_site_aliases_handle_site_actions() {
 		? array_map( 'absint', (array) $_REQUEST['aliases'] )
 		: array();
 
-	// Redirect ags
+	// Redirect args
 	$args = array(
 		'page'       => 'site_aliases',
-		'site_id'    => $site_id,
+		'id'         => $site_id,
 		'did_action' => $action,
 	);
 
@@ -381,7 +381,7 @@ function wp_site_aliases_handle_site_actions() {
 			}
 
 			// Add
-			$alias = WP_Site_Alias::create( $params['site_id'], $params['domain'], $params['status'] );
+			$alias = WP_Site_Alias::create( $params['id'], $params['domain'], $params['status'] );
 
 			// Bail if an error occurred
 			if ( is_wp_error( $alias ) ) {

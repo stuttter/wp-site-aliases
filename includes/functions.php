@@ -24,8 +24,8 @@ function wp_site_aliases_get_site_id() {
 		: 0;
 
 	// Get site ID being requested
-	$site_id = isset( $_REQUEST['site_id'] )
-		? intval( $_REQUEST['site_id'] )
+	$site_id = isset( $_REQUEST['id'] )
+		? intval( $_REQUEST['id'] )
 		: $default_id;
 
 	// No site ID
@@ -58,7 +58,7 @@ function wp_site_aliases_validate_alias_parameters( $params = array() ) {
 	$valid = array();
 
 	// Prevent debug notices
-	if ( empty( $params['domain'] ) || empty( $params['site_id'] ) ) {
+	if ( empty( $params['domain'] ) || empty( $params['id'] ) ) {
 		return new WP_Error( 'wp_site_aliases_no_domain', esc_html__( 'Aliases require a domain name', 'wp-site-aliases' ) );
 	}
 
@@ -78,7 +78,7 @@ function wp_site_aliases_validate_alias_parameters( $params = array() ) {
 	$valid['domain'] = $params['domain'];
 
 	// Bail if site ID is not valid
-	$valid['site_id'] = absint( $params['site_id'] );
+	$valid['site_id'] = (int) $params['id'];
 	if ( empty( $valid['site_id'] ) ) {
 		return new WP_Error( 'wp_site_aliases_invalid_site', esc_html__( 'Invalid site ID', 'wp-site-aliases' ) );
 	}
