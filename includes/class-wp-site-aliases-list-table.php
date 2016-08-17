@@ -94,7 +94,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 			$this->_actions = apply_filters( "bulk_actions-{$this->screen->id}", $this->_actions );
 			$this->_actions = array_intersect_assoc( $this->_actions, $no_new_actions );
 			$two = '';
-			echo '<input type="hidden" name="id" value="' . esc_attr( $this->_args['site_id'] ) . '" />';
+			echo '<input type="hidden" name="site_id" value="' . esc_attr( $this->_args['site_id'] ) . '" />';
 			wp_nonce_field( "site_aliases-bulk-{$this->_args['site_id']}" );
 		} else {
 			$two = '2';
@@ -181,7 +181,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		// Edit
 		$edit_link = wp_site_aliases_admin_url( array(
 			'page'    => 'site_alias_edit',
-			'id'      => $site_id,
+			'site_id' => $site_id,
 			'aliases' => $alias_id,
 		) );
 
@@ -198,7 +198,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		$args = array(
 			'page'     => 'site_aliases',
 			'action'   => $action,
-			'id'       => $site_id,
+			'site_id'  => $site_id,
 			'aliases'  => $alias_id,
 			'_wpnonce' => wp_create_nonce( "site_aliases-bulk-{$this->_args['site_id']}" )
 		);

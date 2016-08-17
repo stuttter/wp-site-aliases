@@ -175,7 +175,7 @@ function wp_site_aliases_maybe_output_site_tab() {
 	}
 
 	// Bail if no ID
-	$site_id = isset( $_REQUEST['id'] ) ? absint( $_REQUEST['id'] ) : 0;
+	$site_id = isset( $_REQUEST['site_id'] ) ? absint( $_REQUEST['site_id'] ) : 0;
 	if ( empty( $site_id ) ) {
 		return;
 	}
@@ -186,7 +186,7 @@ function wp_site_aliases_maybe_output_site_tab() {
 		: ''; ?>
 
 	<span id="wp-site-aliases-nav-link" class="hide-if-no-js">
-		<a href="<?php echo network_admin_url( add_query_arg( array( 'page' => 'site_aliases', 'id' => $site_id ), 'sites.php' ) ); ?>" class="nav-tab<?php echo esc_attr( $class ); ?>"><?php esc_html_e( 'Aliases', 'wp-site-aliases' ) ?></a>
+		<a href="<?php echo network_admin_url( add_query_arg( array( 'page' => 'site_aliases', 'site_id' => $site_id ), 'sites.php' ) ); ?>" class="nav-tab<?php echo esc_attr( $class ); ?>"><?php esc_html_e( 'Aliases', 'wp-site-aliases' ) ?></a>
 	</span>
 	<script>jQuery( function wp_site_aliases( $ ) { $( '#wp-site-aliases-nav-link' ).appendTo( $( '.nav-tab-wrapper' ) ); } );</script>
 
@@ -299,7 +299,7 @@ function wp_site_aliases_handle_site_actions() {
 	// Redirect ags
 	$args = array(
 		'page'       => 'site_aliases',
-		'id'         => $site_id,
+		'site_id'    => $site_id,
 		'did_action' => $action,
 	);
 
@@ -381,7 +381,7 @@ function wp_site_aliases_handle_site_actions() {
 			}
 
 			// Add
-			$alias = WP_Site_Alias::create( $params['site'], $params['domain'], $params['status'] );
+			$alias = WP_Site_Alias::create( $params['site_id'], $params['domain'], $params['status'] );
 
 			// Bail if an error occurred
 			if ( is_wp_error( $alias ) ) {
@@ -519,7 +519,7 @@ function wp_site_aliases_output_edit_page() {
 		</table>
 
 		<input type="hidden" name="action"  value="<?php echo esc_attr( $action   ); ?>">
-		<input type="hidden" name="id"      value="<?php echo esc_attr( $site_id  ); ?>">
+		<input type="hidden" name="site_id" value="<?php echo esc_attr( $site_id  ); ?>">
 		<input type="hidden" name="aliases" value="<?php echo esc_attr( $alias_id ); ?>"><?php
 
 		// Add
@@ -591,8 +591,8 @@ function wp_site_aliases_output_list_page() {
 							<p><?php esc_html_e( 'Whether this domain is ready to accept incoming requests.', 'wp-site-aliases' ); ?></p>
 						</div>
 
-						<input type="hidden" name="action" value="add">
-						<input type="hidden" name="id"     value="<?php echo esc_attr( $site_id ); ?>"><?php
+						<input type="hidden" name="action"  value="add">
+						<input type="hidden" name="site_id" value="<?php echo esc_attr( $site_id ); ?>"><?php
 
 						wp_nonce_field( "site_alias_add-{$site_id}" );
 

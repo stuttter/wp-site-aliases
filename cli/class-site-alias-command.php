@@ -20,14 +20,14 @@ class Alias_Command extends WP_CLI_Command {
 
 		$options = wp_parse_args( $options, array(
 			'format' => 'table',
-			'fields' => array( 'id', 'domain', 'site', 'created', 'status' ),
+			'fields' => array( 'id', 'domain', 'site_id', 'created', 'status' ),
 		) );
 
 		$mapper = function ( WP_Site_Alias $alias ) {
 			return array(
 				'id'      => $alias->get_id(),
 				'domain'  => $alias->get_domain(),
-				'site'    => $alias->get_site_id(),
+				'site_id' => $alias->get_site_id(),
 				'created' => $alias->get_created(),
 				'status'  => ( 'active' === $alias->get_status() )
 					? __( 'Active',   'wp-site-aliases' )

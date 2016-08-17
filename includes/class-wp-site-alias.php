@@ -179,9 +179,8 @@ class WP_Site_Alias {
 			return false;
 		}
 
-		$site         = $this->get_site_id();
-		$id           = $this->get_id();
-		$where        = array( 'id' => $id );
+		$alias_id     = $this->get_id();
+		$where        = array( 'id' => $alias_id );
 		$where_format = array( '%d' );
 		$result       = $wpdb->update( $wpdb->blog_aliases, $fields, $where, $formats, $where_format );
 
@@ -196,13 +195,8 @@ class WP_Site_Alias {
 			$this->data->{$key} = $val;
 		}
 
-		$domain = $this->get_domain();
-
-		// Delete the ID cache
-		wp_cache_delete( "id:{$site}", 'site_aliases' );
-
 		// Update the domain cache
-		wp_cache_set( "domain:{$domain}", $this->data, 'site_aliases' );
+		wp_cache_set( $alias_id, $this->data, 'blog-aliases' );
 
 		/**
 		 * Fires after a alias has been updated.
@@ -225,17 +219,19 @@ class WP_Site_Alias {
 	public function delete() {
 		global $wpdb;
 
-		$where        = array( 'id' => $this->get_id() );
+		// Try to delete the alias
+		$alias_id     = $this->get_id();
+		$where        = array( 'id' => $alias_id );
 		$where_format = array( '%d' );
 		$result       = $wpdb->delete( $wpdb->blog_aliases, $where, $where_format );
 
+		// Bail if no alias to delete
 		if ( empty( $result ) ) {
 			return new WP_Error( 'wp_site_aliases_alias_delete_failed' );
 		}
 
 		// Update the cache
-		wp_cache_delete( 'id:'     . $this->get_site_id(), 'site_aliases' );
-		wp_cache_delete( 'domain:' . $this->get_domain(),  'site_aliases' );
+		wp_cache_delete( $alias_id, 'blog-aliases' );
 
 		/**
 		 * Fires after a alias has been delete.
@@ -263,22 +259,27 @@ class WP_Site_Alias {
 		global $wpdb;
 
 		$alias_id = (int) $alias_id;
-		if ( ! $alias_id ) {
+		if ( empty( $alias_id ) ) {
 			return false;
 		}
 
-		$_alias = wp_cache_get( $alias_id, 'sites_aliases' );
+		// Check cache first
+		$_alias = wp_cache_get( $alias_id, 'blog-aliases' );
 
+		// No cached alias
 		if ( false === $_alias ) {
 			$_alias = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE id = %d LIMIT 1", $alias_id ) );
 
+			// Bail if no alias found
 			if ( empty( $_alias ) || is_wp_error( $_alias ) ) {
 				return false;
 			}
 
-			wp_cache_add( $alias_id, $_alias, 'sites_aliases' );
+			// Add alias to cache
+			wp_cache_add( $alias_id, $_alias, 'blog-aliases' );
 		}
 
+		// Return alias object
 		return new WP_Site_Alias( $_alias );
 	}
 
@@ -304,7 +305,7 @@ class WP_Site_Alias {
 
 		// Get aliases
 		$aliases = new WP_Site_Alias_Query( array(
-			'site_id' => absint( $site )
+			'site_id' => (int) $site
 		) );
 
 		// Bail if no aliases
@@ -341,10 +342,13 @@ class WP_Site_Alias {
 	/**
 	 * Create a new domain alias
 	 *
-	 * @param $site Site ID, or site object from {@see get_blog_details}
+	 * @param mixed  $site   Site ID, or site object from {@see get_blog_details}
+	 * @param string $domain Domain
+	 * @param status $status Status of alias
+	 *
 	 * @return WP_Site_Alias|WP_Error
 	 */
-	public static function create( $site, $domain, $status ) {
+	public static function create( $site = 0, $domain = '', $status = 'active' ) {
 		global $wpdb;
 
 		// Allow passing a site object in
@@ -352,11 +356,12 @@ class WP_Site_Alias {
 			$site = $site->blog_id;
 		}
 
+		// Bail if no site
 		if ( ! is_numeric( $site ) ) {
 			return new WP_Error( 'wp_site_aliases_alias_invalid_id' );
 		}
 
-		$site   = absint( $site );
+		$site   = (int) $site;
 		$status = sanitize_key( $status );
 
 		// Did we get a full URL?
@@ -404,9 +409,9 @@ class WP_Site_Alias {
 		}
 
 		// Ensure the cache is flushed
-		wp_cache_delete( "id:{$site}",       'site_aliases' );
-		wp_cache_delete( "domain:{$domain}", 'site_aliases' );
+		wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
 
+		// Get the alias, and prime the caches
 		$alias = static::get_instance( $wpdb->insert_id );
 
 		/**

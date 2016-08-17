@@ -22,8 +22,8 @@ if ( empty( $GLOBALS['wpdb']->blog_aliases ) ) {
 	$GLOBALS['wpdb']->ms_global_tables[] = 'blog_aliases';
 }
 
-// Ensure cache is shared
-wp_cache_add_global_groups( array( 'site_aliases', 'network_aliases' ) );
+// Ensure cache groups are global
+wp_cache_add_global_groups( array( 'blog-aliases' ) );
 
 // Get the plugin path
 $plugin_path = dirname( __FILE__ ) . '/';

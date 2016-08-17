@@ -24,8 +24,8 @@ function wp_site_aliases_get_site_id() {
 		: 0;
 
 	// Get site ID being requested
-	$site_id = isset( $_REQUEST['id'] )
-		? intval( $_REQUEST['id'] )
+	$site_id = isset( $_REQUEST['site_id'] )
+		? intval( $_REQUEST['site_id'] )
 		: $default_id;
 
 	// No site ID
@@ -58,7 +58,7 @@ function wp_site_aliases_validate_alias_parameters( $params = array() ) {
 	$valid = array();
 
 	// Prevent debug notices
-	if ( empty( $params['domain'] ) || empty( $params['id'] ) ) {
+	if ( empty( $params['domain'] ) || empty( $params['site_id'] ) ) {
 		return new WP_Error( 'wp_site_aliases_no_domain', esc_html__( 'Aliases require a domain name', 'wp-site-aliases' ) );
 	}
 
@@ -78,8 +78,8 @@ function wp_site_aliases_validate_alias_parameters( $params = array() ) {
 	$valid['domain'] = $params['domain'];
 
 	// Bail if site ID is not valid
-	$valid['site'] = absint( $params['id'] );
-	if ( empty( $valid['site'] ) ) {
+	$valid['site_id'] = absint( $params['site_id'] );
+	if ( empty( $valid['site_id'] ) ) {
 		return new WP_Error( 'wp_site_aliases_invalid_site', esc_html__( 'Invalid site ID', 'wp-site-aliases' ) );
 	}
 
@@ -506,6 +506,31 @@ function update_site_alias_cache( $aliases = array() ) {
 	}
 
 	foreach ( $aliases as $alias ) {
-		wp_cache_add( $alias->id, $alias, 'site_aliases' );
+		wp_cache_add( $alias->id, $alias, 'blog-aliases' );
 	}
+}
+
+/**
+ * Clean the site alias cache
+ *
+ * @since 0.1.0
+ *
+ * @param WP_Site_Alias $alias The alias details as returned from get_site_alias()
+ */
+function clean_blog_alias_cache( $alias ) {
+	$alias_id = $alias->id;
+
+	wp_cache_delete( $alias_id , 'blog-aliases' );
+
+	/**
+	 * Fires immediately after a site alias has been removed from the object cache.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param int     $alias_id Alias ID.
+	 * @param WP_Site $alias    Alias object.
+	 */
+	do_action( 'clean_site_alias_cache', $alias_id, $alias );
+
+	wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
 }

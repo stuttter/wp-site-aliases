@@ -235,15 +235,15 @@ class WP_Site_Alias_Query {
 
 		// $args can include anything. Only use the args defined in the query_var_defaults to compute the key.
 		$key = md5( serialize( wp_array_slice_assoc( $this->query_vars, array_keys( $this->query_var_defaults ) ) ) );
-		$last_changed = wp_cache_get( 'last_changed', 'site_aliases' );
+		$last_changed = wp_cache_get( 'last_changed', 'blog-aliases' );
 
 		if ( false === $last_changed ) {
 			$last_changed = microtime();
-			wp_cache_set( 'last_changed', $last_changed, 'site_aliases' );
+			wp_cache_set( 'last_changed', $last_changed, 'blog-aliases' );
 		}
 
 		$cache_key   = "get_site_aliases:{$key}:{$last_changed}";
-		$cache_value = wp_cache_get( $cache_key, 'site_aliases' );
+		$cache_value = wp_cache_get( $cache_key, 'blog-aliases' );
 
 		if ( false === $cache_value ) {
 			$alias_ids = $this->get_alias_ids();
@@ -255,7 +255,7 @@ class WP_Site_Alias_Query {
 				'alias_ids'          => $alias_ids,
 				'found_site_aliases' => $this->found_site_aliases,
 			);
-			wp_cache_add( $cache_key, $cache_value, 'site_aliases' );
+			wp_cache_add( $cache_key, $cache_value, 'blog-aliases' );
 		} else {
 			$alias_ids = $cache_value['alias_ids'];
 			$this->found_site_aliases = $cache_value['found_site_aliases'];
