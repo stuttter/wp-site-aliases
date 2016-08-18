@@ -407,12 +407,15 @@ function wp_site_aliases_handle_site_actions() {
 			}
 
 			// Add
-			$alias = WP_Site_Alias::create( $params['site_id'], $params['domain'], $params['status'] );
+			$alias = WP_Site_Alias::create(
+				$params['site_id'],
+				$params['domain'],
+				$params['status']
+			);
 
 			// Bail if an error occurred
 			if ( is_wp_error( $alias ) ) {
-				$messages[] = $alias->get_error_message();
-				return $messages;
+				return $alias;
 			}
 
 			$processed[] = $alias->get_id();
@@ -500,7 +503,6 @@ function wp_site_aliases_output_edit_page() {
 
 	// URL
 	$action_url = wp_site_aliases_admin_url( array(
-		'page'   => 'site_aliases',
 		'action' => $action
 	) );
 
@@ -581,8 +583,7 @@ function wp_site_aliases_output_list_page() {
 	$site_id = wp_site_aliases_get_site_id();
 
 	// Action URLs
-	$form_url    = wp_site_aliases_admin_url( array( 'page' => 'site_aliases' ) );
-	$action_url  = wp_site_aliases_admin_url( array( 'page' => 'site_aliases' ) );
+	$form_url = $action_url = wp_site_aliases_admin_url();
 
 	// Output header, maybe with tabs
 	wp_site_aliases_output_page_header( $site_id ); ?>

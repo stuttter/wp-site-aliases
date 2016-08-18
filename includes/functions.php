@@ -101,15 +101,22 @@ function wp_site_aliases_validate_alias_parameters( $params = array() ) {
  */
 function wp_site_aliases_admin_url( $args = array() ) {
 
-	// Action
-	if ( is_network_admin() ) {
-		$admin_url = network_admin_url( 'sites.php' );
-	} else {
-		$admin_url = admin_url( 'index.php' );
-	}
+	// Parse args
+	$r = wp_parse_args( $args, array(
+		'page' => 'site_aliases',
+		'id'   => wp_site_aliases_get_site_id(),
+	) );
+
+	// Location
+	$admin_url = is_network_admin()
+		? network_admin_url( 'sites.php' )
+		: admin_url( 'index.php' );
+
+	// Add query args
+	$url = add_query_arg( $r, $admin_url );
 
 	// Add args and return
-	return add_query_arg( $args, $admin_url );
+	return apply_filters( 'wp_site_aliases_admin_url', $url, $admin_url, $r, $args );
 }
 
 /**

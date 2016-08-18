@@ -180,8 +180,8 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 
 		// Edit
 		$edit_link = wp_site_aliases_admin_url( array(
-			'page'      => 'site_alias_edit',
 			'id'        => $site_id,
+			'page'      => 'site_alias_edit',
 			'alias_ids' => array( $alias_id ),
 		) );
 
@@ -196,9 +196,8 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 
 		// Default args
 		$args = array(
-			'page'      => 'site_aliases',
-			'action'    => $action,
 			'id'        => $site_id,
+			'action'    => $action,
 			'alias_ids' => array( $alias_id ),
 			'_wpnonce'  => wp_create_nonce( "site_aliases-bulk-{$this->_args['site_id']}" )
 		);
