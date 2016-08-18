@@ -654,9 +654,10 @@ function wp_site_aliases_output_admin_notices() {
 	$did_action = sanitize_key( $_REQUEST['did_action'] );
 	$processed  = ! empty( $_REQUEST['processed'] ) ? wp_parse_id_list( (array) $_REQUEST['processed'] ) : array();
 	$processed  = array_map( 'absint', $processed );
+	$count      = count( $processed );
 
 	// Special case for single, as it's not really a "bulk" action
-	if ( $processed === 1 ) {
+	if ( 1 === $count ) {
 		$bulk_messages = array(
 			'activate'   => esc_html__( 'Activated %s',   'wp-site-aliases' ),
 			'deactivate' => esc_html__( 'Deactivated %s', 'wp-site-aliases' ),
@@ -679,7 +680,6 @@ function wp_site_aliases_output_admin_notices() {
 	// Note: we still use _n for languages which have special cases on
 	// e.g. 3, 5, 10, etc
 	} else {
-		$count         = count( $processed );
 		$placeholder   = number_format_i18n( $count );
 		$bulk_messages = array(
 			'activate'   => _n( '%s alias activated.',   '%s aliases activated.',   $count, 'wp-site-aliases' ),
