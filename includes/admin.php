@@ -706,7 +706,9 @@ function wp_site_aliases_output_admin_notices() {
 	// Start a buffer
 	ob_start();
 
-	?><div id="message" class="notice notice-success"><p><?php echo implode( '</p><p>', $messages ); ?></p></div><?php
+	?><div id="message" class="notice notice-success is-dismissible">
+		<p><?php echo implode( '</p><p>', $messages ); ?></p>
+	</div><?php
 
 	// Output the buffer
 	ob_end_flush();
