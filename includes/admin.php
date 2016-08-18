@@ -45,6 +45,26 @@ function wp_site_aliases_add_menu_item() {
 	}
 }
 
+function wp_site_aliases_get_admin_action() {
+	
+	$action = false;
+
+	// Regular action
+	if ( ! empty( $_REQUEST['action'] ) ) {
+		$action = $_REQUEST['action'];
+
+	// Bulk action (top)
+	} elseif ( ! empty( $_REQUEST['bulk_action'] ) ) {
+		$action = $_REQUEST['bulk_action'];
+
+	// Bulk action (bottom)
+	} elseif ( ! empty( $_REQUEST['bulk_action2'] ) ) {
+		$action = $_REQUEST['bulk_action2'];
+	}
+
+	return $action;
+}
+
 /**
  * Output UI for viewing all aliases
  *
@@ -115,7 +135,7 @@ function wp_site_aliases_fix_hidden_menu_highlight() {
  * @return  array
  */
 function wp_site_aliases_add_site_list_column( $columns ) {
-	$columns['aliases'] = esc_html__( 'Aliases', 'wp-site-aliases' );
+	$columns['alias_ids'] = esc_html__( 'Aliases', 'wp-site-aliases' );
 	return $columns;
 }
 
@@ -130,7 +150,7 @@ function wp_site_aliases_add_site_list_column( $columns ) {
 function wp_site_aliases_output_site_list_column( $column, $site_id ) {
 
 	// Bail if not for aliases column
-	if ( 'aliases' !== $column ) {
+	if ( 'alias_ids' !== $column ) {
 		return;
 	}
 
@@ -180,8 +200,11 @@ function wp_site_aliases_maybe_output_site_tab() {
 		return;
 	}
 
+	// Look for actions
+	$action = wp_site_aliases_get_admin_action();
+
 	// Look for active tab
-	$class = ! empty( $_REQUEST['action'] ) && in_array( sanitize_key( $_REQUEST['action'] ), array( 'site_aliases', 'site_alias_edit', 'site_alias_add' ), true )
+	$class = in_array( sanitize_key( $action ), array( 'site_aliases', 'site_alias_edit', 'site_alias_add' ), true )
 		? ' nav-tab-active'
 		: ''; ?>
 
@@ -275,15 +298,18 @@ function wp_site_aliases_output_page_footer() {
  */
 function wp_site_aliases_handle_site_actions() {
 
+	// Look for actions
+	$action = wp_site_aliases_get_admin_action();
+
 	// Bail if no action
-	if ( empty( $_REQUEST['action'] ) ) {
+	if ( false === $action ) {
 		return;
 	}
 
 	// Get action
-	$action      = sanitize_key( $_REQUEST['action'] );
+	$action      = sanitize_key( $action );
 	$site_id     = wp_site_aliases_get_site_id();
-	$redirect_to = remove_query_arg( array( 'did_action', 'processed', 'aliases', '_wpnonce' ), wp_get_referer() );
+	$redirect_to = remove_query_arg( array( 'did_action', 'processed', 'alias_ids', '_wpnonce' ), wp_get_referer() );
 
 	// Maybe fallback redirect
 	if ( empty( $redirect_to ) ) {
@@ -292,8 +318,8 @@ function wp_site_aliases_handle_site_actions() {
 
 	// Get aliases being bulk actioned
 	$processed = array();
-	$aliases   = ! empty( $_REQUEST['aliases'] )
-		? array_map( 'absint', (array) $_REQUEST['aliases'] )
+	$alias_ids = ! empty( $_REQUEST['alias_ids'] )
+		? array_map( 'absint', (array) $_REQUEST['alias_ids'] )
 		: array();
 
 	// Redirect args
@@ -308,7 +334,7 @@ function wp_site_aliases_handle_site_actions() {
 
 		// Bulk activate
 		case 'activate':
-			foreach ( $aliases as $alias_id ) {
+			foreach ( $alias_ids as $alias_id ) {
 				$alias = WP_Site_Alias::get_instance( $alias_id );
 
 				// Skip erroneous aliases
@@ -325,7 +351,7 @@ function wp_site_aliases_handle_site_actions() {
 
 		// Bulk deactivate
 		case 'deactivate':
-			foreach ( $aliases as $alias_id ) {
+			foreach ( $alias_ids as $alias_id ) {
 				$alias = WP_Site_Alias::get_instance( $alias_id );
 
 				// Skip erroneous aliases
@@ -344,7 +370,7 @@ function wp_site_aliases_handle_site_actions() {
 		case 'delete':
 			$args['domains'] = array();
 
-			foreach ( $aliases as $alias_id ) {
+			foreach ( $alias_ids as $alias_id ) {
 				$alias = WP_Site_Alias::get_instance( $alias_id );
 
 				// Skip erroneous aliases
@@ -381,7 +407,7 @@ function wp_site_aliases_handle_site_actions() {
 			}
 
 			// Add
-			$alias = WP_Site_Alias::create( $params['id'], $params['domain'], $params['status'] );
+			$alias = WP_Site_Alias::create( $params['site_id'], $params['domain'], $params['status'] );
 
 			// Bail if an error occurred
 			if ( is_wp_error( $alias ) ) {
@@ -411,7 +437,7 @@ function wp_site_aliases_handle_site_actions() {
 				return $messages;
 			}
 
-			$alias_id = $aliases[0];
+			$alias_id = $alias_ids[0];
 			$alias    = WP_Site_Alias::get_instance( $alias_id );
 
 			if ( is_wp_error( $alias ) ) {
@@ -435,7 +461,7 @@ function wp_site_aliases_handle_site_actions() {
 		// Any other bingos
 		default:
 			check_admin_referer( "site_aliases-bulk-{$site_id}" );
-			do_action_ref_array( "aliases_bulk_action-{$action}", array( $aliases, &$processed, $action ) );
+			do_action_ref_array( "aliases_bulk_action-{$action}", array( $alias_ids, &$processed, $action ) );
 
 			break;
 	}
@@ -460,8 +486,8 @@ function wp_site_aliases_output_edit_page() {
 	$site_id = wp_site_aliases_get_site_id();
 
 	// Edit
-	if ( ! empty( $_REQUEST['aliases'] ) ) {
-		$alias_id = absint( $_REQUEST['aliases'] );
+	if ( ! empty( $_REQUEST['alias_ids'] ) ) {
+		$alias_id = absint( $_REQUEST['alias_ids'] );
 		$alias    = WP_Site_Alias::get_instance( $alias_id );
 		$action   = 'edit';
 
@@ -518,9 +544,9 @@ function wp_site_aliases_output_edit_page() {
 			</tr>
 		</table>
 
-		<input type="hidden" name="action"  value="<?php echo esc_attr( $action   ); ?>">
-		<input type="hidden" name="site_id" value="<?php echo esc_attr( $site_id  ); ?>">
-		<input type="hidden" name="aliases" value="<?php echo esc_attr( $alias_id ); ?>"><?php
+		<input type="hidden" name="action"    value="<?php echo esc_attr( $action   ); ?>">
+		<input type="hidden" name="site_id"   value="<?php echo esc_attr( $site_id  ); ?>">
+		<input type="hidden" name="alias_ids" value="<?php echo esc_attr( $alias_id ); ?>"><?php
 
 		// Add
 		if ( 'add' === $action ) {

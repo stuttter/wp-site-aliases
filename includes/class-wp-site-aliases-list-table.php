@@ -154,7 +154,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 
 		return '<label class="screen-reader-text" for="cb-select-' . esc_attr( $alias_id ) . '">'
 			. sprintf( __( 'Select %s' ), esc_html( $domain ) ) . '</label>'
-			. '<input type="checkbox" name="aliases[]" value="' . esc_attr( $alias_id )
+			. '<input type="checkbox" name="alias_ids[]" value="' . esc_attr( $alias_id )
 			. '" id="cb-select-' . esc_attr( $alias_id ) . '" />';
 	}
 
@@ -180,9 +180,9 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 
 		// Edit
 		$edit_link = wp_site_aliases_admin_url( array(
-			'page'    => 'site_alias_edit',
-			'id'      => $site_id,
-			'aliases' => $alias_id,
+			'page'      => 'site_alias_edit',
+			'id'        => $site_id,
+			'alias_ids' => array( $alias_id ),
 		) );
 
 		// Active/Deactive
@@ -196,11 +196,11 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 
 		// Default args
 		$args = array(
-			'page'     => 'site_aliases',
-			'action'   => $action,
-			'id'       => $site_id,
-			'aliases'  => $alias_id,
-			'_wpnonce' => wp_create_nonce( "site_aliases-bulk-{$this->_args['site_id']}" )
+			'page'      => 'site_aliases',
+			'action'    => $action,
+			'id'        => $site_id,
+			'alias_ids' => array( $alias_id ),
+			'_wpnonce'  => wp_create_nonce( "site_aliases-bulk-{$this->_args['site_id']}" )
 		);
 
 		$status_link = wp_site_aliases_admin_url( $args );
