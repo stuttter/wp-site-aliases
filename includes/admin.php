@@ -660,11 +660,11 @@ function wp_site_aliases_output_admin_notices() {
 		'edit'       => _n( '%s alias updated.',     '%s aliases updated.',     $count, 'wp-site-aliases' ),
 
 		// Failure messages
-		'wp_site_aliases_alias_domain_exists'  => __( 'Alias already exists.',               'wp-site-aliases' ),
+		'wp_site_aliases_alias_domain_exists'  => __( 'That domain is already registered.',  'wp-site-aliases' ),
 		'wp_site_aliases_alias_update_failed'  => __( 'Update failed.',                      'wp-site-aliases' ),
 		'wp_site_aliases_alias_delete_failed'  => __( 'Delete failed.',                      'wp-site-aliases' ),
 		'wp_site_aliases_alias_invalid_id'     => __( 'Invalid site ID.',                    'wp-site-aliases' ),
-		'wp_site_aliases_no_domain'            => __( 'No domain was submitted.',            'wp-site-aliases' ),
+		'wp_site_aliases_no_domain'            => __( 'Missing domain.',                     'wp-site-aliases' ),
 		'wp_site_aliases_domain_invalid_chars' => __( 'Domain contains invalid characters.', 'wp-site-aliases' ),
 		'wp_site_aliases_invalid_site'         => __( 'Invalid site ID.',                    'wp-site-aliases' ),
 	);
