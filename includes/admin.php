@@ -27,8 +27,7 @@ function wp_site_aliases_add_menu_item() {
 		remove_submenu_page( 'sites.php', 'site_alias_edit' );
 
 		// Network management of all aliases
-		$top_level = add_menu_page( esc_html__( 'All Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_network_options', 'site_aliases_all', 'wp_site_aliases_output_all_aliases', 'dashicons-randomize', 6 );
-		$top_level = add_submenu_page( 'site_aliases_all', esc_html__( 'Add New Alias', 'wp-site-aliases' ), esc_html__( 'Add New', 'wp-site-aliases' ), 'manage_network_options', 'site_alias_add', 'wp_site_aliases_output_add_new_alias' );
+		add_menu_page( esc_html__( 'All Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_network_options', 'site_aliases_all', 'wp_site_aliases_output_list_page', 'dashicons-randomize', 6 );
 
 	// Blog admin page
 	} elseif ( is_blog_admin() ) {
@@ -538,12 +537,51 @@ function wp_site_aliases_output_edit_page() {
 						<?php esc_html_e( 'Active', 'wp-site-aliases' ); ?>
 					</label>
 				</td>
-			</tr>
-		</table>
+			</tr><?php
+
+			// Site picker for network admin
+			if ( is_network_admin() ) : 
+
+				// Get all of the sites - OY
+				$sites = get_sites( array(
+					'network_id' => get_current_network_id(),
+					'number'     => 10000
+				) );
+
+				?><tr>
+					<th scope="row">
+						<?php echo esc_html_x( 'Site', 'field name', 'wp-site-aliases' ); ?>
+					</th>
+					<td>
+						<label>
+							<select name="site_id" id="site_id"><?php
+
+							// Loop throug sites
+							foreach ( $sites as $site ) :
+
+								// Loop through sites
+								?><option id="<?php echo esc_attr( $site->blog_id ); ?>"><?php echo esc_html( $site->domain . $site->path ); ?></option><?php
+
+							endforeach;
+								
+							?></select>
+						</label>
+					</td>
+				</tr><?php
+			endif;
+
+		?></table>
 
 		<input type="hidden" name="action"    value="<?php echo esc_attr( $action   ); ?>">
-		<input type="hidden" name="site_id"   value="<?php echo esc_attr( $site_id  ); ?>">
-		<input type="hidden" name="alias_ids" value="<?php echo esc_attr( $alias_id ); ?>"><?php
+
+		<?php
+
+		// Hidden site ID for blog admin
+		if ( is_blog_admin() ) :
+		?><input type="hidden" name="site_id"   value="<?php echo esc_attr( $site_id  ); ?>"><?php
+		endif;
+
+		?><input type="hidden" name="alias_ids" value="<?php echo esc_attr( $alias_id ); ?>"><?php
 
 		// Add
 		if ( 'add' === $action ) {
@@ -602,8 +640,35 @@ function wp_site_aliases_output_list_page() {
 							<label for="blog_alias"><?php echo esc_html_x( 'Domain Name', 'field name', 'wp-site-aliases' ); ?></label>
 							<input type="text" class="regular-text code" name="domain" id="blog_alias" value="">
 							<p><?php esc_html_e( 'The fully qualified domain name that this site should load for.', 'wp-site-aliases' ); ?></p>
-						</div>
-						<div class="form-field form-required status-wrap">
+						</div><?php
+
+							// Site picker for network admin
+							if ( is_network_admin() ) : 
+
+								// Get all of the sites - OY
+								$sites = get_sites( array(
+									'network_id' => get_current_network_id(),
+									'number'     => 10000
+								) );
+
+								// Output the site ID field
+								?><div>
+									<label for="site_id"><?php echo esc_html_x( 'Site', 'field name', 'wp-site-aliases' ); ?></label>
+									<select name="site_id" id="site_id"><?php
+
+									// Loop throug sites
+									foreach ( $sites as $site ) :
+
+										// Loop through sites
+										?><option id="<?php echo esc_attr( $site->blog_id ); ?>"><?php echo esc_html( $site->domain . $site->path ); ?></option><?php
+
+									endforeach;
+
+									?></select>
+								</div><?php
+							endif;
+
+						?><div class="form-field form-required status-wrap">
 							<label for="status"><?php echo esc_html_x( 'Status', 'field name', 'wp-site-aliases' ); ?></label>
 							<label>
 								<input type="checkbox" name="status" <?php checked( true ); ?> />

@@ -42,12 +42,22 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @return array Map of column ID => title
 	 */
 	public function get_columns() {
-		return array(
+
+		// Universal columns
+		$columns = array(
 			'cb'      => '<input type="checkbox" />',
-			'domain'  => _x( 'Domain',  'wp-site-aliases' ),
-			'status'  => _x( 'Status',  'wp-site-aliases' ),
-			'created' => _x( 'Created', 'wp-site-aliases' )
+			'domain'  => _x( 'Domain',  'site aliases', 'wp-site-aliases' ),
+			'status'  => _x( 'Status',  'site aliases', 'wp-site-aliases' ),
+			'created' => _x( 'Created', 'site aliases', 'wp-site-aliases' )
 		);
+
+		// Add "Site" column for network admin
+		if ( is_network_admin() ) {
+			$columns['site'] = _x( 'Site', 'site aliases', 'wp-site-aliases' );
+		}
+
+		// Return columns
+		return $columns;
 	}
 
 	/**
@@ -258,5 +268,19 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	protected function column_created( $alias ) {
 		return mysql2date( get_option( 'date_format' ), $alias->get_created() ) . '<br>' .
 			   mysql2date( get_option( 'time_format' ), $alias->get_created() );
+	}
+
+	/**
+	 * Get value for the site column
+	 *
+	 * @since 0.1.0
+	 * @access protected
+	 *
+	 * @param WP_Site_Alias $alias Current alias item
+	 *
+	 * @return string HTML for the cell
+	 */
+	protected function column_site( $alias ) {
+		echo get_site( $alias->get_site_id() )->home;
 	}
 }
