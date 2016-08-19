@@ -46,7 +46,7 @@ function wp_site_aliases_add_menu_item() {
 }
 
 function wp_site_aliases_get_admin_action() {
-	
+
 	$action = false;
 
 	// Regular action
@@ -71,7 +71,7 @@ function wp_site_aliases_get_admin_action() {
  * @since 2.0.0
  */
 function wp_site_aliases_output_all_aliases() {
-	
+
 }
 
 /**
@@ -80,7 +80,7 @@ function wp_site_aliases_output_all_aliases() {
  * @since 2.0.0
  */
 function wp_site_aliases_output_add_new_alias() {
-	
+
 }
 
 /**
@@ -339,6 +339,7 @@ function wp_site_aliases_handle_site_actions() {
 
 				// Skip erroneous aliases
 				if ( is_wp_error( $alias ) ) {
+					$args['did_action'] = $alias->get_error_code();
 					continue;
 				}
 
@@ -356,6 +357,7 @@ function wp_site_aliases_handle_site_actions() {
 
 				// Skip erroneous aliases
 				if ( is_wp_error( $alias ) ) {
+					$args['did_action'] = $alias->get_error_code();
 					continue;
 				}
 
@@ -375,6 +377,7 @@ function wp_site_aliases_handle_site_actions() {
 
 				// Skip erroneous aliases
 				if ( is_wp_error( $alias ) ) {
+					$args['did_action'] = $alias->get_error_code();
 					continue;
 				}
 
@@ -395,15 +398,10 @@ function wp_site_aliases_handle_site_actions() {
 			// Check that the parameters are correct first
 			$params = wp_site_aliases_validate_alias_parameters( wp_unslash( $_POST ) );
 
-			// Error messages
+			// Error
 			if ( is_wp_error( $params ) ) {
-				$messages[] = $params->get_error_message();
-
-				if ( $params->get_error_code() === 'wp_site_aliases_domain_invalid_chars' ) {
-					$messages[] = esc_html__( 'Internationalized domain names must use the ASCII version (e.g, <code>xn--bcher-kva.example</code>)', 'wp-site-aliases' );
-				}
-
-				return $messages;
+				$args['did_action'] = $params->get_error_code();
+				continue;
 			}
 
 			// Add
@@ -415,7 +413,8 @@ function wp_site_aliases_handle_site_actions() {
 
 			// Bail if an error occurred
 			if ( is_wp_error( $alias ) ) {
-				return $alias;
+				$args['did_action'] = $alias->get_error_code();
+				continue;
 			}
 
 			$processed[] = $alias->get_id();
@@ -431,30 +430,26 @@ function wp_site_aliases_handle_site_actions() {
 
 			// Error messages
 			if ( is_wp_error( $params ) ) {
-				$messages[] = $params->get_error_message();
-
-				if ( $params->get_error_code() === 'wp_site_aliases_domain_invalid_chars' ) {
-					$messages[] = esc_html__( 'Internationalized domain names must use the ASCII version (e.g, <code>xn--bcher-kva.example</code>)', 'wp-site-aliases' );
-				}
-
-				return $messages;
+				$args['did_action'] = $params->get_error_code();
+				continue;
 			}
 
 			$alias_id = $alias_ids[0];
 			$alias    = WP_Site_Alias::get_instance( $alias_id );
 
+			// Error messages
 			if ( is_wp_error( $alias ) ) {
-				$messages[] = $alias->get_error_message();
-				return $messages;
+				$args['did_action'] = $alias->get_error_code();
+				continue;
 			}
 
 			// Update
 			$result = $alias->update( $params );
 
-			// Bail if an error occurred
+			// Error messages
 			if ( is_wp_error( $result ) ) {
-				$messages[] = $result->get_error_message();
-				return $messages;
+				$args['did_action'] = $result->get_error_code();
+				continue;
 			}
 
 			$processed[] = $alias_id;
@@ -644,71 +639,59 @@ function wp_site_aliases_output_list_page() {
  */
 function wp_site_aliases_output_admin_notices() {
 
-	// Default messages array
-	$messages = array();
-
 	// Add messages for bulk actions
 	if ( empty( $_REQUEST['did_action'] ) ) {
 		return;
 	}
 
+	// Vars
 	$did_action = sanitize_key( $_REQUEST['did_action'] );
 	$processed  = ! empty( $_REQUEST['processed'] ) ? wp_parse_id_list( (array) $_REQUEST['processed'] ) : array();
 	$processed  = array_map( 'absint', $processed );
 	$count      = count( $processed );
+	$output     = array();
+	$messages   = array(
 
-	// Special case for single, as it's not really a "bulk" action
-	if ( 1 === $count ) {
-		$bulk_messages = array(
-			'activate'   => esc_html__( 'Activated %s',   'wp-site-aliases' ),
-			'deactivate' => esc_html__( 'Deactivated %s', 'wp-site-aliases' ),
-			'delete'     => esc_html__( 'Deleted %s',     'wp-site-aliases' ),
-			'add'        => esc_html__( 'Added %s',       'wp-site-aliases' ),
-			'edit'       => esc_html__( 'Updated %s',     'wp-site-aliases' ),
-		);
+		// Success messages
+		'activate'   => _n( '%s alias activated.',   '%s aliases activated.',   $count, 'wp-site-aliases' ),
+		'deactivate' => _n( '%s alias deactivated.', '%s aliases deactivated.', $count, 'wp-site-aliases' ),
+		'delete'     => _n( '%s alias deleted.',     '%s aliases deleted.',     $count, 'wp-site-aliases' ),
+		'add'        => _n( '%s alias added.',       '%s aliases added.',       $count, 'wp-site-aliases' ),
+		'edit'       => _n( '%s alias updated.',     '%s aliases updated.',     $count, 'wp-site-aliases' ),
 
-		if ( 'delete' === $did_action ) {
-			$domain = ! empty( $_REQUEST['domains'] )
-				? $_REQUEST['domains'][0]
-				: array();
-		} else {
-			$alias  = WP_Site_Alias::get_instance( $processed[0] );
-			$domain = $alias->get_domain();
-		}
-
-		$placeholder = '<code>' . esc_html( $domain ) . '</code>';
-
-	// Note: we still use _n for languages which have special cases on
-	// e.g. 3, 5, 10, etc
-	} else {
-		$placeholder   = number_format_i18n( $count );
-		$bulk_messages = array(
-			'activate'   => _n( '%s alias activated.',   '%s aliases activated.',   $count, 'wp-site-aliases' ),
-			'deactivate' => _n( '%s alias deactivated.', '%s aliases deactivated.', $count, 'wp-site-aliases' ),
-			'delete'     => _n( '%s alias deleted.',     '%s aliases deleted.',     $count, 'wp-site-aliases' ),
-			'add'        => _n( '%s alias added.',       '%s aliases added.',       $count, 'wp-site-aliases' ),
-			'edit'       => _n( '%s alias updated.',     '%s aliases updated.',     $count, 'wp-site-aliases' )
-		);
-	}
-
-	// Filter bulk messages, allowing for custom ones
-	$bulk_messages = apply_filters( 'wp_site_aliases_bulk_messages', $bulk_messages, $processed );
+		// Failure messages
+		'wp_site_aliases_alias_domain_exists'  => __( 'Alias already exists.',               'wp-site-aliases' ),
+		'wp_site_aliases_alias_update_failed'  => __( 'Update failed.',                      'wp-site-aliases' ),
+		'wp_site_aliases_alias_delete_failed'  => __( 'Delete failed.',                      'wp-site-aliases' ),
+		'wp_site_aliases_alias_invalid_id'     => __( 'Invalid site ID.',                    'wp-site-aliases' ),
+		'wp_site_aliases_no_domain'            => __( 'No domain was submitted.',            'wp-site-aliases' ),
+		'wp_site_aliases_domain_invalid_chars' => __( 'Domain contains invalid characters.', 'wp-site-aliases' ),
+		'wp_site_aliases_invalid_site'         => __( 'Invalid site ID.',                    'wp-site-aliases' ),
+	);
 
 	// Insert the placeholder
-	if ( ! empty( $bulk_messages[ $did_action ] ) ) {
-		$messages[] = sprintf( $bulk_messages[ $did_action ], $placeholder );
+	if ( ! empty( $messages[ $did_action ] ) ) {
+		$output[] = sprintf( $messages[ $did_action ], number_format_i18n( $count ) );
 	}
 
 	// Bail if no messages
-	if ( empty( $messages ) ) {
+	if ( empty( $output ) ) {
 		return;
 	}
+
+	// Get success keys
+	$success = array_keys( array_slice( $messages, 0, 5 ) );
+
+	// Which class
+	$notice_class = in_array( $did_action, $success )
+		? 'notice-success'
+		: 'notice-warning';
 
 	// Start a buffer
 	ob_start();
 
-	?><div id="message" class="notice notice-success is-dismissible">
-		<p><?php echo implode( '</p><p>', $messages ); ?></p>
+	?><div id="message" class="notice <?php echo esc_attr( $notice_class ); ?> is-dismissible">
+		<p><?php echo implode( '</p><p>', $output ); ?></p>
 	</div><?php
 
 	// Output the buffer

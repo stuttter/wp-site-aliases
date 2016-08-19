@@ -255,7 +255,7 @@ class WP_Site_Alias {
 	 * @param int $alias_id The ID of the site to retrieve.
 	 * @return WP_Site_Alias|false The site alias's object if found. False if not.
 	 */
-	public static function get_instance( $alias_id ) {
+	public static function get_instance( $alias_id = 0 ) {
 		global $wpdb;
 
 		$alias_id = (int) $alias_id;
