@@ -437,7 +437,8 @@ function wp_site_aliases_output_edit_page() {
 
 	// Edit
 	if ( ! empty( $_REQUEST['alias_ids'] ) ) {
-		$alias_id = absint( $_REQUEST['alias_ids'] );
+		$aliases  = array_map( 'absint', $_REQUEST['alias_ids'] );
+		$alias_id = reset( $aliases );
 		$alias    = WP_Site_Alias::get_instance( $alias_id );
 		$action   = 'edit';
 
