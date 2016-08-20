@@ -474,16 +474,24 @@ function wp_site_aliases_output_edit_page() {
 					<?php echo esc_html_x( 'Status', 'field name', 'wp-site-aliases' ); ?>
 				</th>
 				<td>
-					<label>
-						<input type="checkbox" name="status" <?php checked( $active ); ?>>
+					<select name="status" id="status"><?php
 
-						<?php esc_html_e( 'Active', 'wp-site-aliases' ); ?>
-					</label>
+						$statuses = wp_site_aliases_get_statuses();
+
+						// Loop throug sites
+						foreach ( $statuses as $status ) :
+
+							// Loop through sites
+							?><option value="<?php echo esc_attr( $status->id ); ?>" <?php selected( $status->id, $alias->get_status() ); ?>><?php echo esc_html( $status->name ); ?></option><?php
+
+						endforeach;
+
+					?></select>
 				</td>
 			</tr><?php
 
 			// Site picker for network admin
-			if ( is_network_admin() && wp_site_aliases_is_network_aliases() ) : 
+			if ( is_network_admin() && wp_site_aliases_is_network_aliases() ) :
 
 				// Get all of the sites - OY
 				$sites = wp_site_aliases_get_sites();
@@ -503,7 +511,7 @@ function wp_site_aliases_output_edit_page() {
 								?><option value="<?php echo esc_attr( $site->blog_id ); ?>"><?php echo esc_html( $site->domain . $site->path ); ?></option><?php
 
 							endforeach;
-								
+
 							?></select>
 						</label>
 					</td>
@@ -585,7 +593,7 @@ function wp_site_aliases_output_list_page() {
 						</div><?php
 
 							// Site picker for network admin
-							if ( is_network_admin() && wp_site_aliases_is_network_aliases() ) : 
+							if ( is_network_admin() && wp_site_aliases_is_network_aliases() ) :
 
 								// Get all of the sites - OY
 								$sites = wp_site_aliases_get_sites();
@@ -609,18 +617,26 @@ function wp_site_aliases_output_list_page() {
 
 						?><div class="form-field form-required status-wrap">
 							<label for="status"><?php echo esc_html_x( 'Status', 'field name', 'wp-site-aliases' ); ?></label>
-							<label>
-								<input type="checkbox" name="status" <?php checked( true ); ?> />
+							<select name="status" id="status"><?php
 
-								<?php esc_html_e( 'Active', 'wp-site-aliases' ); ?>
-							</label>
+								$statuses = wp_site_aliases_get_statuses();
+
+								// Loop throug sites
+								foreach ( $statuses as $status ) :
+
+									// Loop through sites
+									?><option value="<?php echo esc_attr( $status->id ); ?>"><?php echo esc_html( $status->name ); ?></option><?php
+
+								endforeach;
+
+							?></select>
 							<p><?php esc_html_e( 'Whether this domain is ready to accept incoming requests.', 'wp-site-aliases' ); ?></p>
 						</div>
 
 						<input type="hidden" name="action"  value="add"><?php
 
-						// 
-						if ( ! wp_site_aliases_is_network_aliases() ) : 
+						//
+						if ( ! wp_site_aliases_is_network_aliases() ) :
 
 							?><input type="hidden" name="site_id" value="<?php echo esc_attr( $site_id ); ?>"><?php
 
@@ -670,13 +686,14 @@ function wp_site_aliases_output_admin_notices() {
 		'edit'       => _n( '%s alias updated.',     '%s aliases updated.',     $count, 'wp-site-aliases' ),
 
 		// Failure messages
-		'wp_site_aliases_alias_domain_exists'  => __( 'That domain is already registered.',  'wp-site-aliases' ),
-		'wp_site_aliases_alias_update_failed'  => __( 'Update failed.',                      'wp-site-aliases' ),
-		'wp_site_aliases_alias_delete_failed'  => __( 'Delete failed.',                      'wp-site-aliases' ),
-		'wp_site_aliases_alias_invalid_id'     => __( 'Invalid site ID.',                    'wp-site-aliases' ),
-		'wp_site_aliases_no_domain'            => __( 'Missing domain.',                     'wp-site-aliases' ),
-		'wp_site_aliases_domain_invalid_chars' => __( 'Domain contains invalid characters.', 'wp-site-aliases' ),
-		'wp_site_aliases_invalid_site'         => __( 'Invalid site ID.',                    'wp-site-aliases' ),
+		'wp_site_aliases_alias_domain_exists'   => _x( 'That domain is already registered.', 'site aliases', 'wp-site-aliases' ),
+		'wp_site_aliases_alias_update_failed'   => _x( 'Update failed.',                     'site aliases', 'wp-site-aliases' ),
+		'wp_site_aliases_alias_delete_failed'   => _x( 'Delete failed.',                     'site aliases', 'wp-site-aliases' ),
+		'wp_site_aliases_alias_invalid_id'      => _x( 'Invalid site ID.',                   'site aliases', 'wp-site-aliases' ),
+		'wp_site_aliases_domain_empty'          => _x( 'Alias missing domain.',              'site aliases', 'wp-site-aliases' ),
+		'wp_site_aliases_domain_requires_tld'   => _x( 'Alias missing a top-level domain.',  'site aliases', 'wp-site-aliases' ),
+		'wp_site_aliases_domain_invalid_chars'  => _x( 'Alias contains invalid characters.', 'site aliases', 'wp-site-aliases' ),
+		'wp_site_aliases_domain_invalid_status' => _x( 'Status must be active or inactive',  'site aliases', 'wp-site-aliases' )
 	);
 
 	// Insert the placeholder

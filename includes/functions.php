@@ -50,45 +50,57 @@ function wp_site_aliases_get_site_id() {
  *
  * @since 0.1.0
  *
- * @param  array  $params  Raw input parameters
+ * @param  array  $args  Raw input parameters
  *
  * @return array|WP_Error Validated parameters on success, WP_Error otherwise
  */
-function wp_site_aliases_validate_alias_parameters( $params = array() ) {
-	$valid = array();
+function wp_site_aliases_validate_alias_parameters( $args = array() ) {
 
-	// Prevent debug notices
-	if ( empty( $params['domain'] ) || empty( $params['site_id'] ) ) {
-		return new WP_Error( 'wp_site_aliases_no_domain', esc_html__( 'Aliases require a domain name', 'wp-site-aliases' ) );
-	}
+	// Parse the args
+	$r = wp_parse_args( $args, array(
+		'site_id' => 0,
+		'domain'  => '',
+		'status'  => '',
+	) );
+
+	// Cast site ID to int
+	$r['site_id'] = (int) $r['site_id'];
+
+	// Remove all whitespace from domain
+	$r['domain'] = preg_replace( '/\s+/', '', $r['domain'] );
 
 	// Strip schemes from domain
-	$params['domain'] = preg_replace( '#^https?://#', '', rtrim( $params['domain'], '/' ) );
+	$r['domain'] = preg_replace( '#^https?://#', '', rtrim( $r['domain'], '/' ) );
+
+	// Make domain lowercase
+	$r['domain'] = strtolower( $r['domain'] );
+
+	// Bail if site ID is not valid
+	if ( empty( $r['site_id'] ) ) {
+		return new WP_Error( 'wp_site_aliases_alias_invalid_id', esc_html__( 'Invalid site ID', 'wp-site-aliases' ) );
+	}
+
+	// Prevent debug notices
+	if ( empty( $r['domain'] ) ) {
+		return new WP_Error( 'wp_site_aliases_domain_empty', esc_html__( 'Aliases require a domain name', 'wp-site-aliases' ) );
+	}
 
 	// Bail if no domain name
-	if ( empty( $params['domain'] ) || ! strpos( $params['domain'], '.' ) ) {
-		return new WP_Error( 'wp_site_aliases_no_domain', esc_html__( 'Aliases require a domain name', 'wp-site-aliases' ) );
+	if ( ! strpos( $r['domain'], '.' ) ) {
+		return new WP_Error( 'wp_site_aliases_domain_requires_tld', esc_html__( 'Aliases require a top-level domain', 'wp-site-aliases' ) );
 	}
 
 	// Bail if domain name using invalid characters
-	if ( ! preg_match( '#^[a-z0-9\-.]+$#i', $params['domain'] ) ) {
-		return new WP_Error( 'wp_site_aliases_domain_invalid_chars', esc_html__( 'Domains can only contain alphanumeric characters, dashes (-) and periods (.)', 'wp-site-aliases' ) );
-	}
-
-	$valid['domain'] = $params['domain'];
-
-	// Bail if site ID is not valid
-	$valid['site_id'] = (int) $params['site_id'];
-	if ( empty( $valid['site_id'] ) ) {
-		return new WP_Error( 'wp_site_aliases_invalid_site', esc_html__( 'Invalid site ID', 'wp-site-aliases' ) );
+	if ( ! preg_match( '#^[a-z0-9\-.]+$#i', $r['domain'] ) ) {
+		return new WP_Error( 'wp_site_aliases_domain_invalid_chars', esc_html__( 'Aliases can only contain alphanumeric characters, dashes (-) and periods (.)', 'wp-site-aliases' ) );
 	}
 
 	// Validate status
-	$valid['status'] = empty( $params['status'] )
-		? 'inactive'
-		: 'active';
+	if ( ! in_array( $r['status'], array( 'active', 'inactive' ), true ) ) {
+		return new WP_Error( 'wp_site_aliases_domain_invalid_status', esc_html__( 'Status must be active or inactive', 'wp-site-aliases' ) );
+	}
 
-	return $valid;
+	return $r;
 }
 
 /**
@@ -455,6 +467,26 @@ function wp_site_aliases_get_sites( $args = array() ) {
  */
 function wp_site_aliases_is_network_aliases() {
 	return isset( $_GET['page'] ) && ( 'all_site_aliases' === $_GET['page'] );
+}
+
+/**
+ * Get all available site alias statuses
+ *
+ * @since 0.1.0
+ *
+ * @return array
+ */
+function wp_site_aliases_get_statuses() {
+	return apply_filters( 'wp_site_aliases_get_statuses', array(
+		(object) array(
+			'id'   => 'active',
+			'name' => _x( 'Active', 'site aliases', 'wp-site-aliases' )
+		),
+		(object) array(
+			'id'   => 'inactive',
+			'name' => _x( 'Inactive', 'site aliases', 'wp-site-aliases' )
+		),
+	) );
 }
 
 /**
