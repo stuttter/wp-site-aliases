@@ -21,7 +21,7 @@ function wp_site_aliases_get_site_id() {
 	// Set the default
 	$default_id = is_blog_admin()
 		? get_current_blog_id()
-		: 0;
+		: get_current_blog_id();
 
 	// Get site ID being requested
 	$site_id = isset( $_REQUEST['id'] )
@@ -101,16 +101,26 @@ function wp_site_aliases_validate_alias_parameters( $params = array() ) {
  */
 function wp_site_aliases_admin_url( $args = array() ) {
 
+	// Network aliases?
+	$network_aliases = wp_site_aliases_is_network_aliases();
+
 	// Parse args
 	$r = wp_parse_args( $args, array(
-		'page' => 'site_aliases',
 		'id'   => wp_site_aliases_get_site_id(),
+		'page' => ( true === $network_aliases )
+			? 'site_aliases_all'
+			: 'site_aliases',
 	) );
 
 	// Location
 	$admin_url = is_network_admin()
 		? network_admin_url( 'sites.php' )
 		: admin_url( 'index.php' );
+
+	// Unset ID if viewing network aliases
+	if ( true === $network_aliases ) {
+		unset( $r['id'] );
+	}
 
 	// Add query args
 	$url = add_query_arg( $r, $admin_url );
@@ -418,6 +428,33 @@ function wp_site_aliases_explode_domain( $domain, $segments = 1 ) {
 	$domains[] = array_shift( $host_segments );
 
 	return $domains;
+}
+
+/**
+ * Get sites for network
+ *
+ * @since 0.1.0
+ *
+ * @param  array $args
+ *
+ * @return array
+ */
+function wp_site_aliases_get_sites( $args = array() ) {
+	return get_sites( wp_parse_args( $args, array(
+		'network_id' => get_current_network_id(),
+		'number'     => 10000
+	) ) );
+}
+
+/**
+ * Is this the all aliases screen?
+ *
+ * @since 0.1.0
+ *
+ * @return bool
+ */
+function wp_site_aliases_is_network_aliases() {
+	return isset( $_GET['page'] ) && ( 'site_aliases_all' === $_GET['page'] );
 }
 
 /**

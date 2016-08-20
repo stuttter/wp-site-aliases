@@ -317,6 +317,34 @@ class WP_Site_Alias {
 	}
 
 	/**
+	 * Get alias by network ID
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param int|stdClass $network Network ID, or network object
+	 *
+	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
+	 */
+	public static function get_for_network() {
+
+		// Get site IDs
+		$sites    = wp_site_aliases_get_sites();
+		$site_ids = wp_list_pluck( $sites, 'blog_id' );
+
+		// Get aliases
+		$aliases = new WP_Site_Alias_Query( array(
+			'site__in' => $site_ids
+		) );
+
+		// Bail if no aliases
+		if ( empty( $aliases->found_site_aliases ) ) {
+			return null;
+		}
+
+		return $aliases->aliases;
+	}
+
+	/**
 	 * Get alias by domain(s)
 	 *
 	 * @since 0.1.0
