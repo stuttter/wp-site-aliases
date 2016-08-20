@@ -108,7 +108,7 @@ function wp_site_aliases_admin_url( $args = array() ) {
 	$r = wp_parse_args( $args, array(
 		'id'   => wp_site_aliases_get_site_id(),
 		'page' => ( true === $network_aliases )
-			? 'site_aliases_all'
+			? 'all_site_aliases'
 			: 'site_aliases',
 	) );
 
@@ -454,7 +454,34 @@ function wp_site_aliases_get_sites( $args = array() ) {
  * @return bool
  */
 function wp_site_aliases_is_network_aliases() {
-	return isset( $_GET['page'] ) && ( 'site_aliases_all' === $_GET['page'] );
+	return isset( $_GET['page'] ) && ( 'all_site_aliases' === $_GET['page'] );
+}
+
+/**
+ * Sanitize requested alias ID values
+ *
+ * @since 0.1.0
+ *
+ * @param bool $single
+ * @return mixed
+ */
+function wp_site_aliases_sanitize_alias_ids( $single = false ) {
+
+	// Default value
+	$retval = array();
+
+	//
+	if ( isset( $_REQUEST['alias_ids'] ) ) {
+		$retval = array_map( 'absint', (array) $_REQUEST['alias_ids'] );
+	}
+
+	// Return the first item
+	if ( true === $single ) {
+		$retval = reset( $retval );
+	}
+
+	// Filter & return
+	return apply_filters( 'wp_site_aliases_sanitize_alias_ids', $retval );
 }
 
 /**

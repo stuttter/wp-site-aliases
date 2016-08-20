@@ -193,16 +193,16 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		// Edit
 		$edit_link = wp_site_aliases_admin_url( array(
 			'id'        => $site_id,
-			'page'      => 'site_alias_edit',
+			'page'      => 'alias_edit_site',
 			'alias_ids' => array( $alias_id ),
 		) );
 
 		// Active/Deactive
 		if ( 'active' === $status ) {
-			$text   = __( 'Deactivate', 'wp-site-aliases' );
+			$text   = _x( 'Deactivate', 'site aliases', 'wp-site-aliases' );
 			$action = 'deactivate';
 		} else {
-			$text   = __( 'Activate', 'wp-site-aliases' );
+			$text   = _x( 'Activate', 'site aliases', 'wp-site-aliases' );
 			$action = 'activate';
 		}
 
@@ -253,8 +253,8 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 */
 	protected function column_status( $alias ) {
 		return ( 'active' === $alias->get_status() )
-			? esc_html__( 'Active',   'wp-site-aliases' )
-			: esc_html__( 'Inactive', 'wp-site-aliases' );
+			? esc_html_x( 'Active',   'site aliases', 'wp-site-aliases' )
+			: esc_html_x( 'Inactive', 'site aliases', 'wp-site-aliases' );
 	}
 
 	/**
