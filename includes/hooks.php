@@ -29,8 +29,8 @@ add_filter( 'wpmu_blogs_columns',         'wp_site_aliases_add_site_list_column'
 
 // Navigation
 add_filter( 'network_edit_site_nav_links', 'wp_site_aliases_add_site_tab' );
-add_action( 'admin_menu',                  'wp_site_aliases_add_menu_item', 30 );
-add_action( 'network_admin_menu',          'wp_site_aliases_add_menu_item', 10 );
+add_action( 'admin_menu',                 'wp_site_aliases_add_menu_item', 30 );
+add_action( 'network_admin_menu',         'wp_site_aliases_add_menu_item', 10 );
 
 // Notices
 add_action( 'wp_site_aliases_admin_notices', 'wp_site_aliases_output_admin_notices' );

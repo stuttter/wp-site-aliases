@@ -114,7 +114,7 @@ function wp_site_aliases_validate_alias_parameters( $args = array() ) {
 function wp_site_aliases_admin_url( $args = array() ) {
 
 	// Network aliases?
-	$network_aliases = wp_site_aliases_is_network_aliases();
+	$network_aliases = wp_site_aliases_is_network_list();
 
 	// Parse args
 	$r = wp_parse_args( $args, array(
@@ -124,9 +124,20 @@ function wp_site_aliases_admin_url( $args = array() ) {
 			: 'site_aliases',
 	) );
 
+	// File
+	$file = ( true === $network_aliases )
+		? 'admin.php'
+		: 'sites.php';
+
+	// Override for network edit
+	if ( wp_site_aliases_is_network_edit() ) {
+		$file = 'admin.php';
+		$r['page'] = 'all_site_aliases';
+	}
+		
 	// Location
 	$admin_url = is_network_admin()
-		? network_admin_url( 'sites.php' )
+		? network_admin_url( $file )
 		: admin_url( 'index.php' );
 
 	// Unset ID if viewing network aliases
@@ -465,8 +476,19 @@ function wp_site_aliases_get_sites( $args = array() ) {
  *
  * @return bool
  */
-function wp_site_aliases_is_network_aliases() {
+function wp_site_aliases_is_network_list() {
 	return isset( $_GET['page'] ) && ( 'all_site_aliases' === $_GET['page'] );
+}
+
+/**
+ * Is this the network alias edit screen?
+ *
+ * @since 0.1.0
+ *
+ * @return bool
+ */
+function wp_site_aliases_is_network_edit() {
+	return isset( $_GET['referrer'] ) && ( 'network' === $_GET['referrer'] );
 }
 
 /**

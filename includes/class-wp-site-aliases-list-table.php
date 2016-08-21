@@ -27,7 +27,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		}
 
 		$id      = $this->_args['site_id'];
-		$aliases = wp_site_aliases_is_network_aliases()
+		$aliases = wp_site_aliases_is_network_list()
 			? WP_Site_Alias::get_for_network()
 			: WP_Site_Alias::get_by_site( $id );
 
@@ -54,7 +54,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		);
 
 		// Add "Site" column for network admin
-		if ( is_network_admin() && wp_site_aliases_is_network_aliases() ) {
+		if ( is_network_admin() && wp_site_aliases_is_network_list() ) {
 			$columns['site'] = _x( 'Site', 'site aliases', 'wp-site-aliases' );
 		}
 
@@ -193,8 +193,11 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		// Edit
 		$edit_link = wp_site_aliases_admin_url( array(
 			'id'        => $site_id,
-			'page'      => 'alias_edit_site',
 			'alias_ids' => array( $alias_id ),
+			'page'      => 'alias_edit_site',
+			'referrer'  => wp_site_aliases_is_network_list()
+				? 'network'
+				: 'site'
 		) );
 
 		// Active/Deactive

@@ -28,6 +28,8 @@ function wp_site_aliases_add_menu_item() {
 
 		// Network management of all aliases
 		$hooks[] = add_menu_page( esc_html__( 'All Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_network_options', 'all_site_aliases', 'wp_site_aliases_output_list_page', 'dashicons-randomize', 6 );
+		$hooks[] = add_submenu_page( 'admin.php', esc_html__( 'All Aliases', 'wp-site-aliases' ), esc_html__( 'Aliases', 'wp-site-aliases' ), 'manage_network_options', 'alias_edit_site', 'wp_site_aliases_output_edit_page', 'dashicons-randomize', 6 );
+		remove_submenu_page( 'admin.php', 'alias_edit_site' );
 
 	// Blog admin page
 	} elseif ( is_blog_admin() ) {
@@ -44,42 +46,31 @@ function wp_site_aliases_add_menu_item() {
 	}
 }
 
+/**
+ * Get any admin actions
+ *
+ * @since 0.1.0
+ *
+ * @return string
+ */
 function wp_site_aliases_get_admin_action() {
 
 	$action = false;
 
 	// Regular action
 	if ( ! empty( $_REQUEST['action'] ) ) {
-		$action = $_REQUEST['action'];
+		$action = sanitize_key( $_REQUEST['action'] );
 
 	// Bulk action (top)
 	} elseif ( ! empty( $_REQUEST['bulk_action'] ) ) {
-		$action = $_REQUEST['bulk_action'];
+		$action = sanitize_key( $_REQUEST['bulk_action'] );
 
 	// Bulk action (bottom)
 	} elseif ( ! empty( $_REQUEST['bulk_action2'] ) ) {
-		$action = $_REQUEST['bulk_action2'];
+		$action = sanitize_key( $_REQUEST['bulk_action2'] );
 	}
 
 	return $action;
-}
-
-/**
- * Output UI for viewing all aliases
- *
- * @since 2.0.0
- */
-function wp_site_aliases_output_all_aliases() {
-
-}
-
-/**
- * Output UI for adding a new alias to a site
- *
- * @since 2.0.0
- */
-function wp_site_aliases_output_add_new_alias() {
-
 }
 
 /**
@@ -115,9 +106,17 @@ function wp_site_aliases_load_site_list_table() {
 function wp_site_aliases_fix_hidden_menu_highlight() {
 	global $parent_file, $submenu_file;
 
+	// Network admin
 	if ( is_network_admin() ) {
-		$parent_file  = 'sites.php';
-		$submenu_file = 'sites.php';
+		if ( wp_site_aliases_is_network_edit() ) {
+			$parent_file  = 'all_site_aliases';
+			$submenu_file = null;
+		} elseif ( !wp_site_aliases_is_network_list() ) {
+			$parent_file  = 'sites.php';
+			$submenu_file = 'sites.php';			
+		}
+
+	// Blog admin
 	} elseif ( is_blog_admin() ) {
 		$parent_file  = 'index.php';
 		$submenu_file = 'site_aliases';
@@ -200,24 +199,32 @@ function wp_site_aliases_output_page_header( $site_id = 0 ) {
 	global $title;
 
 	// Network
-	if ( is_network_admin() && ! wp_site_aliases_is_network_aliases() ) :
+	if ( is_network_admin() && ! wp_site_aliases_is_network_list() ) :
 
 		// Header
 		$title = sprintf( esc_html__( 'Edit Site: %s' ), get_blog_option( $site_id, 'blogname' ) );
 
 		// This is copied from WordPress core (sic)
 		?><div class="wrap">
-			<h1 id="edit-site"><?php echo $title; ?></h1>
-			<p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $site_id, '/' ) ); ?>"><?php esc_html_e( 'Visit', 'wp-site-aliases' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $site_id ) ); ?>"><?php esc_html_e( 'Dashboard', 'wp-site-aliases' ); ?></a></p><?php
+			<h1 id="edit-site"><?php echo $title; ?></h1><?php
+
+			// No links in network edit
+			if ( ! wp_site_aliases_is_network_edit() ) :
+
+				?><p class="edit-site-actions"><a href="<?php echo esc_url( get_home_url( $site_id, '/' ) ); ?>"><?php esc_html_e( 'Visit', 'wp-site-aliases' ); ?></a> | <a href="<?php echo esc_url( get_admin_url( $site_id ) ); ?>"><?php esc_html_e( 'Dashboard', 'wp-site-aliases' ); ?></a></p><?php
+
+			endif;
 
 			// Admin notices
 			do_action( 'wp_site_aliases_admin_notices' );
 
 			// Tabs in network admin
-			network_edit_site_nav( array(
-				'blog_id'  => $site_id,
-				'selected' => 'site-aliases'
-			) );
+			if ( ! wp_site_aliases_is_network_edit() ) :
+				network_edit_site_nav( array(
+					'blog_id'  => $site_id,
+					'selected' => 'site-aliases'
+				) );
+			endif;
 
 	// Site
 	else :
@@ -261,7 +268,7 @@ function wp_site_aliases_handle_site_actions() {
 	// Get action
 	$action      = sanitize_key( $action );
 	$site_id     = wp_site_aliases_get_site_id();
-	$redirect_to = remove_query_arg( array( 'did_action', 'processed', 'alias_ids', '_wpnonce' ), wp_get_referer() );
+	$redirect_to = remove_query_arg( array( 'did_action', 'processed', 'alias_ids', 'referrer', '_wpnonce' ), wp_get_referer() );
 
 	// Maybe fallback redirect
 	if ( empty( $redirect_to ) ) {
@@ -276,7 +283,7 @@ function wp_site_aliases_handle_site_actions() {
 	$args = array(
 		'id'         => $site_id,
 		'did_action' => $action,
-		'page'       => wp_site_aliases_is_network_aliases()
+		'page'       => wp_site_aliases_is_network_list()
 			? 'all_site_aliases'
 			: 'site_aliases',
 	);
@@ -491,7 +498,7 @@ function wp_site_aliases_output_edit_page() {
 			</tr><?php
 
 			// Site picker for network admin
-			if ( is_network_admin() && wp_site_aliases_is_network_aliases() ) :
+			if ( is_network_admin() && wp_site_aliases_is_network_list() ) :
 
 				// Get all of the sites - OY
 				$sites = wp_site_aliases_get_sites();
@@ -525,7 +532,7 @@ function wp_site_aliases_output_edit_page() {
 		<?php
 
 		// Hidden site ID for blog admin
-		if ( ! wp_site_aliases_is_network_aliases() ) :
+		if ( ! wp_site_aliases_is_network_list() ) :
 
 			?><input type="hidden" name="site_id"   value="<?php echo esc_attr( $site_id  ); ?>"><?php
 
@@ -593,7 +600,7 @@ function wp_site_aliases_output_list_page() {
 						</div><?php
 
 							// Site picker for network admin
-							if ( is_network_admin() && wp_site_aliases_is_network_aliases() ) :
+							if ( is_network_admin() && wp_site_aliases_is_network_list() ) :
 
 								// Get all of the sites - OY
 								$sites = wp_site_aliases_get_sites();
@@ -636,7 +643,7 @@ function wp_site_aliases_output_list_page() {
 						<input type="hidden" name="action"  value="add"><?php
 
 						//
-						if ( ! wp_site_aliases_is_network_aliases() ) :
+						if ( ! wp_site_aliases_is_network_list() ) :
 
 							?><input type="hidden" name="site_id" value="<?php echo esc_attr( $site_id ); ?>"><?php
 
