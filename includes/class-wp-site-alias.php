@@ -238,6 +238,12 @@ final class WP_Site_Alias {
 			$formats[]        = '%s';
 		}
 
+		// Were we given a site ID (and is it not the current one?)
+		if ( ! empty( $data['site_id'] ) && ( $this->site_id !== $data['site_id'] ) ) {
+			$fields['blog_id'] = (int) $data['site_id'];
+			$formats[]         = '%d';
+		}
+
 		// Do we have things to update?
 		if ( empty( $fields ) ) {
 			return false;
@@ -252,6 +258,7 @@ final class WP_Site_Alias {
 			return new WP_Error( 'wp_site_aliases_alias_update_failed' );
 		}
 
+		// Clone this object
 		$old_alias = clone( $this );
 
 		// Update internal state
@@ -259,8 +266,9 @@ final class WP_Site_Alias {
 			$this->{$key} = $val;
 		}
 
-		// Update the domain cache
+		// Update the alias caches
 		wp_cache_set( $alias_id, $this, 'blog-aliases' );
+		wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
 
 		/**
 		 * Fires after a alias has been updated.
@@ -344,6 +352,7 @@ final class WP_Site_Alias {
 
 			// Add alias to cache
 			wp_cache_add( $alias_id, $_alias, 'blog-aliases' );
+			wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
 		}
 
 		// Return alias object

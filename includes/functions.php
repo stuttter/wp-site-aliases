@@ -21,15 +21,26 @@ function wp_site_aliases_get_site_id() {
 	// Set the default
 	$default_id = is_blog_admin()
 		? get_current_blog_id()
-		: get_current_blog_id();
+		: 0;
 
 	// Get site ID being requested
 	$site_id = isset( $_REQUEST['id'] )
 		? intval( $_REQUEST['id'] )
 		: $default_id;
 
-	// No site ID
+	// Look for alias ID requests
 	if ( empty( $site_id ) ) {
+		$alias_id = wp_site_aliases_sanitize_alias_ids( true );
+
+		// Found an alias ID
+		if ( ! empty( $alias_id ) ) {
+			$alias   = WP_Site_Alias::get_instance( $alias_id );
+			$site_id = $alias->site_id;
+		}
+	}
+
+	// No site ID
+	if ( empty( $site_id ) && ! wp_site_aliases_is_network_list() ) {
 		wp_die( esc_html__( 'Invalid site ID.', 'wp-site-aliases' ) );
 	}
 

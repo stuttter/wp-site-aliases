@@ -26,13 +26,44 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 			return;
 		}
 
-		$id      = $this->_args['site_id'];
-		$aliases = wp_site_aliases_is_network_list()
-			? WP_Site_Alias::get_for_network()
-			: WP_Site_Alias::get_by_site( $id );
+		// Searching?
+		$search = isset( $_GET['s'] ) ? $_GET['s'] : '';
+
+		// Network list
+		if ( wp_site_aliases_is_network_list() ) {
+
+			// Get site IDs
+			$sites    = wp_site_aliases_get_sites();
+			$site_ids = wp_list_pluck( $sites, 'blog_id' );
+
+			// Get aliases
+			$aliases = new WP_Site_Alias_Query( array(
+				'site__in' => $site_ids,
+				'search'   => $search
+			) );
+
+			// Bail if no aliases
+			if ( empty( $aliases->found_site_aliases ) ) {
+				return null;
+			}
+
+		// Site list
+		} else {
+
+			// Get aliases
+			$aliases = new WP_Site_Alias_Query( array(
+				'site_id' => (int) $this->_args['site_id'],
+				'search'  => $search
+			) );
+
+			// Bail if no aliases
+			if ( empty( $aliases->found_site_aliases ) ) {
+				return null;
+			}
+		}
 
 		if ( ! empty( $aliases ) && ! is_wp_error( $aliases ) ) {
-			$this->items = $aliases;
+			$this->items = $aliases->aliases;
 		}
 	}
 

@@ -202,7 +202,7 @@ function wp_site_aliases_output_page_header( $site_id = 0 ) {
 	if ( is_network_admin() && ! wp_site_aliases_is_network_list() ) :
 
 		// Header
-		$title = sprintf( esc_html__( 'Edit Site: %s' ), get_blog_option( $site_id, 'blogname' ) );
+		$title = sprintf( esc_html__( 'Edit Alias: %s' ), get_blog_option( $site_id, 'blogname' ) );
 
 		// This is copied from WordPress core (sic)
 		?><div class="wrap">
@@ -498,7 +498,7 @@ function wp_site_aliases_output_edit_page() {
 			</tr><?php
 
 			// Site picker for network admin
-			if ( is_network_admin() && wp_site_aliases_is_network_list() ) :
+			if ( is_network_admin() && wp_site_aliases_is_network_edit() ) :
 
 				// Get all of the sites - OY
 				$sites = wp_site_aliases_get_sites();
@@ -515,7 +515,7 @@ function wp_site_aliases_output_edit_page() {
 							foreach ( $sites as $site ) :
 
 								// Loop through sites
-								?><option value="<?php echo esc_attr( $site->blog_id ); ?>"><?php echo esc_html( $site->domain . $site->path ); ?></option><?php
+								?><option value="<?php echo esc_attr( $site->blog_id ); ?>" <?php selected( $site->blog_id, $site_id ); ?>><?php echo esc_html( $site->domain . $site->path ); ?></option><?php
 
 							endforeach;
 
@@ -532,7 +532,7 @@ function wp_site_aliases_output_edit_page() {
 		<?php
 
 		// Hidden site ID for blog admin
-		if ( ! wp_site_aliases_is_network_list() ) :
+		if ( ! wp_site_aliases_is_network_edit() ) :
 
 			?><input type="hidden" name="site_id"   value="<?php echo esc_attr( $site_id  ); ?>"><?php
 
@@ -571,6 +571,8 @@ function wp_site_aliases_output_list_page() {
 
 	// Get site ID being requested
 	$site_id = wp_site_aliases_get_site_id();
+	$search  = isset( $_GET['s']    ) ? $_GET['s']                    : '';
+	$page    = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : 'aliases_site';
 
 	// Action URLs
 	$form_url = $action_url = wp_site_aliases_admin_url();
@@ -581,6 +583,24 @@ function wp_site_aliases_output_list_page() {
 	<div id="col-container" style="margin-top: 20px;">
 		<div id="col-right">
 			<div class="col-wrap">
+
+				<form class="search-form wp-clearfix" method="get" action="<?php echo esc_url( $form_url ); ?>">
+					<input type="hidden" name="page" value="<?php echo esc_attr( $page ); ?>" /><?php
+
+					// Skip site ID for network list
+					if ( ! wp_site_aliases_is_network_list() ) :
+
+						?><input type="hidden" name="id" value="<?php echo esc_attr( $site_id ); ?>" /><?php
+
+					endif;
+
+					?><p class="search-box">
+						<label class="screen-reader-text" for="alias-search-input"><?php esc_html_e( 'Search Aliases:', 'wp-site-aliases' ); ?></label>
+						<input type="search" id="alias-search-input" name="s" value="<?php echo esc_attr( $search ); ?>">
+						<input type="submit" id="search-submit" class="button" value="<?php esc_html_e( 'Search Aliases', 'wp-site-aliases' ); ?>">
+					</p>
+				</form>
+
 				<div class="form-wrap">
 					<form method="post" action="<?php echo esc_url( $form_url ); ?>">
 						<?php $wp_list_table->display(); ?>
