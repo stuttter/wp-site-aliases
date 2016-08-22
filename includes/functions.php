@@ -145,7 +145,7 @@ function wp_site_aliases_admin_url( $args = array() ) {
 		$file = 'admin.php';
 		$r['page'] = 'all_site_aliases';
 	}
-		
+
 	// Location
 	$admin_url = is_network_admin()
 		? network_admin_url( $file )
@@ -181,12 +181,11 @@ function wp_site_aliases_check_domain_alias( $site, $domain ) {
 		return $site;
 	}
 
-	// Grab both WWW and no-WWW
-	$www    = maybe_add_www( $domain );
-	$no_www = maybe_strip_www( $domain );
-
 	// Get the alias
-	$alias = WP_Site_Alias::get_by_domain( array( $www, $no_www ) );
+	$alias = WP_Site_Alias::get_by_domain( array(
+		maybe_add_www( $domain ),
+		maybe_strip_www( $domain )
+	) );
 
 	// Bail if no alias
 	if ( empty( $alias ) || is_wp_error( $alias ) ) {
@@ -215,10 +214,12 @@ function wp_site_aliases_check_domain_alias( $site, $domain ) {
 function wp_site_aliases_clear_aliases_on_delete( $site_id = 0 ) {
 	$aliases = WP_Site_Alias::get_by_site( $site_id );
 
+	// Bail if no aliases
 	if ( empty( $aliases ) ) {
 		return;
 	}
 
+	// Loop through aliases & delete them one by one
 	foreach ( $aliases as $alias ) {
 		$error = $alias->delete();
 
@@ -251,15 +252,12 @@ function wp_site_aliases_register_url_filters() {
 	}
 
 	// Grab both WWW and no-WWW
-	if ( strpos( $domain, 'www.' ) === 0 ) {
-		$www   = $domain;
-		$nowww = substr( $domain, 4 );
-	} else {
-		$nowww = $domain;
-		$www   = 'www.' . $domain;
-	}
+	$alias = WP_Site_Alias::get_by_domain( array(
+		maybe_add_www( $domain ),
+		maybe_strip_www( $domain )
+	) );
 
-	$alias = WP_Site_Alias::get_by_domain( array( $www, $nowww ) );
+	// Bail if no active alias
 	if ( empty( $alias ) || is_wp_error( $alias ) || ( 'active' !== $alias->status ) ) {
 		return;
 	}

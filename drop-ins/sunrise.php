@@ -93,6 +93,7 @@ function wp_site_aliases_maybe_load_current_site_and_network() {
 	}
 
 	// Set the site globals
+	$blog_id      = $alias->site_id;
 	$current_blog = get_site( $alias->site_id );
 
 	// Set the network globals

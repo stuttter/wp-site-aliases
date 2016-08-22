@@ -20,7 +20,10 @@ add_filter( 'pre_get_site_by_path',    'wp_site_aliases_check_domain_alias',    
 add_filter( 'pre_get_site_by_path',    'wp_site_aliases_check_aliases_for_site', 20, 4 );
 add_filter( 'pre_get_network_by_path', 'wp_site_aliases_check_aliases_for_site', 10, 4 );
 
-add_action( 'delete_blog',      'wp_site_aliases_clear_aliases_on_delete'     );
+// Site delete
+add_action( 'delete_blog', 'wp_site_aliases_clear_aliases_on_delete' );
+
+// URL Filters
 add_action( 'muplugins_loaded', 'wp_site_aliases_register_url_filters',   -10 );
 
 // Columns
@@ -28,9 +31,9 @@ add_action( 'manage_sites_custom_column', 'wp_site_aliases_output_site_list_colu
 add_filter( 'wpmu_blogs_columns',         'wp_site_aliases_add_site_list_column'  );
 
 // Navigation
-add_filter( 'network_edit_site_nav_links', 'wp_site_aliases_add_site_tab' );
-add_action( 'admin_menu',                 'wp_site_aliases_add_menu_item', 30 );
-add_action( 'network_admin_menu',         'wp_site_aliases_add_menu_item', 10 );
+add_filter( 'network_edit_site_nav_links', 'wp_site_aliases_add_site_tab'      );
+add_action( 'admin_menu',                  'wp_site_aliases_add_menu_item', 30 );
+add_action( 'network_admin_menu',          'wp_site_aliases_add_menu_item', 10 );
 
 // Notices
 add_action( 'wp_site_aliases_admin_notices', 'wp_site_aliases_output_admin_notices' );
