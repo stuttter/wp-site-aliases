@@ -158,7 +158,7 @@ function wp_site_aliases_output_site_list_column( $column, $site_id ) {
 	// Show all aliases
 	if ( ! empty( $aliases ) ) {
 		foreach ( $aliases as $alias ) {
-			echo esc_html( $alias->get_domain() ) . '<br>';
+			echo esc_html( $alias->domain ) . '<br>';
 		}
 
 	// No aliases
@@ -343,8 +343,8 @@ function wp_site_aliases_handle_site_actions() {
 				// Aliases don't exist after we delete them, so pass the
 				// domain for messages and such
 				if ( $alias->delete() ) {
-					$args['domains'][] = $alias->get_domain();
-					$processed[] = $alias_id;
+					$args['domains'][] = $alias->domain;
+					$processed[]       = $alias_id;
 				}
 			}
 
@@ -376,7 +376,7 @@ function wp_site_aliases_handle_site_actions() {
 				continue;
 			}
 
-			$processed[] = $alias->get_id();
+			$processed[] = $alias->id;
 
 			break;
 
@@ -459,8 +459,8 @@ function wp_site_aliases_output_edit_page() {
 
 	// Edit
 	} else {
-		$active = ( 'active' === $alias->get_status() );
-		$domain = $alias->get_domain();
+		$active = ( 'active' === $alias->status );
+		$domain = $alias->domain;
 	}
 
 	// Output the header, maybe with network site tabs
@@ -489,7 +489,7 @@ function wp_site_aliases_output_edit_page() {
 						foreach ( $statuses as $status ) :
 
 							// Loop through sites
-							?><option value="<?php echo esc_attr( $status->id ); ?>" <?php selected( $status->id, $alias->get_status() ); ?>><?php echo esc_html( $status->name ); ?></option><?php
+							?><option value="<?php echo esc_attr( $status->id ); ?>" <?php selected( $status->id, $alias->status ); ?>><?php echo esc_html( $status->name ); ?></option><?php
 
 						endforeach;
 

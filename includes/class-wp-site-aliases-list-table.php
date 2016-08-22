@@ -161,13 +161,10 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @return string HTML for the cell
 	 */
 	protected function column_cb( $alias ) {
-		$alias_id = $alias->get_id();
-		$domain   = $alias->get_domain();
-
-		return '<label class="screen-reader-text" for="cb-select-' . esc_attr( $alias_id ) . '">'
-			. sprintf( __( 'Select %s' ), esc_html( $domain ) ) . '</label>'
-			. '<input type="checkbox" name="alias_ids[]" value="' . esc_attr( $alias_id )
-			. '" id="cb-select-' . esc_attr( $alias_id ) . '" />';
+		return '<label class="screen-reader-text" for="cb-select-' . esc_attr( $alias->id ) . '">'
+			. sprintf( __( 'Select %s' ), esc_html( $alias->domain ) ) . '</label>'
+			. '<input type="checkbox" name="alias_ids[]" value="' . esc_attr( $alias->id )
+			. '" id="cb-select-' . esc_attr( $alias->id ) . '" />';
 	}
 
 	/**
@@ -185,10 +182,10 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		$actions = array();
 
 		// Strip www.
-		$domain   = $alias->get_domain();
-		$status   = $alias->get_status();
-		$site_id  = $alias->get_site_id();
-		$alias_id = $alias->get_id();
+		$alias_id = $alias->id;
+		$site_id  = $alias->site_id;
+		$domain   = $alias->domain;
+		$status   = $alias->status;
 
 		// Edit
 		$edit_link = wp_site_aliases_admin_url( array(
@@ -255,7 +252,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @return string HTML for the cell
 	 */
 	protected function column_status( $alias ) {
-		return ( 'active' === $alias->get_status() )
+		return ( 'active' === $alias->status )
 			? esc_html_x( 'Active',   'site aliases', 'wp-site-aliases' )
 			: esc_html_x( 'Inactive', 'site aliases', 'wp-site-aliases' );
 	}
@@ -271,8 +268,8 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @return string HTML for the cell
 	 */
 	protected function column_created( $alias ) {
-		return mysql2date( get_option( 'date_format' ), $alias->get_created() ) . '<br>' .
-			   mysql2date( get_option( 'time_format' ), $alias->get_created() );
+		return mysql2date( get_option( 'date_format' ), $alias->created ) . '<br>' .
+			   mysql2date( get_option( 'time_format' ), $alias->created );
 	}
 
 	/**
@@ -286,6 +283,6 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @return string HTML for the cell
 	 */
 	protected function column_site( $alias ) {
-		echo get_site( $alias->get_site_id() )->home;
+		echo get_site( $alias->site_id )->home;
 	}
 }

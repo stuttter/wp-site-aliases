@@ -14,91 +14,155 @@ defined( 'ABSPATH' ) || exit;
  *
  * @since 0.1.0
  */
-class WP_Site_Alias {
+final class WP_Site_Alias {
 
 	/**
-	 * Alias data
-	 *
-	 * @var array
-	 */
-	protected $data;
-
-	/**
-	 * Constructor
+	 * Alias ID.
 	 *
 	 * @since 0.1.0
-	 *
-	 * @param array $data Alias data
+	 * @access public
+	 * @var int
 	 */
-	protected function __construct( $data = array() ) {
-		$this->data = $data;
+	public $id;
+
+	/**
+	 * The ID of the alias's site.
+	 *
+	 * @since 0.1.0
+	 * @access public
+	 * @var string
+	 */
+	public $blog_id = 0;
+
+	/**
+	 * Domain of the alias.
+	 *
+	 * @since 0.1.0
+	 * @access public
+	 * @var string
+	 */
+	public $domain = '';
+
+	/**
+	 * The date on which the alias was created.
+	 *
+	 * @since 0.1.0
+	 * @access public
+	 * @var string Date in MySQL's datetime format.
+	 */
+	public $created = '0000-00-00 00:00:00';
+
+	/**
+	 * Status of the alias.
+	 *
+	 * @since 0.1.0
+	 * @access public
+	 * @var string
+	 */
+	public $status = '';
+
+	/**
+	 * Creates a new WP_Site_Alias object.
+	 *
+	 * Will populate object properties from the object provided and assign other
+	 * default properties based on that information.
+	 *
+	 * @since 0.1.0
+	 * @access public
+	 *
+	 * @param WP_Site_Alias|object $site A site object.
+	 */
+	public function __construct( $site ) {
+		foreach( get_object_vars( $site ) as $key => $value ) {
+			$this->{$key} = $value;
+		}
 	}
 
 	/**
-	 * Clone magic method when clone( self ) is called.
-	 *
-	 * As the internal data is stored in an object, we have to make a copy
-	 * when this object is cloned.
+	 * Converts an object to array.
 	 *
 	 * @since 0.1.0
+	 * @access public
+	 *
+	 * @return array Object as array.
 	 */
-	public function __clone() {
-		$this->data = clone( $this->data );
+	public function to_array() {
+		return get_object_vars( $this );
 	}
 
 	/**
-	 * Get alias ID
+	 * Getter.
+	 *
+	 * Allows current multisite naming conventions when getting properties.
+	 * Allows access to extended site properties.
 	 *
 	 * @since 0.1.0
+	 * @access public
 	 *
-	 * @return int Alias ID
+	 * @param string $key Property to get.
+	 * @return mixed Value of the property. Null if not available.
 	 */
-	public function get_id() {
-		return (int) $this->data->id;
+	public function __get( $key = '' ) {
+		switch ( $key ) {
+			case 'id':
+			case 'alias_id':
+				return (int) $this->id;
+			case 'blog_id':
+			case 'site_id':
+				return (int) $this->blog_id;
+		}
+
+		return null;
 	}
 
 	/**
-	 * Get site ID
+	 * Isset-er.
+	 *
+	 * Allows current multisite naming conventions when checking for properties.
+	 * Checks for extended site properties.
 	 *
 	 * @since 0.1.0
+	 * @access public
 	 *
-	 * @return int Site ID
+	 * @param string $key Property to check if set.
+	 * @return bool Whether the property is set.
 	 */
-	public function get_site_id() {
-		return (int) $this->data->blog_id;
+	public function __isset( $key = '' ) {
+		switch ( $key ) {
+			case 'id' :
+			case 'alias_id' :
+			case 'blog_id' :
+			case 'site_id' :
+				return true;
+		}
+
+		return false;
 	}
 
 	/**
-	 * Get the domain from the alias
+	 * Setter.
+	 *
+	 * Allows current multisite naming conventions while setting properties.
 	 *
 	 * @since 0.1.0
+	 * @access public
 	 *
-	 * @return string
+	 * @param string $key   Property to set.
+	 * @param mixed  $value Value to assign to the property.
 	 */
-	public function get_domain() {
-		return maybe_strip_www( $this->data->domain );
-	}
-
-	/**
-	 * Get the alias created date
-	 *
-	 * @since 0.1.0
-	 *
-	 * @return boolean
-	 */
-	public function get_created() {
-		return $this->data->created;
-	}
-
-	/**
-	 * Get the alias status
-	 *
-	 * @since 0.1.0
-	 *
-	 * @return boolean
-	 */
-	public function get_status() {
-		return $this->data->status;
+	public function __set( $key, $value ) {
+		switch ( $key ) {
+			case 'id' :
+			case 'alias_id' :
+				$this->id = (int) $value;
+				break;
+			case 'blog_id' :
+			case 'site_id' :
+				$this->blog_id = (int) $value;
+				break;
+			default:
+				$this->{$key} = $value;
+		}
 	}
 
 	/**
@@ -150,7 +214,7 @@ class WP_Site_Alias {
 		$formats = array();
 
 		// Were we given a domain (and is it not the current one?)
-		if ( ! empty( $data['domain'] ) && ( $this->data->domain !== $data['domain'] ) ) {
+		if ( ! empty( $data['domain'] ) && ( $this->domain !== $data['domain'] ) ) {
 
 			// Does this domain exist already?
 			$existing = static::get_by_domain( $data['domain'] );
@@ -169,7 +233,7 @@ class WP_Site_Alias {
 		}
 
 		// Were we given a status (and is it not the current one?)
-		if ( ! empty( $data['status'] ) && ( $this->data->status !== $data['status'] ) ) {
+		if ( ! empty( $data['status'] ) && ( $this->status !== $data['status'] ) ) {
 			$fields['status'] = sanitize_key( $data['status'] );
 			$formats[]        = '%s';
 		}
@@ -179,7 +243,7 @@ class WP_Site_Alias {
 			return false;
 		}
 
-		$alias_id     = $this->get_id();
+		$alias_id     = $this->id;
 		$where        = array( 'id' => $alias_id );
 		$where_format = array( '%d' );
 		$result       = $wpdb->update( $wpdb->blog_aliases, $fields, $where, $formats, $where_format );
@@ -192,11 +256,11 @@ class WP_Site_Alias {
 
 		// Update internal state
 		foreach ( $fields as $key => $val ) {
-			$this->data->{$key} = $val;
+			$this->{$key} = $val;
 		}
 
 		// Update the domain cache
-		wp_cache_set( $alias_id, $this->data, 'blog-aliases' );
+		wp_cache_set( $alias_id, $this, 'blog-aliases' );
 
 		/**
 		 * Fires after a alias has been updated.
@@ -220,7 +284,7 @@ class WP_Site_Alias {
 		global $wpdb;
 
 		// Try to delete the alias
-		$alias_id     = $this->get_id();
+		$alias_id     = $this->id;
 		$where        = array( 'id' => $alias_id );
 		$where_format = array( '%d' );
 		$result       = $wpdb->delete( $wpdb->blog_aliases, $where, $where_format );
@@ -232,6 +296,9 @@ class WP_Site_Alias {
 
 		// Update the cache
 		wp_cache_delete( $alias_id, 'blog-aliases' );
+
+		// Ensure the cache is flushed
+		wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
 
 		/**
 		 * Fires after a alias has been delete.

@@ -25,11 +25,11 @@ class Alias_Command extends WP_CLI_Command {
 
 		$mapper = function ( WP_Site_Alias $alias ) {
 			return array(
-				'id'      => $alias->get_id(),
-				'domain'  => $alias->get_domain(),
-				'site_id' => $alias->get_site_id(),
-				'created' => $alias->get_created(),
-				'status'  => ( 'active' === $alias->get_status() )
+				'id'      => $alias->id,
+				'domain'  => $alias->domain,
+				'site_id' => $alias->site_id,
+				'created' => $alias->created,
+				'status'  => ( 'active' === $alias->status )
 					? __( 'Active',   'wp-site-aliases' )
 					: __( 'Inactive', 'wp-site-aliases' )
 			);

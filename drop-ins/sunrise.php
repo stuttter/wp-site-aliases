@@ -88,13 +88,12 @@ function wp_site_aliases_maybe_load_current_site_and_network() {
 	$alias = reset( $aliases->aliases );
 
 	// Bail if alias is not active
-	if ( 'active' !== $alias->get_status() ) {
+	if ( 'active' !== $alias->status ) {
 		return;
 	}
 
 	// Set the site globals
-	$blog_id      = $alias->get_site_id();
-	$current_blog = get_site( $blog_id );
+	$current_blog = get_site( $alias->site_id );
 
 	// Set the network globals
 	$site_id      = $current_blog->site_id;

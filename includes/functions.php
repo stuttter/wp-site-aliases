@@ -171,13 +171,8 @@ function wp_site_aliases_check_domain_alias( $site, $domain ) {
 	}
 
 	// Grab both WWW and no-WWW
-	if ( strpos( $domain, 'www.' ) === 0 ) {
-		$www    = $domain;
-		$no_www = substr( $domain, 4 );
-	} else {
-		$no_www = $domain;
-		$www    = 'www.' . $domain;
-	}
+	$www    = maybe_add_www( $domain );
+	$no_www = maybe_strip_www( $domain );
 
 	// Get the alias
 	$alias = WP_Site_Alias::get_by_domain( array( $www, $no_www ) );
@@ -188,12 +183,12 @@ function wp_site_aliases_check_domain_alias( $site, $domain ) {
 	}
 
 	// Ignore non-active aliases
-	if ( 'active' !== $alias->get_status() ) {
+	if ( 'active' !== $alias->status ) {
 		return $site;
 	}
 
 	// Fetch the actual data for the site
-	$aliased_site = get_blog_details( $alias->get_site_id() );
+	$aliased_site = get_blog_details( $alias->site_id );
 	if ( empty( $aliased_site ) ) {
 		return $site;
 	}
@@ -219,7 +214,7 @@ function wp_site_aliases_clear_aliases_on_delete( $site_id = 0 ) {
 		if ( is_wp_error( $error ) ) {
 			$message = sprintf(
 				__( 'Unable to delete alias %d for site %d', 'wp-site-aliases' ),
-				$alias->get_id(),
+				$alias->id,
 				$site_id
 			);
 			trigger_error( $message, E_USER_WARNING );
@@ -254,7 +249,7 @@ function wp_site_aliases_register_url_filters() {
 	}
 
 	$alias = WP_Site_Alias::get_by_domain( array( $www, $nowww ) );
-	if ( empty( $alias ) || is_wp_error( $alias ) || ( 'active' !== $alias->get_status() ) ) {
+	if ( empty( $alias ) || is_wp_error( $alias ) || ( 'active' !== $alias->status ) ) {
 		return;
 	}
 
@@ -295,13 +290,13 @@ function wp_site_aliases_mangle_site_url( $url, $path, $orig_scheme, $site_id = 
 	$current_alias = $GLOBALS['wp_current_site_alias'];
 
 	// Bail if no alias
-	if ( empty( $current_alias ) || ( $site_id !== $current_alias->get_site_id() ) ) {
+	if ( empty( $current_alias ) || ( $site_id !== $current_alias->site_id ) ) {
 		return $url;
 	}
 
 	// Alias the URLs
 	$current_home = $GLOBALS['current_blog']->domain . $GLOBALS['current_blog']->path;
-	$alias_home   = $current_alias->get_domain() . '/';
+	$alias_home   = $current_alias->domain . '/';
 	$url          = str_replace( $current_home, $alias_home, $url );
 
 	return $url;
@@ -335,17 +330,17 @@ function wp_site_aliases_check_aliases_for_site( $site, $domain, $path, $path_se
 	}
 
 	// Ignore non-active aliases
-	if ( 'active' !== $alias->get_status() ) {
+	if ( 'active' !== $alias->status ) {
 		return $site;
 	}
 
 	// Set site & network
-	$site         = get_blog_details( $alias->get_site_id() );
+	$site         = get_blog_details( $alias->site_id );
 	$current_site = wp_get_network( $site->site_id );
 
 	// We found a network, now check for the site. Replace mapped domain with
 	// network's original to find.
-	$mapped_domain = $alias->get_domain();
+	$mapped_domain = $alias->domain;
 	$subdomain     = substr( $domain, 0, -strlen( $mapped_domain ) );
 	$domain        = $subdomain . $current_site->domain;
 	$current_blog  = get_site_by_path( $domain, $path, $path_segments );
@@ -388,7 +383,7 @@ function wp_site_aliases_mangle_network_url( $url, $path, $orig_scheme, $site_id
 
 	// Alias the URLs
 	$current_home = $GLOBALS['current_blog']->domain . $GLOBALS['current_blog']->path;
-	$alias_home   = $current_alias->get_domain() . '/';
+	$alias_home   = $current_alias->domain . '/';
 	$url          = str_replace( $current_home, $alias_home, $url );
 }
 
@@ -406,6 +401,7 @@ function wp_site_aliases_mangle_network_url( $url, $path, $orig_scheme, $site_id
  */
 function wp_site_aliases_get_possible_domains( $domain = '' ) {
 
+	// Strip www. early; we'll still look for it later
 	$no_www = maybe_strip_www( $domain );
 
 	// Explode domain on tld and return an array element for each explode point
@@ -415,7 +411,7 @@ function wp_site_aliases_get_possible_domains( $domain = '' ) {
 
 	// Also look for www variant of each possible domain
 	foreach ( $domains as $current ) {
-		$additions[] = 'www.' . $current ;
+		$additions[] = maybe_add_www( $current );
 	}
 
 	$domains = array_merge( $domains, $additions );
@@ -548,9 +544,27 @@ function wp_site_aliases_sanitize_alias_ids( $single = false ) {
  */
 function maybe_strip_www( $domain = '' ) {
 
-	// Remove www.
+	// Remove "www."
 	if ( substr( $domain, 0, 4 ) === 'www.' ) {
 		$domain = substr( $domain, 4 );
+	}
+
+	return $domain;
+}
+
+/**
+ * Maybe add "www." to domain
+ *
+ * @since 0.1.0
+ *
+ * @param  string  $domain
+ * @return string
+ */
+function maybe_add_www( $domain = '' ) {
+
+	// Add "www."
+	if ( ! substr( $domain, 0, 4 ) === 'www.' ) {
+		$domain = 'www.' . substr( $domain, 4 );
 	}
 
 	return $domain;
@@ -607,7 +621,7 @@ function get_site_alias( $alias = null ) {
  *
  * @param array $ids ID list.
  */
-function _prime_site_alias_caches( $ids ) {
+function _prime_site_alias_caches( $ids = array() ) {
 	global $wpdb;
 
 	$non_cached_ids = _get_non_cached_ids( $ids, 'site_aliases' );
@@ -642,10 +656,9 @@ function update_site_alias_cache( $aliases = array() ) {
  *
  * @param WP_Site_Alias $alias The alias details as returned from get_site_alias()
  */
-function clean_blog_alias_cache( $alias ) {
-	$alias_id = $alias->id;
+function clean_blog_alias_cache( WP_Site_Alias $alias ) {
 
-	wp_cache_delete( $alias_id , 'blog-aliases' );
+	wp_cache_delete( $alias->id , 'blog-aliases' );
 
 	/**
 	 * Fires immediately after a site alias has been removed from the object cache.
@@ -655,7 +668,7 @@ function clean_blog_alias_cache( $alias ) {
 	 * @param int     $alias_id Alias ID.
 	 * @param WP_Site $alias    Alias object.
 	 */
-	do_action( 'clean_site_alias_cache', $alias_id, $alias );
+	do_action( 'clean_site_alias_cache', $alias->id, $alias );
 
 	wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
 }
