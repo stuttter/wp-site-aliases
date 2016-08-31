@@ -266,18 +266,18 @@ function wp_site_aliases_register_url_filters() {
 	$GLOBALS['wp_current_site_alias'] = $alias;
 
 	// Filter home & site URLs
-	add_filter( 'site_url', 'wp_site_aliases_mangle_site_url', -PHP_INT_MAX, 4 );
-	add_filter( 'home_url', 'wp_site_aliases_mangle_site_url', -PHP_INT_MAX, 4 );
+	add_filter( 'site_url', 'wp_site_aliases_mutate_site_url', -PHP_INT_MAX, 4 );
+	add_filter( 'home_url', 'wp_site_aliases_mutate_site_url', -PHP_INT_MAX, 4 );
 
 	// If on main site of network, also filter network urls
 	if ( is_main_site() ) {
-		add_filter( 'network_site_url', 'wp_site_aliases_mangle_network_url', -PHP_INT_MAX, 3 );
-		add_filter( 'network_home_url', 'wp_site_aliases_mangle_network_url', -PHP_INT_MAX, 3 );
+		add_filter( 'network_site_url', 'wp_site_aliases_mutate_network_url', -PHP_INT_MAX, 3 );
+		add_filter( 'network_home_url', 'wp_site_aliases_mutate_network_url', -PHP_INT_MAX, 3 );
 	}
 }
 
 /**
- * Mangle the home URL to give our primary domain
+ * Mutate the home URL to give our primary domain
  *
  * @since 1.0.0
  *
@@ -288,7 +288,7 @@ function wp_site_aliases_register_url_filters() {
  *
  * @return string Mangled URL
  */
-function wp_site_aliases_mangle_site_url( $url, $path, $orig_scheme, $site_id = 0 ) {
+function wp_site_aliases_mutate_site_url( $url, $path = '', $orig_scheme = '', $site_id = 0 ) {
 
 	// Set to current site if empty
 	if ( empty( $site_id ) ) {
@@ -300,6 +300,34 @@ function wp_site_aliases_mangle_site_url( $url, $path, $orig_scheme, $site_id = 
 
 	// Bail if no alias
 	if ( empty( $current_alias ) || ( $site_id !== $current_alias->site_id ) ) {
+		return $url;
+	}
+
+	// Alias the URLs
+	$current_home = $GLOBALS['current_blog']->domain . $GLOBALS['current_blog']->path;
+	$alias_home   = $current_alias->domain . '/';
+	$url          = str_replace( $current_home, $alias_home, $url );
+
+	return $url;
+}
+
+/**
+ * Mutate the home URL to give our primary domain
+ *
+ * @since 1.0.0
+ *
+ * @param string $url The complete URL including scheme and path.
+ *
+ * @return string Mutated URL
+ */
+function wp_site_aliases_mutate_network_url( $url ) {
+
+	// Get current alias & network
+	$current_alias   = $GLOBALS['wp_current_site_alias'];
+	$current_network = get_current_site();
+
+	// Bail if no alias
+	if ( empty( $current_alias ) || ( (int) $current_network->id !== (int) $current_alias->get_network_id() ) ) {
 		return $url;
 	}
 
@@ -363,37 +391,6 @@ function wp_site_aliases_check_aliases_for_site( $site, $domain, $path, $path_se
 		default :
 			return $site;
 	}
-}
-
-/**
- * Mangle the home URL to give our primary domain
- *
- * @since 1.0.0
- *
- * @param  string       $url          The complete home URL including scheme and path.
- * @param  string       $path         Path relative to the home URL. Blank string if no path is specified.
- * @param  string|null  $orig_scheme  Scheme to give the home URL context. Accepts 'http', 'https', 'relative' or null.
- * @param  int|null     $site_id      Blog ID, or null for the current blog.
- *
- * @return string Mangled URL
- */
-function wp_site_aliases_mangle_network_url( $url, $path, $orig_scheme, $site_id ) {
-
-	if ( empty( $site_id ) ) {
-		$site_id = get_current_blog_id();
-	}
-
-	$current_alias   = $GLOBALS['wp_current_site_alias'];
-	$current_network = get_current_site();
-
-	if ( empty( $current_alias ) || (int) $current_network->id !== (int) $current_alias->get_network_id() ) {
-		return $url;
-	}
-
-	// Alias the URLs
-	$current_home = $GLOBALS['current_blog']->domain . $GLOBALS['current_blog']->path;
-	$alias_home   = $current_alias->domain . '/';
-	$url          = str_replace( $current_home, $alias_home, $url );
 }
 
 /**
@@ -468,10 +465,18 @@ function wp_site_aliases_explode_domain( $domain, $segments = 1 ) {
  * @return array
  */
 function wp_site_aliases_get_sites( $args = array() ) {
-	return get_sites( wp_parse_args( $args, array(
+
+	// Filter default arguments
+	$defaults = apply_filters( 'wp_site_aliases_get_sites', array(
 		'network_id' => get_current_network_id(),
-		'number'     => 10000
-	) ) );
+		'number'     => 500
+	) );
+
+	// Parse arguments
+	$r = wp_parse_args( $args, $defaults );
+
+	// Get sites
+	return get_sites( $r );
 }
 
 /**
