@@ -38,6 +38,7 @@ function _wp_site_aliases() {
 	require_once $plugin_path . 'includes/functions/admin.php';
 	require_once $plugin_path . 'includes/functions/assets.php';
 	require_once $plugin_path . 'includes/functions/capabilities.php';
+	require_once $plugin_path . 'includes/functions/cache.php';
 	require_once $plugin_path . 'includes/functions/common.php';
 	require_once $plugin_path . 'includes/functions/metadata.php';
 	require_once $plugin_path . 'includes/functions/hooks.php';
