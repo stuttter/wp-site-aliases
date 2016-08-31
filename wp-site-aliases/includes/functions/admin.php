@@ -43,6 +43,7 @@ function wp_site_aliases_add_menu_item() {
 		add_action( "load-{$hook}", 'wp_site_aliases_handle_site_actions'       );
 		add_action( "load-{$hook}", 'wp_site_aliases_load_site_list_table'      );
 		add_action( "load-{$hook}", 'wp_site_aliases_fix_hidden_menu_highlight' );
+		add_action( "load-{$hook}", 'wp_site_aliases_admin_add_help_tabs'       );
 	}
 }
 
@@ -113,7 +114,7 @@ function wp_site_aliases_fix_hidden_menu_highlight() {
 			$submenu_file = null;
 		} elseif ( ! wp_site_aliases_is_network_list() ) {
 			$parent_file  = 'sites.php';
-			$submenu_file = 'sites.php';			
+			$submenu_file = 'sites.php';
 		}
 
 	// Blog admin
@@ -121,6 +122,115 @@ function wp_site_aliases_fix_hidden_menu_highlight() {
 		$parent_file  = 'index.php';
 		$submenu_file = 'site_aliases';
 	}
+}
+
+/**
+ * Admin area help tabs
+ *
+ * @since 1.0.0
+ */
+function wp_site_aliases_admin_add_help_tabs() {
+
+	// Get current screen
+	$screen = get_current_screen();
+
+	// Site admin
+	if ( $screen->in_admin( 'site' ) ) {
+
+		// Bail if not an Event type screen
+		if ( 'dashboard_page_site_aliases' === $screen->id ) {
+
+			// URLs
+			$docs_url   = wp_site_aliases_get_documentation_url();
+			$config_url = wp_site_aliases_get_configuration_url();
+
+			// Overview
+			$screen->add_help_tab( array(
+				'id'      => 'overview',
+				'title'   => esc_html__( 'Overview', 'wp-site-aliases' ),
+				'content' =>
+					'<p>' . esc_html__( 'You can use aliases to define custom domains for your site.',              'wp-site-aliases' ) . '</p>' .
+					'<p>' . esc_html__( 'This allows your site to use a domain other than what was assigned here.', 'wp-site-aliases' ) . '</p>'
+				) );
+
+			// Adding Aliases
+			$screen->add_help_tab( array(
+				'id'      => 'adding',
+				'title'   => esc_html__( 'Adding Aliases', 'wp-site-aliases' ),
+				'content' =>
+					'<p>'          . esc_html__( 'You can use aliases to define custom domains for your site.', 'wp-site-aliases' ) . '</p><ul>' .
+					'<li><strong>' . esc_html__( 'Domain: ', 'wp-site-aliases' ) . '</strong>' . esc_html__( 'Any domain already under your control, and pointed to this service.', 'wp-site-aliases' ) . '</li>' .
+					'<li><strong>' . esc_html__( 'Status: ', 'wp-site-aliases' ) . '</strong>' . esc_html__( 'Whether this domain alias is active or not.',                         'wp-site-aliases' ) . '</li></ul>' ) );
+
+			// Help Sidebar
+			$screen->set_help_sidebar(
+				'<p><strong>'  . esc_html__( 'For more information:', 'wp-site-aliases' ) . '</strong></p>' .
+				'<p><a href="' . esc_url( $docs_url   ) . '" target="_blank">' . esc_html__( 'Documentation', 'wp-site-aliases' ) . '</a>' . '</p>' .
+				'<p><a href="' . esc_url( $config_url ) . '" target="_blank">' . esc_html__( 'Configuration', 'wp-site-aliases' ) . '</a>' . '</p>'
+			);
+		}
+
+	// Network admin
+	} elseif ( $screen->in_admin( 'network' ) ) {
+
+		// All Aliases
+		if ( 'toplevel_page_all_site_aliases-network' === $screen->id ) {
+
+			// URLs
+			$docs_url   = wp_site_aliases_get_documentation_url();
+			$config_url = wp_site_aliases_get_configuration_url();
+
+			// Overview
+			$screen->add_help_tab( array(
+				'id'      => 'overview',
+				'title'   => esc_html__( 'Overview', 'wp-site-aliases' ),
+				'content' =>
+					'<p>' . esc_html__( 'Give sites in this network custom domains to be aliased as.',            'wp-site-aliases' ) . '</p>' .
+					'<p>' . esc_html__( 'This allows sites to use domains other than what was assigned to them.', 'wp-site-aliases' ) . '</p>'
+				) );
+
+			// Adding Aliases
+			$screen->add_help_tab( array(
+				'id'      => 'adding',
+				'title'   => esc_html__( 'Adding Aliases', 'wp-site-aliases' ),
+				'content' =>
+					'<p>' . esc_html__( 'Aliases require the following information:', 'wp-site-aliases' ) . '</p><ul>' .
+					'<li><strong>' . esc_html__( 'Domain: ', 'wp-site-aliases' ) . '</strong>' . esc_html__( 'Any domain already under your control, and pointed to this service.', 'wp-site-aliases' ) . '</li>' .
+					'<li><strong>' . esc_html__( 'Site: ',   'wp-site-aliases' ) . '</strong>' . esc_html__( 'The site (on this network) this alias is for.',                       'wp-site-aliases' ) . '</li>' .
+					'<li><strong>' . esc_html__( 'Status: ', 'wp-site-aliases' ) . '</strong>' . esc_html__( 'Whether or not to look for this domain alias.',                       'wp-site-aliases' ) . '</li></ul>' ) );
+
+			// Help Sidebar
+			$screen->set_help_sidebar(
+				'<p><strong>'  . esc_html__( 'For more information:', 'wp-site-aliases' ) . '</strong></p>' .
+				'<p><a href="' . esc_url( $docs_url   ) . '" target="_blank">' . esc_html__( 'Documentation', 'wp-site-aliases' ) . '</a>' . '</p>' .
+				'<p><a href="' . esc_url( $config_url ) . '" target="_blank">' . esc_html__( 'Configuration', 'wp-site-aliases' ) . '</a>' . '</p>'
+			);
+		}
+	}
+}
+
+/**
+ * Return the documentation URL
+ *
+ * @since 1.0.0
+ *
+ * @return string
+ */
+function wp_site_aliases_get_documentation_url() {
+	$url = network_home_url( 'help/sites/aliases/' );
+	return apply_filters( 'wp_site_aliases_get_documentation_url', $url );
+}
+
+/**
+ * Return the configuration URL
+ *
+ * @since 1.0.0
+ *
+ * @return string
+ */
+function wp_site_aliases_get_configuration_url() {
+	$url = network_home_url( 'help/sites/aliases/' );
+	return apply_filters( 'wp_site_aliases_get_configuration_url', $url );
 }
 
 /**
@@ -470,7 +580,7 @@ function wp_site_aliases_output_edit_page() {
 		<table class="form-table">
 			<tr>
 				<th scope="row">
-					<label for="blog_alias"><?php echo esc_html_x( 'Domain Name', 'field name', 'wp-site-aliases' ); ?></label>
+					<label for="blog_alias"><?php echo esc_html_x( 'Domain', 'field name', 'wp-site-aliases' ); ?></label>
 				</th>
 				<td>
 					<input type="text" class="regular-text code" name="domain" id="blog_alias" value="<?php echo esc_attr( $domain ); ?>">
@@ -614,7 +724,7 @@ function wp_site_aliases_output_list_page() {
 					<h2><?php esc_html_e( 'Add New Alias', 'wp-site-aliases' ); ?></h2>
 					<form method="post" action="<?php echo esc_url( $action_url ); ?>">
 						<div class="form-field form-required domain-wrap">
-							<label for="blog_alias"><?php echo esc_html_x( 'Domain Name', 'field name', 'wp-site-aliases' ); ?></label>
+							<label for="blog_alias"><?php echo esc_html_x( 'Domain', 'field name', 'wp-site-aliases' ); ?></label>
 							<input type="text" class="regular-text code" name="domain" id="blog_alias" value="">
 							<p><?php esc_html_e( 'The fully qualified domain name that this site should load for.', 'wp-site-aliases' ); ?></p>
 						</div><?php
