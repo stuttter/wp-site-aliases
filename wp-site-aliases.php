@@ -32,7 +32,7 @@ function _wp_site_aliases() {
 	// Classes
 	require_once $plugin_path . 'includes/classes/class-wp-site-alias.php';
 	require_once $plugin_path . 'includes/classes/class-wp-site-alias-query.php';
-	require_once $plugin_path . 'includes/classes/class-wp-site-aliases-db-table.php';
+	require_once $plugin_path . 'includes/classes/class-wp-site-aliases-db-tables.php';
 
 	// Required Files
 	require_once $plugin_path . 'includes/functions/admin.php';
