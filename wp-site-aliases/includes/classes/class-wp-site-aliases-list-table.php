@@ -17,7 +17,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Prepare items for the list table
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function prepare_items() {
 		$this->items = array();
@@ -70,7 +70,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get columns for the table
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @return array Map of column ID => title
 	 */
@@ -97,7 +97,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * Get an associative array ( option_name => option_title ) with the list
 	 * of bulk actions available on this table.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @return array
@@ -113,7 +113,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Display the bulk actions dropdown.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @param string $which The location of the bulk actions: 'top' or 'bottom'.
@@ -165,7 +165,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get the current action selected from the bulk actions dropdown.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @return string|bool The action name or False if no action was selected
 	 */
@@ -185,7 +185,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get cell value for the checkbox column
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @param WP_Site_Alias $alias Current alias item
@@ -201,7 +201,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get cell value for the domain column
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @param WP_Site_Alias $alias Current alias item
@@ -276,7 +276,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get value for the status column
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @param WP_Site_Alias $alias Current alias item
@@ -291,7 +291,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get value for the status column
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @param WP_Site_Alias $alias Current alias item
@@ -306,7 +306,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	/**
 	 * Get value for the site column
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @param WP_Site_Alias $alias Current alias item

@@ -36,8 +36,7 @@ class Alias_Command extends WP_CLI_Command {
 		};
 
 		$display_items = Utils\iterator_map( $aliases, $mapper );
-
-		$formatter = new Formatter( $options );
+		$formatter     = new Formatter( $options );
 
 		$formatter->display_items( $display_items );
 	}

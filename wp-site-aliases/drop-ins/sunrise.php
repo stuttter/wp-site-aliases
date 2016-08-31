@@ -41,7 +41,7 @@ do_action( 'wp_site_aliases_sunrise' );
  * Identifies the network and site of a requested domain and path and populates the
  * corresponding network and site global objects as part of the multisite bootstrap process.
  *
- * @since 2.0.0
+ * @since 1.0.0
  *
  * @global WP_Network $current_site The current network.
  * @global WP_Site    $current_blog The current site.

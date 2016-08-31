@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Add menus in network and site dashboards
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wp_site_aliases_add_menu_item() {
 
@@ -49,7 +49,7 @@ function wp_site_aliases_add_menu_item() {
 /**
  * Get any admin actions
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @return string
  */
@@ -76,13 +76,13 @@ function wp_site_aliases_get_admin_action() {
 /**
  * Load the list table and populate some essentials
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wp_site_aliases_load_site_list_table() {
 	global $wp_list_table;
 
 	// Include the list table class
-	require_once dirname( __FILE__ ) . '/class-wp-site-aliases-list-table.php';
+	require_once wp_site_aliases_get_plugin_path() . 'includes/classes/class-wp-site-aliases-list-table.php';
 
 	// Get site ID being requested
 	$site_id = wp_site_aliases_get_site_id();
@@ -98,7 +98,7 @@ function wp_site_aliases_load_site_list_table() {
 /**
  * Override network files, to correct main submenu navigation highlighting
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @global string $parent_file
  * @global string $submenu_file
@@ -111,7 +111,7 @@ function wp_site_aliases_fix_hidden_menu_highlight() {
 		if ( wp_site_aliases_is_network_edit() ) {
 			$parent_file  = 'all_site_aliases';
 			$submenu_file = null;
-		} elseif ( !wp_site_aliases_is_network_list() ) {
+		} elseif ( ! wp_site_aliases_is_network_list() ) {
 			$parent_file  = 'sites.php';
 			$submenu_file = 'sites.php';			
 		}
@@ -126,7 +126,7 @@ function wp_site_aliases_fix_hidden_menu_highlight() {
 /**
  * Add site list column to list
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param   array  $columns  Column map of ID => title
  *
@@ -140,7 +140,7 @@ function wp_site_aliases_add_site_list_column( $columns ) {
 /**
  * Output the site list column
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  string  $column   Column ID
  * @param  int     $site_id  Site ID
@@ -170,7 +170,7 @@ function wp_site_aliases_output_site_list_column( $column, $site_id ) {
 /**
  * Add tab to end of tabs array
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param array $tabs
  * @return array
@@ -191,7 +191,7 @@ function wp_site_aliases_add_site_tab( $tabs = array() ) {
 /**
  * Output the admin page header
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  int  $site_id  Site ID
  */
@@ -239,7 +239,7 @@ function wp_site_aliases_output_page_header( $site_id = 0 ) {
 /**
  * Close the .wrap div
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wp_site_aliases_output_page_footer() {
 	?></div><?php
@@ -251,7 +251,7 @@ function wp_site_aliases_output_page_footer() {
  * Handles bulk actions for the list page. Redirects back to itself after
  * processing, and exits.
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  string  $action  Action to perform
  */
@@ -435,7 +435,7 @@ function wp_site_aliases_handle_site_actions() {
 /**
  * Output alias editing page
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wp_site_aliases_output_edit_page() {
 
@@ -564,7 +564,7 @@ function wp_site_aliases_output_edit_page() {
 /**
  * Output alias editing page
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wp_site_aliases_output_list_page() {
 	global $wp_list_table;
@@ -686,7 +686,7 @@ function wp_site_aliases_output_list_page() {
 /**
  * Output admin notices
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @global type $wp_list_table
  */

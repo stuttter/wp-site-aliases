@@ -3,13 +3,13 @@
  * Site API: WP_Site_Alias_Query class
  *
  * @package Plugins/Sites/Aliases/Queries
- * @since 2.0.0
+ * @since 1.0.0
  */
 
 /**
  * Core class used for querying aliases.
  *
- * @since 2.0.0
+ * @since 1.0.0
  *
  * @see WP_Site_Alias_Query::__construct() for accepted arguments.
  */
@@ -18,7 +18,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * SQL for database query.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var string
 	 */
@@ -27,7 +27,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * SQL query clauses.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access protected
 	 * @var array
 	 */
@@ -43,7 +43,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Date query container.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var object WP_Date_Query
 	 */
@@ -52,7 +52,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Query vars set by the user.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var array
 	 */
@@ -61,7 +61,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Default values for query vars.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var array
 	 */
@@ -70,7 +70,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * List of aliases located by the query.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var array
 	 */
@@ -79,7 +79,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * The amount of found aliases for the current query.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var int
 	 */
@@ -88,7 +88,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * The number of pages.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var int
 	 */
@@ -97,7 +97,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Sets up the site alias query, based on the query vars passed.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @param string|array $query {
@@ -174,7 +174,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Parses arguments passed to the site alias query with default query parameters.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @see WP_Site_Alias_Query::__construct()
@@ -191,7 +191,7 @@ class WP_Site_Alias_Query {
 		/**
 		 * Fires after the site alias query vars have been parsed.
 		 *
-		 * @since 2.0.0
+		 * @since 1.0.0
 		 *
 		 * @param WP_Site_Alias_Query &$this The WP_Site_Alias_Query instance (passed by reference).
 		 */
@@ -201,7 +201,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Sets up the WordPress query for retrieving aliases.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @param string|array $query Array or URL query string of parameters.
@@ -216,7 +216,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Retrieves a list of aliases matching the query vars.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @return array|int List of aliases, or number of aliases when 'count' is passed as a query var.
@@ -227,7 +227,7 @@ class WP_Site_Alias_Query {
 		/**
 		 * Fires before site aliases are retrieved.
 		 *
-		 * @since 2.0.0
+		 * @since 1.0.0
 		 *
 		 * @param WP_Site_Alias_Query &$this Current instance of WP_Site_Alias_Query, passed by reference.
 		 */
@@ -296,7 +296,7 @@ class WP_Site_Alias_Query {
 		/**
 		 * Filters the site query results.
 		 *
-		 * @since 2.0.0
+		 * @since 1.0.0
 		 *
 		 * @param array         $results An array of aliases.
 		 * @param WP_Site_Alias_Query &$this   Current instance of WP_Site_Alias_Query, passed by reference.
@@ -312,7 +312,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Used internally to get a list of site alias IDs matching the query vars.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
@@ -458,7 +458,7 @@ class WP_Site_Alias_Query {
 			 *
 			 * The default columns include 'domain' and 'path.
 			 *
-			 * @since 2.0.0
+			 * @since 1.0.0
 			 *
 			 * @param array         $search_columns Array of column names to be searched.
 			 * @param string        $search         Text being searched.
@@ -482,7 +482,7 @@ class WP_Site_Alias_Query {
 		/**
 		 * Filters the site alias query clauses.
 		 *
-		 * @since 2.0.0
+		 * @since 1.0.0
 		 *
 		 * @param array $pieces A compacted array of site alias query clauses.
 		 * @param WP_Site_Alias_Query &$this Current instance of WP_Site_Alias_Query, passed by reference.
@@ -534,7 +534,7 @@ class WP_Site_Alias_Query {
 	 * Populates found_site_aliases and max_num_pages properties for the current query
 	 * if the limit clause was used.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access private
 	 *
 	 * @global wpdb  $wpdb      WordPress database abstraction object.
@@ -547,7 +547,7 @@ class WP_Site_Alias_Query {
 			/**
 			 * Filters the query used to retrieve found site alias count.
 			 *
-			 * @since 2.0.0
+			 * @since 1.0.0
 			 *
 			 * @param string              $found_site_aliases_query SQL query. Default 'SELECT FOUND_ROWS()'.
 			 * @param WP_Site_Alias_Query $site_alias_query         The `WP_Site_Alias_Query` instance.
@@ -563,7 +563,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Used internally to generate an SQL string for searching across multiple columns.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @global wpdb  $wpdb WordPress database abstraction object.
@@ -592,7 +592,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Parses and sanitizes 'orderby' keys passed to the site alias query.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
@@ -636,7 +636,7 @@ class WP_Site_Alias_Query {
 	/**
 	 * Parses an 'order' query variable and cast it to 'ASC' or 'DESC' as necessary.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access protected
 	 *
 	 * @param string $order The 'order' query variable.

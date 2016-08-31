@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Return the site ID being modified
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @return int
  */
@@ -59,7 +59,7 @@ function wp_site_aliases_get_site_id() {
 /**
  * Validate alias parameters
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  array  $args  Raw input parameters
  *
@@ -117,7 +117,7 @@ function wp_site_aliases_validate_alias_parameters( $args = array() ) {
 /**
  * Wrapper for admin URLs
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param array $args
  * @return array
@@ -166,7 +166,7 @@ function wp_site_aliases_admin_url( $args = array() ) {
 /**
  * Check if a domain has a alias available
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param stdClass|null $site Site object if already found, null otherwise
  *
@@ -237,7 +237,7 @@ function wp_site_aliases_clear_aliases_on_delete( $site_id = 0 ) {
 /**
  * Register filters for URLs, if we've mapped
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wp_site_aliases_register_url_filters() {
 
@@ -279,7 +279,7 @@ function wp_site_aliases_register_url_filters() {
 /**
  * Mangle the home URL to give our primary domain
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  string       $url          The complete home URL including scheme and path.
  * @param  string       $path         Path relative to the home URL. Blank string if no path is specified.
@@ -314,7 +314,7 @@ function wp_site_aliases_mangle_site_url( $url, $path, $orig_scheme, $site_id = 
 /**
  * Check if a domain belongs to a mapped site
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  stdClass|null  $network  Site object if already found, null otherwise
  * @param  string         $domain   Domain we're looking for
@@ -368,7 +368,7 @@ function wp_site_aliases_check_aliases_for_site( $site, $domain, $path, $path_se
 /**
  * Mangle the home URL to give our primary domain
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  string       $url          The complete home URL including scheme and path.
  * @param  string       $path         Path relative to the home URL. Blank string if no path is specified.
@@ -402,7 +402,7 @@ function wp_site_aliases_mangle_network_url( $url, $path, $orig_scheme, $site_id
  * This will return an array of domains which might have been mapped but also apply to the current domain
  * i.e. a given url of site.network.com should return both site.network.com and network.com
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  $domain
  *
@@ -433,7 +433,7 @@ function wp_site_aliases_get_possible_domains( $domain = '' ) {
  *
  * site.network.com should return site.network.com and network.com
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  string  $domain    A url to explode, i.e. site.example.com
  * @param  int     $segments  Number of segments to explode and return
@@ -461,7 +461,7 @@ function wp_site_aliases_explode_domain( $domain, $segments = 1 ) {
 /**
  * Get sites for network
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  array $args
  *
@@ -477,7 +477,7 @@ function wp_site_aliases_get_sites( $args = array() ) {
 /**
  * Is this the all aliases screen?
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @return bool
  */
@@ -488,7 +488,7 @@ function wp_site_aliases_is_network_list() {
 /**
  * Is this the network alias edit screen?
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @return bool
  */
@@ -499,7 +499,7 @@ function wp_site_aliases_is_network_edit() {
 /**
  * Get all available site alias statuses
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @return array
  */
@@ -519,7 +519,7 @@ function wp_site_aliases_get_statuses() {
 /**
  * Sanitize requested alias ID values
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param bool $single
  * @return mixed
@@ -546,7 +546,7 @@ function wp_site_aliases_sanitize_alias_ids( $single = false ) {
 /**
  * Maybe remove "www." from domain
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  string  $domain
  * @return string
@@ -564,7 +564,7 @@ function maybe_strip_www( $domain = '' ) {
 /**
  * Maybe add "www." to domain
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param  string  $domain
  * @return string
@@ -584,7 +584,7 @@ function maybe_add_www( $domain = '' ) {
  *
  * Site alias data will be cached and returned after being passed through a filter.
  *
- * @since 2.0.0
+ * @since 1.0.0
  *
  * @param WP_Site_Alias|int|null $alias Optional. Site alias to retrieve.
  * @return WP_Site_Alias|null The site object or null if not found.
@@ -609,7 +609,7 @@ function get_site_alias( $alias = null ) {
 	/**
 	 * Fires after a site alias is retrieved.
 	 *
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 *
 	 * @param WP_Site_Alias $_alias Site alias data.
 	 */
@@ -622,7 +622,7 @@ function get_site_alias( $alias = null ) {
  * Adds any site aliases from the given ids to the cache that do not already
  * exist in cache.
  *
- * @since 2.0.0
+ * @since 1.0.0
  * @access private
  *
  * @see update_site_cache()
@@ -644,7 +644,7 @@ function _prime_site_alias_caches( $ids = array() ) {
 /**
  * Updates site aliases in cache.
  *
- * @since 2.0.0
+ * @since 1.0.0
  *
  * @param array $aliases Array of site alias objects.
  */
@@ -661,7 +661,7 @@ function update_site_alias_cache( $aliases = array() ) {
 /**
  * Clean the site alias cache
  *
- * @since 0.1.0
+ * @since 1.0.0
  *
  * @param WP_Site_Alias $alias The alias details as returned from get_site_alias()
  */
@@ -672,7 +672,7 @@ function clean_blog_alias_cache( WP_Site_Alias $alias ) {
 	/**
 	 * Fires immediately after a site alias has been removed from the object cache.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param int     $alias_id Alias ID.
 	 * @param WP_Site $alias    Alias object.

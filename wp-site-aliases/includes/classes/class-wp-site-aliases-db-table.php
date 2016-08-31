@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
  * - Deletes all aliases for sites when sites are deleted
  * - Adds `wp_blog_aliases` to the main database object when appropriate
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 final class WP_Site_Aliases_DB {
 
@@ -41,7 +41,7 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * Hook into queries, admin screens, and more!
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function __construct() {
 
@@ -64,7 +64,7 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * Administration area hooks
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function admin_init() {
 		$this->maybe_upgrade_database();
@@ -76,17 +76,19 @@ final class WP_Site_Aliases_DB {
 	 * This is necessary to do directly because WordPress does have a mechanism
 	 * for manipulating them safely. It's pretty fragile, but oh well.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	public function add_table_to_db_object() {
 		$this->db->blog_aliases       = "{$this->db->base_prefix}blog_aliases";
 		$this->db->ms_global_tables[] = "blog_aliases";
+		
+
 	}
 
 	/**
 	 * Install this plugin on a specific site
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param int $site_id
 	 */
@@ -99,7 +101,7 @@ final class WP_Site_Aliases_DB {
 	 *
 	 * Handles both single & multi site installations
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param   bool    $network_wide
 	 */
@@ -112,7 +114,7 @@ final class WP_Site_Aliases_DB {
 	 *
 	 * Runs on `admin_init`
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	private function maybe_upgrade_database() {
 
@@ -128,7 +130,7 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * Create the database table
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param  int $old_version
 	 */
@@ -149,7 +151,7 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * Create the table
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 */
 	private function create_table() {
 
@@ -193,7 +195,7 @@ final class WP_Site_Aliases_DB {
 	 * data function specifically designed to facilitate the deletion of all
 	 * meta associated with a given object.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param  int    $site_id Site ID
 	 */
@@ -222,7 +224,7 @@ final class WP_Site_Aliases_DB {
 /**
  * Load the DB as early as possible, but after WordPress core is included
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wp_site_aliases_db() {
 	new WP_Site_Aliases_DB();

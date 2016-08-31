@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Enqueue admin scripts
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 function wp_site_aliases_admin_enqueue_scripts() {
 

@@ -12,14 +12,14 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Site Alias Class
  *
- * @since 0.1.0
+ * @since 1.0.0
  */
 final class WP_Site_Alias {
 
 	/**
 	 * Alias ID.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var int
 	 */
@@ -28,7 +28,7 @@ final class WP_Site_Alias {
 	/**
 	 * The ID of the alias's site.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var string
 	 */
@@ -37,7 +37,7 @@ final class WP_Site_Alias {
 	/**
 	 * Domain of the alias.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var string
 	 */
@@ -46,7 +46,7 @@ final class WP_Site_Alias {
 	/**
 	 * The date on which the alias was created.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var string Date in MySQL's datetime format.
 	 */
@@ -55,7 +55,7 @@ final class WP_Site_Alias {
 	/**
 	 * Status of the alias.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 * @var string
 	 */
@@ -67,7 +67,7 @@ final class WP_Site_Alias {
 	 * Will populate object properties from the object provided and assign other
 	 * default properties based on that information.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @param WP_Site_Alias|object $site A site object.
@@ -81,7 +81,7 @@ final class WP_Site_Alias {
 	/**
 	 * Converts an object to array.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @return array Object as array.
@@ -96,7 +96,7 @@ final class WP_Site_Alias {
 	 * Allows current multisite naming conventions when getting properties.
 	 * Allows access to extended site properties.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @param string $key Property to get.
@@ -121,7 +121,7 @@ final class WP_Site_Alias {
 	 * Allows current multisite naming conventions when checking for properties.
 	 * Checks for extended site properties.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @param string $key Property to check if set.
@@ -144,7 +144,7 @@ final class WP_Site_Alias {
 	 *
 	 * Allows current multisite naming conventions while setting properties.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @param string $key   Property to set.
@@ -168,7 +168,7 @@ final class WP_Site_Alias {
 	/**
 	 * Set the status for the alias
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param  bool $status Status should be 'active' or 'inactive'
 	 *
@@ -183,7 +183,7 @@ final class WP_Site_Alias {
 	/**
 	 * Set the domain for the alias
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param string $domain Domain name
 	 *
@@ -200,7 +200,7 @@ final class WP_Site_Alias {
 	 *
 	 * See also, {@see set_domain} and {@see set_status} as convenience methods.
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param array|stdClass $data Alias fields (associative array or object properties)
 	 *
@@ -284,7 +284,7 @@ final class WP_Site_Alias {
 	/**
 	 * Delete the alias
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
 	 */
@@ -322,7 +322,7 @@ final class WP_Site_Alias {
 	 * Retrieves a site alias from the database by its ID.
 	 *
 	 * @static
-	 * @since 2.0.0
+	 * @since 1.0.0
 	 * @access public
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
@@ -362,7 +362,7 @@ final class WP_Site_Alias {
 	/**
 	 * Get alias by site ID
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param int|stdClass $site Site ID, or site object from {@see get_blog_details}
 	 *
@@ -395,7 +395,7 @@ final class WP_Site_Alias {
 	/**
 	 * Get alias by network ID
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param int|stdClass $network Network ID, or network object
 	 *
@@ -423,7 +423,7 @@ final class WP_Site_Alias {
 	/**
 	 * Get alias by domain(s)
 	 *
-	 * @since 0.1.0
+	 * @since 1.0.0
 	 *
 	 * @param string|array $domains Domain(s) to match against
 	 * @return WP_Site_Alias|WP_Error|null Alias on success, WP_Error if error occurred, or null if no alias found
