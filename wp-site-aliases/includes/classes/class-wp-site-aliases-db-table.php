@@ -24,7 +24,7 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * @var string Database version
 	 */
-	public $db_version = 201608310005;
+	public $db_version = 201608310006;
 
 	/**
 	 * @var string Database version key
