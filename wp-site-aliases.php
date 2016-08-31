@@ -50,7 +50,7 @@ function _wp_site_aliases() {
 	}
 
 	// Register global cache group
-	wp_cache_add_global_groups( array( 'blog-aliases' ) );
+	wp_cache_add_global_groups( array( 'blog-aliases', 'blog_alias_meta' ) );
 }
 
 /**
