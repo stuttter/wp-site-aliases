@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit;
  * @return int|false Meta ID on success, false on failure.
  */
 function add_alias_meta( $id, $meta_key, $meta_value, $unique = false ) {
-	return add_metadata( 'blog_aliasmeta', $id, $meta_key, $meta_value, $unique );
+	return add_metadata( 'blog_alias', $id, $meta_key, $meta_value, $unique );
 }
 
 /**
@@ -35,7 +35,7 @@ function add_alias_meta( $id, $meta_key, $meta_value, $unique = false ) {
  * @return bool True on success, false on failure.
  */
 function delete_alias_meta( $id, $meta_key, $meta_value = '' ) {
-	return delete_metadata( 'blog_aliasmeta', $id, $meta_key, $meta_value );
+	return delete_metadata( 'blog_alias', $id, $meta_key, $meta_value );
 }
 
 /**
@@ -51,7 +51,7 @@ function delete_alias_meta( $id, $meta_key, $meta_value = '' ) {
  *               field if $single is true.
  */
 function get_alias_meta( $id, $meta_key = '', $single = false ) {
-	return get_metadata( 'blog_aliasmeta', $id, $meta_key, $single );
+	return get_metadata( 'blog_alias', $id, $meta_key, $single );
 }
 
 /**
@@ -73,5 +73,5 @@ function get_alias_meta( $id, $meta_key = '', $single = false ) {
  *                  false on failure.
  */
 function update_alias_meta( $id, $meta_key, $meta_value, $prev_value = '' ) {
-	return update_metadata( 'blog_aliasmeta', $id, $meta_key, $meta_value, $prev_value );
+	return update_metadata( 'blog_alias', $id, $meta_key, $meta_value, $prev_value );
 }
