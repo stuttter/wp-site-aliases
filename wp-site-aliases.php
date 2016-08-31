@@ -43,8 +43,10 @@ function _wp_site_aliases() {
 
 	// Register database table
 	if ( empty( $GLOBALS['wpdb']->blog_aliases ) ) {
-		$GLOBALS['wpdb']->blog_aliases       = $GLOBALS['wpdb']->base_prefix . 'blog_aliases';
+		$GLOBALS['wpdb']->blog_aliases       = "{$GLOBALS['wpdb']->base_prefix}blog_aliases";
+		$GLOBALS['wpdb']->blog_aliasmeta     = "{$GLOBALS['wpdb']->base_prefix}blog_aliasmeta";
 		$GLOBALS['wpdb']->ms_global_tables[] = 'blog_aliases';
+		$GLOBALS['wpdb']->ms_global_tables[] = 'blog_aliasmeta';
 	}
 
 	// Register global cache group

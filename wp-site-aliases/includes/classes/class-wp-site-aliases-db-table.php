@@ -19,12 +19,12 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * @var string Plugin version
 	 */
-	public $version = '0.1.0';
+	public $version = '1.0.0';
 
 	/**
 	 * @var string Database version
 	 */
-	public $db_version = 201602090001;
+	public $db_version = 201608310003;
 
 	/**
 	 * @var string Database version key
@@ -52,22 +52,13 @@ final class WP_Site_Aliases_DB {
 		$this->db = $GLOBALS['wpdb'];
 
 		// Force table on to the global database object
-		add_action( 'init',           array( $this, 'add_table_to_db_object' ) );
-		add_action( 'switch_to_blog', array( $this, 'add_table_to_db_object' ) );
+		add_action( 'init',           array( $this, 'add_tables_to_db_object' ) );
+		add_action( 'switch_to_blog', array( $this, 'add_tables_to_db_object' ) );
 
 		// Check if DB needs upgrading
 		if ( is_admin() ) {
 			add_action( 'admin_init', array( $this, 'admin_init' ) );
 		}
-	}
-
-	/**
-	 * Administration area hooks
-	 *
-	 * @since 1.0.0
-	 */
-	public function admin_init() {
-		$this->maybe_upgrade_database();
 	}
 
 	/**
@@ -78,21 +69,19 @@ final class WP_Site_Aliases_DB {
 	 *
 	 * @since 1.0.0
 	 */
-	public function add_table_to_db_object() {
+	public function add_tables_to_db_object() {
 		$this->db->blog_aliases       = "{$this->db->base_prefix}blog_aliases";
-		$this->db->ms_global_tables[] = "blog_aliases";
-		
-
+		$this->db->blog_aliasemeta    = "{$this->db->base_prefix}blog_aliasmeta";
+		$this->db->ms_global_tables[] = 'blog_aliases';
+		$this->db->ms_global_tables[] = 'blog_aliasmeta';
 	}
 
 	/**
-	 * Install this plugin on a specific site
+	 * Administration area hooks
 	 *
 	 * @since 1.0.0
-	 *
-	 * @param int $site_id
 	 */
-	public function install() {
+	public function admin_init() {
 		$this->upgrade_database();
 	}
 
@@ -106,25 +95,7 @@ final class WP_Site_Aliases_DB {
 	 * @param   bool    $network_wide
 	 */
 	public function activate() {
-		$this->install();
-	}
-
-	/**
-	 * Should a database update occur
-	 *
-	 * Runs on `admin_init`
-	 *
-	 * @since 1.0.0
-	 */
-	private function maybe_upgrade_database() {
-
-		// Check DB for version
-		$db_version = get_network_option( -1, $this->db_version_key );
-
-		// Needs
-		if ( (int) $db_version < $this->db_version ) {
-			$this->upgrade_database( $db_version );
-		}
+		$this->upgrade_database();
 	}
 
 	/**
@@ -136,13 +107,16 @@ final class WP_Site_Aliases_DB {
 	 */
 	private function upgrade_database( $old_version = 0 ) {
 
-		// The main column alter
+		// Get current version
+		$old_version = get_network_option( -1, $this->db_version_key );
+
+		// Bail if no upgrade needed
 		if ( version_compare( (int) $old_version, $this->db_version, '>=' ) ) {
 			return;
 		}
 
-		// Create term table
-		$this->create_table();
+		// Create term tables
+		$this->create_tables();
 
 		// Update the DB version
 		update_network_option( -1, $this->db_version_key, $this->db_version );
@@ -153,7 +127,7 @@ final class WP_Site_Aliases_DB {
 	 *
 	 * @since 1.0.0
 	 */
-	private function create_table() {
+	private function create_tables() {
 
 		$charset_collate = '';
 		if ( ! empty( $this->db->charset ) ) {
@@ -169,23 +143,35 @@ final class WP_Site_Aliases_DB {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		}
 
+		$sql = array();
 		$max_index_length = 191;
 
-		dbDelta( array(
-			"CREATE TABLE {$this->db->blog_aliases} (
-				id bigint(20) NOT NULL auto_increment,
-				blog_id bigint(20) NOT NULL,
-				domain varchar(255) NOT NULL,
-				created datetime NOT NULL default '0000-00-00 00:00:00',
-				status varchar(20) NOT NULL default 'active',
-				PRIMARY KEY (id),
-				KEY blog_id (blog_id,domain(50),status),
-				KEY domain (domain({$max_index_length}))
-			) {$charset_collate};"
-		) );
+		// Aliases
+		$sql[] =  "CREATE TABLE {$this->db->blog_aliases} (
+			id bigint(20) NOT NULL auto_increment,
+			blog_id bigint(20) NOT NULL,
+			domain varchar(255) NOT NULL,
+			created datetime NOT NULL default '0000-00-00 00:00:00',
+			status varchar(20) NOT NULL default 'active',
+			PRIMARY KEY (id),
+			KEY blog_id (blog_id,domain(50),status),
+			KEY domain (domain({$max_index_length}))
+		) {$charset_collate};";
+
+		// Relationship meta
+		$sql[] = "CREATE TABLE {$this->db->blog_aliasmeta} (
+			id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			alias_id bigint(20) NOT NULL,
+			meta_key varchar(255) DEFAULT NULL,
+			meta_value longtext DEFAULT NULL,
+			KEY alias_id (alias_id),
+			KEY meta_key (meta_key({$max_index_length}))
+		) {$charset_collate};";
+
+		dbDelta( $sql );
 
 		// Make doubly sure the global database object is modified
-		$this->add_table_to_db_object();
+		$this->add_tables_to_db_object();
 	}
 
 	/**
