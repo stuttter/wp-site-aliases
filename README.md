@@ -9,11 +9,11 @@ The best way to allow custom domains in your WordPress Multisite installation
 
 # Installation
 
-* Download and install using the built in WordPress plugin installer.
-* Network Activate in the "Plugins" area of your network-admin by clicking the "Activate" link.
+* Download and install using the built in WordPress plugin installer
+* Network Activate in the "Plugins" area of your network-admin by clicking the "Activate" link
 * Optionally drop the entire `wp-site-aliases` directory into `mu-plugins`
-* Optionally configure 
-* No further setup or configuration is necessary.
+* Optionally filter `wp_site_aliases_get_documentation_url` & `wp_site_aliases_get_configuration_url` and write some documentation for your custom application
+* No further setup or configuration is necessary
 
 # FAQ
 
