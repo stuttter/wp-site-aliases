@@ -16,7 +16,7 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
-//
+// Load immediately, to get ahead of everything else
 _wp_site_aliases();
 
 /**
