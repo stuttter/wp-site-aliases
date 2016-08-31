@@ -24,7 +24,7 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * @var string Database version
 	 */
-	public $db_version = 201608310003;
+	public $db_version = 201608310005;
 
 	/**
 	 * @var string Database version key
@@ -161,10 +161,10 @@ final class WP_Site_Aliases_DB {
 		// Relationship meta
 		$sql[] = "CREATE TABLE {$this->db->blog_aliasmeta} (
 			id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			alias_id bigint(20) NOT NULL,
+			blog_alias_id bigint(20) NOT NULL,
 			meta_key varchar(255) DEFAULT NULL,
 			meta_value longtext DEFAULT NULL,
-			KEY alias_id (alias_id),
+			KEY blog_alias_id (blog_alias_id),
 			KEY meta_key (meta_key({$max_index_length}))
 		) {$charset_collate};";
 
@@ -172,38 +172,6 @@ final class WP_Site_Aliases_DB {
 
 		// Make doubly sure the global database object is modified
 		$this->add_tables_to_db_object();
-	}
-
-	/**
-	 * Delete all alias for a given site ID
-	 *
-	 * This bit is largely taken from `wp_delete_post()` as there is no meta-
-	 * data function specifically designed to facilitate the deletion of all
-	 * meta associated with a given object.
-	 *
-	 * @since 1.0.0
-	 *
-	 * @param  int    $site_id Site ID
-	 */
-	public function delete_all_aliases_for_site( $site_id = 0 ) {
-
-		// Make doubly sure global database object is prepared
-		$this->add_table_to_db_object();
-
-		// Query the DB for metad ID's to delete
-		$query     = "SELECT id FROM {$this->db->blog_aliases} WHERE blog_id = %d";
-		$prepared  = $this->db->prepare( $query, $site_id );
-		$alias_ids = $this->db->get_col( $prepared );
-
-		// Bail if no site alias to delete
-		if ( empty( $alias_ids ) ) {
-			return;
-		}
-
-		// Loop through and delete all meta by ID
-		foreach ( $alias_ids as $id ) {
-			$this->db->delete( $this->db->blog_aliases, array( $id => $site_id ) );
-		}
 	}
 }
 
