@@ -50,6 +50,15 @@ class WP_Site_Alias_Query {
 	public $date_query = false;
 
 	/**
+	 * Meta query container.
+	 *
+	 * @since 1.0.0
+	 * @access public
+	 * @var object WP_Date_Query
+	 */
+	public $meta_query = false;
+
+	/**
 	 * Query vars set by the user.
 	 *
 	 * @since 1.0.0
@@ -162,6 +171,7 @@ class WP_Site_Alias_Query {
 			'search_columns'    => array(),
 			'count'             => false,
 			'date_query'        => null, // See WP_Date_Query
+			'meta_query'        => null, // See WP_Meta_Query
 			'no_found_rows'     => true,
 			'update_site_alias_cache' => true,
 		);
@@ -473,6 +483,12 @@ class WP_Site_Alias_Query {
 		if ( ! empty( $date_query ) && is_array( $date_query ) ) {
 			$this->date_query = new WP_Date_Query( $date_query, 'registered' );
 			$this->sql_clauses['where']['date_query'] = preg_replace( '/^\s*AND\s*/', '', $this->date_query->get_sql() );
+		}
+
+		$meta_query = $this->query_vars['meta_query'];
+		if ( ! empty( $meta_query ) && is_array( $meta_query ) ) {
+			$this->meta_query = new WP_Meta_Query( $meta_query );
+			$this->sql_clauses['where']['meta_query'] = preg_replace( '/^\s*AND\s*/', '', $this->meta_query->get_sql( 'blog_alias', $wpdb->blog_aliases, 'id', $this ) );
 		}
 
 		$where = implode( ' AND ', $this->sql_clauses['where'] );
