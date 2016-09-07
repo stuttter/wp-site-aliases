@@ -546,7 +546,7 @@ class WP_Site_Alias_Query {
 		$this->sql_clauses['limits']  = $limits;
 
 		$this->request = "{$this->sql_clauses['select']} {$this->sql_clauses['from']} {$where} {$this->sql_clauses['groupby']} {$this->sql_clauses['orderby']} {$this->sql_clauses['limits']}";
-var_dump( $this->request );
+
 		if ( $this->query_vars['count'] ) {
 			return intval( $this->db->get_var( $this->request ) );
 		}
