@@ -72,7 +72,7 @@ final class WP_Site_Aliases_DB {
 	public function add_tables_to_db_object() {
 		if ( ! isset( $this->db->blog_aliases ) ) {
 			$this->db->blog_aliases       = "{$this->db->base_prefix}blog_aliases";
-			$this->db->blog_aliasmeta    = "{$this->db->base_prefix}blog_aliasmeta";
+			$this->db->blog_aliasmeta     = "{$this->db->base_prefix}blog_aliasmeta";
 			$this->db->ms_global_tables[] = 'blog_aliases';
 			$this->db->ms_global_tables[] = 'blog_aliasmeta';
 		}
@@ -117,6 +117,16 @@ final class WP_Site_Aliases_DB {
 			return;
 		}
 
+		// Check for `dbDelta`
+		if ( ! function_exists( 'dbDelta' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+		}
+
+		// Bail if upgrading global tables is not allowed
+		if ( ! wp_should_upgrade_global_tables() ) {
+			return;
+		}
+
 		// Create term tables
 		$this->create_tables();
 
@@ -130,6 +140,7 @@ final class WP_Site_Aliases_DB {
 	 * @since 1.0.0
 	 */
 	private function create_tables() {
+		$this->add_tables_to_db_object();
 
 		$charset_collate = '';
 		if ( ! empty( $this->db->charset ) ) {
@@ -138,11 +149,6 @@ final class WP_Site_Aliases_DB {
 
 		if ( ! empty( $this->db->collate ) ) {
 			$charset_collate .= " COLLATE {$this->db->collate}";
-		}
-
-		// Check for `dbDelta`
-		if ( ! function_exists( 'dbDelta' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		}
 
 		$sql = array();
@@ -171,9 +177,6 @@ final class WP_Site_Aliases_DB {
 		) {$charset_collate};";
 
 		dbDelta( $sql );
-
-		// Make doubly sure the global database object is modified
-		$this->add_tables_to_db_object();
 	}
 }
 
