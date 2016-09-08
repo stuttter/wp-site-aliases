@@ -19,12 +19,12 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * @var string Plugin version
 	 */
-	public $version = '1.0.0';
+	public $version = '1.1.0';
 
 	/**
 	 * @var string Database version
 	 */
-	public $db_version = 201608310006;
+	public $db_version = 201609080001;
 
 	/**
 	 * @var string Database version key
