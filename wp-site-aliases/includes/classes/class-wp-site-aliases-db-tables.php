@@ -19,12 +19,12 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * @var string Plugin version
 	 */
-	public $version = '1.1.0';
+	public $version = '2.0.0';
 
 	/**
 	 * @var string Database version
 	 */
-	public $db_version = 201609080001;
+	public $db_version = 201609100003;
 
 	/**
 	 * @var string Database version key
@@ -127,8 +127,18 @@ final class WP_Site_Aliases_DB {
 			return;
 		}
 
-		// Create term tables
-		$this->create_tables();
+		// First activation
+		if ( ! $this->meta_table_exists() ) {
+			$this->create_tables();
+
+		// Update database structure from 1.0.0 to 2.0.0
+		} elseif ( version_compare( (int) $old_version, 201609100003, '<=' ) ) {
+			$this->update_database_2_0();
+
+		// Other case without any action
+		} else {
+			return;
+		}
 
 		// Update the DB version
 		update_network_option( -1, $this->db_version_key, $this->db_version );
@@ -168,7 +178,7 @@ final class WP_Site_Aliases_DB {
 
 		// Relationship meta
 		$sql[] = "CREATE TABLE {$this->db->blog_aliasmeta} (
-			id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			meta_id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			blog_alias_id bigint(20) NOT NULL,
 			meta_key varchar(255) DEFAULT NULL,
 			meta_value longtext DEFAULT NULL,
@@ -177,6 +187,36 @@ final class WP_Site_Aliases_DB {
 		) {$charset_collate};";
 
 		dbDelta( $sql );
+	}
+
+	/**
+	 * Check if meta table already exists
+	 *
+	 * @since 2.0.0
+	 *
+	 * @return bool
+	 */
+	private function meta_table_exists() {
+		$this->add_tables_to_db_object();
+
+		$query       = "SHOW TABLES LIKE %s";
+		$like        = $this->db->esc_like( $this->db->blog_aliasmeta );
+		$prepared    = $this->db->prepare( $query, $like );
+		$table_exist = $this->db->get_var( $prepared );
+
+		return ! empty( $table_exist );
+	}
+
+	/**
+	 * Update database structure for version 2.0.0
+	 *
+	 * @since 2.0.0
+	 */
+	private function update_database_2_0() {
+		$this->add_tables_to_db_object();
+
+		// Relationship meta
+		$this->db->query( "ALTER TABLE {$this->db->blog_aliasmeta} CHANGE `id` `meta_id` BIGINT(20) NOT NULL AUTO_INCREMENT;" );
 	}
 }
 

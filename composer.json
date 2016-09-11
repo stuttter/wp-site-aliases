@@ -1,0 +1,17 @@
+{
+  "name": "stuttter/wp-site-aliases",
+  "description": "The best way to allow custom domains in your WordPress Multisite installation",
+  "homepage": "https://chat.flox.io/support/channels/wp-site-aliases",
+  "type": "wordpress-muplugin",
+  "require": {
+    "php": ">=5.2",
+    "composer/installers": "^1.0"
+  },
+  "license": "GPLv2 or later",
+  "authors": [
+    {
+      "name": "John James Jacoby",
+      "email": "johnjamesjacoby@me.com"
+    }
+  ]
+}
