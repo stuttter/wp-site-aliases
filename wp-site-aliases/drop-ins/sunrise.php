@@ -99,4 +99,7 @@ function wp_site_aliases_maybe_load_current_site_and_network() {
 	// Set the network globals
 	$site_id      = $current_blog->site_id;
 	$current_site = get_network( $site_id );
+
+	// Add header for site alias
+	@header( "X-Site-Alias: {$current_blog->domain}{$current_blog->path}" );
 }
