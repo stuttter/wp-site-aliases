@@ -312,7 +312,7 @@ function wp_site_aliases_output_page_header( $site_id = 0 ) {
 	if ( is_network_admin() && ! wp_site_aliases_is_network_list() ) :
 
 		// Header
-		$title = sprintf( esc_html__( 'Edit Alias: %s' ), get_blog_option( $site_id, 'blogname' ) );
+		$title = sprintf( esc_html__( 'Edit Site: %s' ), get_blog_option( $site_id, 'blogname' ) );
 
 		// This is copied from WordPress core (sic)
 		?><div class="wrap">
