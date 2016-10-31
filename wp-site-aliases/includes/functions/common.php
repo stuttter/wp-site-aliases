@@ -373,7 +373,7 @@ function wp_site_aliases_check_aliases_for_site( $site, $domain, $path, $path_se
 
 	// Set site & network
 	$site         = get_blog_details( $alias->site_id );
-	$current_site = wp_get_network( $site->site_id );
+	$current_site = get_network( $site->site_id );
 
 	// We found a network, now check for the site. Replace mapped domain with
 	// network's original to find.
