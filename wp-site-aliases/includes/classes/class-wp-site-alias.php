@@ -302,11 +302,8 @@ final class WP_Site_Alias {
 			return new WP_Error( 'wp_site_aliases_alias_delete_failed' );
 		}
 
-		// Update the cache
-		wp_cache_delete( $alias_id, 'blog-aliases' );
-
-		// Ensure the cache is flushed
-		wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
+		// Delete the blog alias cache
+		clean_blog_alias_cache( $this );
 
 		/**
 		 * Fires after a alias has been delete.
