@@ -507,6 +507,9 @@ final class WP_Site_Alias {
 			return new WP_Error( 'wp_site_aliases_alias_insert_failed' );
 		}
 
+		// Ensure the cache is flushed
+		clean_blog_alias_cache( $result );
+
 		// Get the alias, and prime the caches
 		$alias = static::get_instance( $wpdb->insert_id );
 

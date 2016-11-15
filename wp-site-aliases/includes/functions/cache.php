@@ -57,9 +57,15 @@ function update_site_alias_cache( $aliases = array() ) {
  *
  * @since 1.0.0
  *
- * @param WP_Site_Alias $alias The alias details as returned from get_site_alias()
+ * @param int|WP_Site_Alias $alias Alias ID or alias object to remove from the cache
  */
 function clean_blog_alias_cache( WP_Site_Alias $alias ) {
+
+	// Get alias, and bail if not found
+	$alias = WP_Site_Alias::get_instance( $alias );
+	if ( empty( $alias ) || is_wp_error( $alias ) ) {
+		return;
+	}
 
 	// Delete alias from cache group
 	wp_cache_delete( $alias->id , 'blog-aliases' );
