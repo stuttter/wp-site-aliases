@@ -268,7 +268,6 @@ final class WP_Site_Alias {
 
 		// Update the alias caches
 		wp_cache_set( $alias_id, $this, 'blog-aliases' );
-		wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
 
 		/**
 		 * Fires after a alias has been updated.
@@ -325,7 +324,7 @@ final class WP_Site_Alias {
 	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
 	 * @param int $alias_id The ID of the site to retrieve.
-	 * @return WP_Site_Alias|false The site alias's object if found. False if not.
+	 * @return WP_Site_Alias|false The site alias object if found. False if not.
 	 */
 	public static function get_instance( $alias_id = 0 ) {
 		global $wpdb;
@@ -349,7 +348,6 @@ final class WP_Site_Alias {
 
 			// Add alias to cache
 			wp_cache_add( $alias_id, $_alias, 'blog-aliases' );
-			wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
 		}
 
 		// Return alias object
@@ -508,9 +506,6 @@ final class WP_Site_Alias {
 
 			return new WP_Error( 'wp_site_aliases_alias_insert_failed' );
 		}
-
-		// Ensure the cache is flushed
-		wp_cache_set( 'last_changed', microtime(), 'blog-aliases' );
 
 		// Get the alias, and prime the caches
 		$alias = static::get_instance( $wpdb->insert_id );
