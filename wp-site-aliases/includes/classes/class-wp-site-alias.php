@@ -323,23 +323,28 @@ final class WP_Site_Alias {
 	 *
 	 * @global wpdb $wpdb WordPress database abstraction object.
 	 *
-	 * @param int $alias_id The ID of the site to retrieve.
+	 * @param int $alias The ID of the site to retrieve.
 	 * @return WP_Site_Alias|false The site alias object if found. False if not.
 	 */
-	public static function get_instance( $alias_id = 0 ) {
+	public static function get_instance( $alias = 0 ) {
 		global $wpdb;
 
-		$alias_id = (int) $alias_id;
-		if ( empty( $alias_id ) ) {
-			return false;
+		// Allow passing a site alias in
+		if ( $alias instanceof WP_Site_Alias ) {
+			return $alias;
+		}
+
+		// Bail if
+		if ( ! is_numeric( $alias ) ) {
+			return new WP_Error( 'wp_site_aliases_invalid_id' );
 		}
 
 		// Check cache first
-		$_alias = wp_cache_get( $alias_id, 'blog-aliases' );
+		$_alias = wp_cache_get( $alias, 'blog-aliases' );
 
 		// No cached alias
 		if ( false === $_alias ) {
-			$_alias = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE id = %d LIMIT 1", $alias_id ) );
+			$_alias = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->blog_aliases} WHERE id = %d LIMIT 1", $alias ) );
 
 			// Bail if no alias found
 			if ( empty( $_alias ) || is_wp_error( $_alias ) ) {
@@ -347,7 +352,7 @@ final class WP_Site_Alias {
 			}
 
 			// Add alias to cache
-			wp_cache_add( $alias_id, $_alias, 'blog-aliases' );
+			wp_cache_add( $alias, $_alias, 'blog-aliases' );
 		}
 
 		// Return alias object
@@ -508,7 +513,7 @@ final class WP_Site_Alias {
 		}
 
 		// Ensure the cache is flushed
-		clean_blog_alias_cache( $result );
+		clean_blog_alias_cache( $wpdb->insert_id );
 
 		// Get the alias, and prime the caches
 		$alias = static::get_instance( $wpdb->insert_id );
