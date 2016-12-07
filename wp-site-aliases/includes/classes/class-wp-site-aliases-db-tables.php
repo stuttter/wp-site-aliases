@@ -225,7 +225,7 @@ final class WP_Site_Aliases_DB {
 		$this->add_tables_to_db_object();
 
 		// Relationship meta
-		$this->db->query( "ALTER TABLE {$this->db->blog_aliases} CHANGE `id` `meta_id` BIGINT(20) NOT NULL AUTO_INCREMENT;" );
+		$this->db->query( "ALTER TABLE {$this->db->blog_aliasemeta} CHANGE `id` `meta_id` BIGINT(20) NOT NULL AUTO_INCREMENT;" );
 	}
 
 	/**
