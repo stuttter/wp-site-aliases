@@ -2,8 +2,8 @@
 Contributors: johnjamesjacoby, stuttter
 Tags: blog, site, meta, multisite, alias, domain, mapping
 Requires at least: 4.5
-Tested up to: 4.7
-Stable tag: 2.1.0
+Tested up to: 4.8
+Stable tag: 3.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9Q4F4EL5YJ62J
@@ -73,6 +73,9 @@ No. All of WordPress's core database tables remain untouched.
 http://github.com/stuttter/wp-site-aliases/
 
 == Changelog ==
+
+= [3.0.0] - 2016-12-06 =
+* Add support for aliases to redirect vs. mask
 
 = [2.1.0] - 2016-11-15 =
 * Improve object cache usage

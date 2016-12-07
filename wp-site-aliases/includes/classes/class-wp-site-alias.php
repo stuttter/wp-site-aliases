@@ -59,7 +59,7 @@ final class WP_Site_Alias {
 	 * @access public
 	 * @var string
 	 */
-	public $status = '';
+	public $status = 'active';
 
 	/**
 	 * Type of alias.
@@ -68,7 +68,7 @@ final class WP_Site_Alias {
 	 * @access public
 	 * @var string
 	 */
-	public $type = '';
+	public $type = 'mask';
 
 	/**
 	 * Creates a new WP_Site_Alias object.
