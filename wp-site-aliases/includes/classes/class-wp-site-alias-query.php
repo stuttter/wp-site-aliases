@@ -415,7 +415,11 @@ class WP_Site_Alias_Query {
 
 		// Parse site alias IDs for an IN clause.
 		if ( ! empty( $this->query_vars['alias__in'] ) ) {
-			$this->sql_clauses['where']['alias__in'] = "ba.id IN ( " . implode( ',', wp_parse_id_list( $this->query_vars['site__in'] ) ) . ' )';
+			if ( 1 === count( $this->query_vars['alias__in'] ) ) {
+				$this->sql_clauses['where']['ID'] = $this->db->prepare( 'ba.id = %d', reset( $this->query_vars['alias__in'] ) );
+			} else {
+				$this->sql_clauses['where']['alias__in'] = "ba.id IN ( " . implode( ',', wp_parse_id_list( $this->query_vars['alias__in'] ) ) . ' )';
+			}
 		}
 
 		// Parse site alias IDs for a NOT IN clause.
@@ -432,7 +436,11 @@ class WP_Site_Alias_Query {
 
 		// Parse site IDs for an IN clause.
 		if ( ! empty( $this->query_vars['site__in'] ) ) {
-			$this->sql_clauses['where']['site__in'] = "ba.blog_id IN ( " . implode( ',', wp_parse_id_list( $this->query_vars['site__in'] ) ) . ' )';
+			if ( 1 === count( $this->query_vars['site__in'] ) ) {
+				$this->sql_clauses['where']['site_id'] = $this->db->prepare( 'ba.blog_id = %d', reset( $this->query_vars['site__in'] ) );
+			} else {
+				$this->sql_clauses['where']['site__in'] = "ba.blog_id IN ( " . implode( ',', wp_parse_id_list( $this->query_vars['site__in'] ) ) . ' )';
+			}
 		}
 
 		// Parse site IDs for a NOT IN clause.
@@ -448,7 +456,11 @@ class WP_Site_Alias_Query {
 
 		// Parse site alias domain for an IN clause.
 		if ( is_array( $this->query_vars['domain__in'] ) ) {
-			$this->sql_clauses['where']['domain__in'] = "ba.domain IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['domain__in'] ) ) . "' )";
+			if ( 1 === count( $this->query_vars['domain__in'] ) ) {
+				$this->sql_clauses['where']['domain'] = $this->db->prepare( 'ba.domain = %s', reset( $this->query_vars['domain__in'] ) );
+			} else {
+				$this->sql_clauses['where']['domain__in'] = "ba.domain IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['domain__in'] ) ) . "' )";
+			}
 		}
 
 		// Parse site alias domain for a NOT IN clause.
@@ -464,7 +476,11 @@ class WP_Site_Alias_Query {
 
 		// Parse site alias status for an IN clause.
 		if ( is_array( $this->query_vars['status__in'] ) ) {
-			$this->sql_clauses['where']['status__in'] = "ba.status IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['status__in'] ) ) . "' )";
+			if ( 1 === count( $this->query_vars['status__in'] ) ) {
+				$this->sql_clauses['where']['status'] = $this->db->prepare( 'ba.status = %s', reset( $this->query_vars['status__in'] ) );
+			} else {
+				$this->sql_clauses['where']['status__in'] = "ba.status IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['status__in'] ) ) . "' )";
+			}
 		}
 
 		// Parse site alias status for a NOT IN clause.
@@ -480,7 +496,11 @@ class WP_Site_Alias_Query {
 
 		// Parse site alias type for an IN clause.
 		if ( is_array( $this->query_vars['type__in'] ) ) {
-			$this->sql_clauses['where']['type__in'] = "ba.type IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['type__in'] ) ) . "' )";
+			if ( 1 === count( $this->query_vars['type__in'] ) ) {
+				$this->sql_clauses['where']['type'] = $this->db->prepare( 'ba.type = %s', reset( $this->query_vars['type__in'] ) );
+			} else {
+				$this->sql_clauses['where']['type__in'] = "ba.type IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['type__in'] ) ) . "' )";
+			}
 		}
 
 		// Parse site alias type for a NOT IN clause.
