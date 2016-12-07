@@ -86,6 +86,14 @@ function wp_site_aliases_maybe_load_current_site_and_network() {
 		return;
 	}
 
+	// Maybe redirect
+	if ( 'redirect' === $alias->type ) {
+		switch_to_blog( $alias->site_id );
+		wp_safe_redirect( home_url( $_SERVER['REQUEST_URI'] ) );
+		restore_current_blog();
+		exit;
+	}
+
 	// Set the site globals
 	$blog_id      = $alias->site_id;
 	$current_blog = get_site( $alias->site_id );
