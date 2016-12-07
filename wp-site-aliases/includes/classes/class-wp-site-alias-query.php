@@ -137,7 +137,7 @@ class WP_Site_Alias_Query {
 	 *     @type int          $offset            Number of aliases to offset the query. Used to build LIMIT clause.
 	 *                                           Default 0.
 	 *     @type bool         $no_found_rows     Whether to disable the `SQL_CALC_FOUND_ROWS` query. Default true.
-	 *     @type string|array $orderby           Site status or array of statuses. Accepts 'id', 'domain', 'status',
+	 *     @type string|array $orderby           Site status or array of statuses. Accepts 'id', 'domain', 'status', 'type',
 	 *                                           'created', 'domain_length', 'path_length', or 'site__in'. Also accepts false,
 	 *                                           an empty array, or 'none' to disable `ORDER BY` clause.
 	 *                                           Default 'id'.
@@ -155,7 +155,7 @@ class WP_Site_Alias_Query {
 	 *     @type array        $type__in          Array of types to include affiliated aliases for. Default empty.
 	 *     @type array        $type__not_in      Array of types to exclude affiliated aliases for. Default empty.
 	 *     @type string       $search            Search term(s) to retrieve matching aliases for. Default empty.
-	 *     @type array        $search_columns    Array of column names to be searched. Accepts 'domain' and 'status'.
+	 *     @type array        $search_columns    Array of column names to be searched. Accepts 'domain', 'status', 'type'.
 	 *                                           Default empty array.
 	 *
 	 *     @type bool         $update_site_alias_cache Whether to prime the cache for found aliases. Default false.
@@ -495,11 +495,11 @@ class WP_Site_Alias_Query {
 			$search_columns = array();
 
 			if ( $this->query_vars['search_columns'] ) {
-				$search_columns = array_intersect( $this->query_vars['search_columns'], array( 'domain', 'status' ) );
+				$search_columns = array_intersect( $this->query_vars['search_columns'], array( 'domain', 'status', 'type' ) );
 			}
 
 			if ( ! $search_columns ) {
-				$search_columns = array( 'domain', 'status' );
+				$search_columns = array( 'domain', 'status', 'type' );
 			}
 
 			/**

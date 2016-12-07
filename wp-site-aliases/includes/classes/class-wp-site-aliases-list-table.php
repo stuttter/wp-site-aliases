@@ -81,6 +81,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 			'cb'      => '<input type="checkbox" />',
 			'domain'  => _x( 'Domain',  'site aliases', 'wp-site-aliases' ),
 			'status'  => _x( 'Status',  'site aliases', 'wp-site-aliases' ),
+			'type'    => _x( 'Type',    'site aliases', 'wp-site-aliases' ),
 			'created' => _x( 'Created', 'site aliases', 'wp-site-aliases' )
 		);
 
@@ -183,7 +184,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Get cell value for the checkbox column
+	 * Get cell value for the check-box column
 	 *
 	 * @since 1.0.0
 	 * @access protected
@@ -286,6 +287,21 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		return ( 'active' === $alias->status )
 			? esc_html_x( 'Active',   'site aliases', 'wp-site-aliases' )
 			: esc_html_x( 'Inactive', 'site aliases', 'wp-site-aliases' );
+	}
+
+	/**
+	 * Get value for the type column
+	 *
+	 * @since 3.0.0
+	 * @access protected
+	 *
+	 * @param WP_Site_Alias $alias Current alias item
+	 * @return string HTML for the cell
+	 */
+	protected function column_type( $alias ) {
+		return ( 'mask' === $alias->type )
+			? esc_html_x( 'Mask',     'site aliases', 'wp-site-aliases' )
+			: esc_html_x( 'Redirect', 'site aliases', 'wp-site-aliases' );
 	}
 
 	/**

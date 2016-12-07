@@ -522,6 +522,26 @@ function wp_site_aliases_get_statuses() {
 }
 
 /**
+ * Get all available site alias types
+ *
+ * @since 1.0.0
+ *
+ * @return array
+ */
+function wp_site_aliases_get_types() {
+	return apply_filters( 'wp_site_aliases_get_types', array(
+		(object) array(
+			'id'   => 'mask',
+			'name' => _x( 'Mask', 'site aliases', 'wp-site-aliases' )
+		),
+		(object) array(
+			'id'   => 'redirect',
+			'name' => _x( 'Redirect', 'site aliases', 'wp-site-aliases' )
+		),
+	) );
+}
+
+/**
  * Sanitize requested alias ID values
  *
  * @since 1.0.0

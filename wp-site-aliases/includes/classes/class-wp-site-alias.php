@@ -62,6 +62,15 @@ final class WP_Site_Alias {
 	public $status = '';
 
 	/**
+	 * Type of alias.
+	 *
+	 * @since 3.0.0
+	 * @access public
+	 * @var string
+	 */
+	public $type = '';
+
+	/**
 	 * Creates a new WP_Site_Alias object.
 	 *
 	 * Will populate object properties from the object provided and assign other
@@ -181,6 +190,21 @@ final class WP_Site_Alias {
 	}
 
 	/**
+	 * Set the type for the alias
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param  bool $type Status should be 'active' or 'inactive'
+	 *
+	 * @return bool|WP_Error True if we updated, false if we didn't need to, or WP_Error if an error occurred
+	 */
+	public function set_type( $type = 'active' ) {
+		return $this->update( array(
+			'type' => $type,
+		) );
+	}
+
+	/**
 	 * Set the domain for the alias
 	 *
 	 * @since 1.0.0
@@ -198,7 +222,7 @@ final class WP_Site_Alias {
 	/**
 	 * Update the alias
 	 *
-	 * See also, {@see set_domain} and {@see set_status} as convenience methods.
+	 * See also {@see set_domain} {@see set_status} {@see set_type} as convenience methods.
 	 *
 	 * @since 1.0.0
 	 *
@@ -236,6 +260,12 @@ final class WP_Site_Alias {
 		if ( ! empty( $data['status'] ) && ( $this->status !== $data['status'] ) ) {
 			$fields['status'] = sanitize_key( $data['status'] );
 			$formats[]        = '%s';
+		}
+
+		// Were we given a type (and is it not the current one?)
+		if ( ! empty( $data['type'] ) && ( $this->type !== $data['type'] ) ) {
+			$fields['type'] = sanitize_key( $data['type'] );
+			$formats[]      = '%s';
 		}
 
 		// Were we given a site ID (and is it not the current one?)
@@ -448,11 +478,12 @@ final class WP_Site_Alias {
 	 *
 	 * @param mixed  $site   Site ID, or site object from {@see get_blog_details}
 	 * @param string $domain Domain
-	 * @param status $status Status of alias
+	 * @param string $status Status of alias
+	 * @param string $type   Type of alias
 	 *
 	 * @return WP_Site_Alias|WP_Error
 	 */
-	public static function create( $site = 0, $domain = '', $status = 'active' ) {
+	public static function create( $site = 0, $domain = '', $status = 'active', $type = 'mask' ) {
 		global $wpdb;
 
 		// Allow passing a site object in

@@ -477,7 +477,8 @@ function wp_site_aliases_handle_site_actions() {
 			$alias = WP_Site_Alias::create(
 				$params['site_id'],
 				$params['domain'],
-				$params['status']
+				$params['status'],
+				$params['type']
 			);
 
 			// Bail if an error occurred
@@ -593,13 +594,36 @@ function wp_site_aliases_output_edit_page() {
 				<td>
 					<select name="status" id="status"><?php
 
+						// Get statuses
 						$statuses = wp_site_aliases_get_statuses();
 
-						// Loop throug sites
+						// Loop through statuses
 						foreach ( $statuses as $status ) :
 
-							// Loop through sites
+							// Output status
 							?><option value="<?php echo esc_attr( $status->id ); ?>" <?php selected( $status->id, $alias->status ); ?>><?php echo esc_html( $status->name ); ?></option><?php
+
+						endforeach;
+
+					?></select>
+				</td>
+			</tr>
+
+			<tr>
+				<th scope="row">
+					<?php echo esc_html_x( 'Type', 'field name', 'wp-site-aliases' ); ?>
+				</th>
+				<td>
+					<select name="type" id="type"><?php
+
+						// Get types
+						$types = wp_site_aliases_get_types();
+
+						// Loop through types
+						foreach ( $types as $type ) :
+
+							// Output type
+							?><option value="<?php echo esc_attr( $type->id ); ?>" <?php selected( $type->id, $alias->status ); ?>><?php echo esc_html( $type->name ); ?></option><?php
 
 						endforeach;
 
@@ -770,6 +794,24 @@ function wp_site_aliases_output_list_page() {
 							<p><?php esc_html_e( 'Whether this domain is ready to accept incoming requests.', 'wp-site-aliases' ); ?></p>
 						</div>
 
+						<div class="form-field form-required type-wrap">
+							<label for="type"><?php echo esc_html_x( 'Type', 'field name', 'wp-site-aliases' ); ?></label>
+							<select name="type" id="type"><?php
+
+								$types = wp_site_aliases_get_types();
+
+								// Loop throug sites
+								foreach ( $types as $type ) :
+
+									// Loop through sites
+									?><option value="<?php echo esc_attr( $type->id ); ?>"><?php echo esc_html( $type->name ); ?></option><?php
+
+								endforeach;
+
+							?></select>
+							<p><?php esc_html_e( 'Whether to mask the original domain, or redirect to it.', 'wp-site-aliases' ); ?></p>
+						</div>
+
 						<input type="hidden" name="action"  value="add"><?php
 
 						//
@@ -830,7 +872,8 @@ function wp_site_aliases_output_admin_notices() {
 		'wp_site_aliases_domain_empty'          => _x( 'Alias missing domain.',              'site aliases', 'wp-site-aliases' ),
 		'wp_site_aliases_domain_requires_tld'   => _x( 'Alias missing a top-level domain.',  'site aliases', 'wp-site-aliases' ),
 		'wp_site_aliases_domain_invalid_chars'  => _x( 'Alias contains invalid characters.', 'site aliases', 'wp-site-aliases' ),
-		'wp_site_aliases_domain_invalid_status' => _x( 'Status must be active or inactive',  'site aliases', 'wp-site-aliases' )
+		'wp_site_aliases_domain_invalid_status' => _x( 'Status must be active or inactive',  'site aliases', 'wp-site-aliases' ),
+		'wp_site_aliases_domain_invalid_type'   => _x( 'Type must be mask or redirect',      'site aliases', 'wp-site-aliases' )
 	);
 
 	// Insert the placeholder
