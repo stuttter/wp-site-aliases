@@ -19,12 +19,12 @@ final class WP_Site_Aliases_DB {
 	/**
 	 * @var string Plugin version
 	 */
-	public $version = '2.0.0';
+	public $version = '3.0.0';
 
 	/**
 	 * @var string Database version
 	 */
-	public $db_version = 201609100003;
+	public $db_version = 201612060001;
 
 	/**
 	 * @var string Database version key
@@ -133,7 +133,11 @@ final class WP_Site_Aliases_DB {
 
 		// Update database structure from 1.0.0 to 2.0.0
 		} elseif ( version_compare( (int) $old_version, 201609100003, '<=' ) ) {
-			$this->update_database_2_0();
+			$this->update_database_2_0_0();
+
+		// Update database structure from 1.0.0 to 3.0.0
+		} elseif ( version_compare( (int) $old_version, 201612060001, '<=' ) ) {
+			$this->update_database_3_0_0();
 
 		// Other case without any action
 		} else {
@@ -148,8 +152,10 @@ final class WP_Site_Aliases_DB {
 	 * Create the table
 	 *
 	 * @since 1.0.0
+	 *
+	 * @param boolean $$create_meta Should alias-meta table be updated
 	 */
-	private function create_tables() {
+	private function create_tables( $create_meta = true ) {
 		$this->add_tables_to_db_object();
 
 		$charset_collate = '';
@@ -171,20 +177,23 @@ final class WP_Site_Aliases_DB {
 			domain varchar(255) NOT NULL,
 			created datetime NOT NULL default '0000-00-00 00:00:00',
 			status varchar(20) NOT NULL default 'active',
+			type varchar(20) NOT NULL default 'mask',
 			PRIMARY KEY (id),
-			KEY blog_id (blog_id,domain(50),status),
+			KEY blog_id (blog_id,domain(50),status,type),
 			KEY domain (domain({$max_index_length}))
 		) {$charset_collate};";
 
-		// Relationship meta
-		$sql[] = "CREATE TABLE {$this->db->blog_aliasmeta} (
-			meta_id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-			blog_alias_id bigint(20) NOT NULL,
-			meta_key varchar(255) DEFAULT NULL,
-			meta_value longtext DEFAULT NULL,
-			KEY blog_alias_id (blog_alias_id),
-			KEY meta_key (meta_key({$max_index_length}))
-		) {$charset_collate};";
+		// Alias meta
+		if ( true === $create_meta ) {
+			$sql[] = "CREATE TABLE {$this->db->blog_aliasmeta} (
+				meta_id bigint(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				blog_alias_id bigint(20) NOT NULL,
+				meta_key varchar(255) DEFAULT NULL,
+				meta_value longtext DEFAULT NULL,
+				KEY blog_alias_id (blog_alias_id),
+				KEY meta_key (meta_key({$max_index_length}))
+			) {$charset_collate};";
+		}
 
 		dbDelta( $sql );
 	}
@@ -212,11 +221,20 @@ final class WP_Site_Aliases_DB {
 	 *
 	 * @since 2.0.0
 	 */
-	private function update_database_2_0() {
+	private function update_database_2_0_0() {
 		$this->add_tables_to_db_object();
 
 		// Relationship meta
-		$this->db->query( "ALTER TABLE {$this->db->blog_aliasmeta} CHANGE `id` `meta_id` BIGINT(20) NOT NULL AUTO_INCREMENT;" );
+		$this->db->query( "ALTER TABLE {$this->db->blog_aliases} CHANGE `id` `meta_id` BIGINT(20) NOT NULL AUTO_INCREMENT;" );
+	}
+
+	/**
+	 * Update database structure for version 3.0.0
+	 *
+	 * @since 3.0.0
+	 */
+	private function update_database_3_0_0() {
+		$this->create_tables( false );
 	}
 }
 
