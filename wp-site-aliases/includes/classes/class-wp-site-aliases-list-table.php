@@ -299,9 +299,9 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 	 * @return string HTML for the cell
 	 */
 	protected function column_type( $alias ) {
-		return ( 'mask' === $alias->type )
-			? esc_html_x( 'Mask',     'site aliases', 'wp-site-aliases' )
-			: esc_html_x( 'Redirect', 'site aliases', 'wp-site-aliases' );
+		return ( 'redirect' === $alias->type )
+			? esc_html_x( 'Redirect', 'site aliases', 'wp-site-aliases' )
+			: esc_html_x( 'Mask',     'site aliases', 'wp-site-aliases' );
 	}
 
 	/**
