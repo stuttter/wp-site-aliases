@@ -164,7 +164,7 @@ function wp_site_aliases_admin_url( $args = array() ) {
 }
 
 /**
- * Check if a domain has a alias available
+ * Check if a domain has an alias available
  *
  * @since 1.0.0
  *
