@@ -462,7 +462,8 @@ final class WP_Site_Alias {
 
 		// Get aliases
 		$aliases = new WP_Site_Alias_Query( array(
-			'domain__in' => array_unique( $domains )
+			'domain__in' => array_unique( (array) $domains ),
+			'number'     => 1
 		) );
 
 		// Bail if no aliases
