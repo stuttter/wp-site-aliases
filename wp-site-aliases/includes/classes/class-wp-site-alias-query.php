@@ -146,10 +146,14 @@ class WP_Site_Alias_Query {
 	 *                                           Default empty.
 	 *     @type array        $domain__in        Array of domains to include affiliated aliases for. Default empty.
 	 *     @type array        $domain__not_in    Array of domains to exclude affiliated aliases for. Default empty.
-	 *     @type string       $status            Limit results to those affiliated with a given path.
+	 *     @type string       $status            Limit results to those affiliated with a given status.
 	 *                                           Default empty.
-	 *     @type array        $status__in        Array of paths to include affiliated aliases for. Default empty.
-	 *     @type array        $status__not_in    Array of paths to exclude affiliated aliases for. Default empty.
+	 *     @type array        $status__in        Array of statuses to include affiliated aliases for. Default empty.
+	 *     @type array        $status__not_in    Array of statuses to exclude affiliated aliases for. Default empty.
+	 *     @type string       $type              Limit results to those affiliated with a given path.
+	 *                                           Default empty.
+	 *     @type array        $type__in          Array of types to include affiliated aliases for. Default empty.
+	 *     @type array        $type__not_in      Array of types to exclude affiliated aliases for. Default empty.
 	 *     @type string       $search            Search term(s) to retrieve matching aliases for. Default empty.
 	 *     @type array        $search_columns    Array of column names to be searched. Accepts 'domain' and 'status'.
 	 *                                           Default empty array.
@@ -173,6 +177,9 @@ class WP_Site_Alias_Query {
 			'status'            => '',
 			'status__in'        => '',
 			'status__not_in'    => '',
+			'type'              => '',
+			'type__in'          => '',
+			'type__not_in'      => '',
 			'number'            => 100,
 			'offset'            => '',
 			'orderby'           => 'id',
@@ -398,6 +405,8 @@ class WP_Site_Alias_Query {
 			$fields = 'ba.id';
 		}
 
+		/** ID ****************************************************************/
+
 		// Parse site alias IDs for an IN clause.
 		$alias_id = absint( $this->query_vars['ID'] );
 		if ( ! empty( $alias_id ) ) {
@@ -414,6 +423,8 @@ class WP_Site_Alias_Query {
 			$this->sql_clauses['where']['alias__not_in'] = "ba.id NOT IN ( " . implode( ',', wp_parse_id_list( $this->query_vars['site__not_in'] ) ) . ' )';
 		}
 
+		/** Site **************************************************************/
+
 		$site_id = absint( $this->query_vars['site_id'] );
 		if ( ! empty( $site_id ) ) {
 			$this->sql_clauses['where']['site_id'] = $this->db->prepare( 'ba.blog_id = %d', $site_id );
@@ -429,6 +440,8 @@ class WP_Site_Alias_Query {
 			$this->sql_clauses['where']['site__not_in'] = "ba.blog_id NOT IN ( " . implode( ',', wp_parse_id_list( $this->query_vars['site__not_in'] ) ) . ' )';
 		}
 
+		/** Domain ************************************************************/
+
 		if ( ! empty( $this->query_vars['domain'] ) ) {
 			$this->sql_clauses['where']['domain'] = $this->db->prepare( 'ba.domain = %s', $this->query_vars['domain'] );
 		}
@@ -443,6 +456,8 @@ class WP_Site_Alias_Query {
 			$this->sql_clauses['where']['domain__not_in'] = "ba.domain NOT IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['domain__not_in'] ) ) . "' )";
 		}
 
+		/** Status ************************************************************/
+
 		if ( ! empty( $this->query_vars['status'] ) ) {
 			$this->sql_clauses['where']['status'] = $this->db->prepare( 'ba.path = %s', $this->query_vars['status'] );
 		}
@@ -456,6 +471,24 @@ class WP_Site_Alias_Query {
 		if ( is_array( $this->query_vars['status__not_in'] ) ) {
 			$this->sql_clauses['where']['status__not_in'] = "ba.status NOT IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['status__not_in'] ) ) . "' )";
 		}
+
+		/** Type **************************************************************/
+
+		if ( ! empty( $this->query_vars['type'] ) ) {
+			$this->sql_clauses['where']['type'] = $this->db->prepare( 'ba.path = %s', $this->query_vars['type'] );
+		}
+
+		// Parse site alias type for an IN clause.
+		if ( is_array( $this->query_vars['type__in'] ) ) {
+			$this->sql_clauses['where']['type__in'] = "ba.type IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['type__in'] ) ) . "' )";
+		}
+
+		// Parse site alias type for a NOT IN clause.
+		if ( is_array( $this->query_vars['type__not_in'] ) ) {
+			$this->sql_clauses['where']['type__not_in'] = "ba.type NOT IN ( '" . implode( "', '", $this->db->_escape( $this->query_vars['type__not_in'] ) ) . "' )";
+		}
+
+		/** Search ************************************************************/
 
 		// Falsey search strings are ignored.
 		if ( strlen( $this->query_vars['search'] ) ) {
@@ -485,11 +518,15 @@ class WP_Site_Alias_Query {
 			$this->sql_clauses['where']['search'] = $this->get_search_sql( $this->query_vars['search'], $search_columns );
 		}
 
+		/** Date **************************************************************/
+
 		$date_query = $this->query_vars['date_query'];
 		if ( ! empty( $date_query ) && is_array( $date_query ) ) {
 			$this->date_query = new WP_Date_Query( $date_query, 'ba.created' );
 			$this->sql_clauses['where']['date_query'] = preg_replace( '/^\s*AND\s*/', '', $this->date_query->get_sql() );
 		}
+
+		/** Meta **************************************************************/
 
 		$meta_query = $this->query_vars['meta_query'];
 		if ( ! empty( $meta_query ) && is_array( $meta_query ) ) {
