@@ -623,7 +623,7 @@ function wp_site_aliases_output_edit_page() {
 						foreach ( $types as $type ) :
 
 							// Output type
-							?><option value="<?php echo esc_attr( $type->id ); ?>" <?php selected( $type->id, $alias->status ); ?>><?php echo esc_html( $type->name ); ?></option><?php
+							?><option value="<?php echo esc_attr( $type->id ); ?>" <?php selected( $type->id, $alias->type ); ?>><?php echo esc_html( $type->name ); ?></option><?php
 
 						endforeach;
 
