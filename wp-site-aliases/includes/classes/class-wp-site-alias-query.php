@@ -678,6 +678,7 @@ class WP_Site_Alias_Query {
 			case 'domain':
 			case 'created':
 			case 'status':
+			case 'type':
 				$parsed = $orderby;
 				break;
 			case 'domain_length':
