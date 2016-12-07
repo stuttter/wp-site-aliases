@@ -23,7 +23,7 @@
  * If your installation does not have a file in 'wp-content/sunrise.php' you'll
  * want to copy this file to that location.
  *
- * Eitherway, make sure you add the following line to your 'wp-config.php':
+ * Either way, make sure you add the following line to your 'wp-config.php':
  *
  * define( 'SUNRISE', true );
  */
@@ -74,18 +74,12 @@ function wp_site_aliases_maybe_load_current_site_and_network() {
 	}
 
 	// Look for an alias
-	$aliases = new WP_Site_Alias_Query( array(
-		'domain' => $domain,
-		'number' => 1
-	) );
+	$alias = WP_Site_Alias::get_by_domain( $domain );
 
 	// Bail if alias
-	if ( empty( $aliases->aliases ) || empty( $aliases->found_site_aliases ) ) {
+	if ( empty( $alias ) ) {
 		return;
 	}
-
-	// Get the alias that was found
-	$alias = reset( $aliases->aliases );
 
 	// Bail if alias is not active
 	if ( 'active' !== $alias->status ) {
