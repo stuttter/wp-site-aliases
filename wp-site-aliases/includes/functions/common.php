@@ -45,7 +45,7 @@ function wp_site_aliases_get_site_id() {
 	}
 
 	// Get the blog details
-	$details = get_blog_details( $site_id );
+	$details = wp_site_aliases_get_site_details( $site_id );
 
 	// No blog details
 	if ( empty( $details ) ) {
@@ -198,7 +198,7 @@ function wp_site_aliases_check_domain_alias( $site, $domain ) {
 	}
 
 	// Fetch the actual data for the site
-	$aliased_site = get_blog_details( $alias->site_id );
+	$aliased_site = wp_site_aliases_get_site_details( $alias->site_id );
 	if ( empty( $aliased_site ) ) {
 		return $site;
 	}
@@ -242,7 +242,7 @@ function wp_site_aliases_clear_aliases_on_delete( $site_id = 0 ) {
 function wp_site_aliases_register_url_filters() {
 
 	// Look for aliases
-	$current_site = $GLOBALS['current_blog'];
+	$current_site = wp_site_aliases_get_current_site();
 	$real_domain  = $current_site->domain;
 	$domain       = $_SERVER['HTTP_HOST'];
 
@@ -372,7 +372,7 @@ function wp_site_aliases_check_aliases_for_site( $site, $domain, $path, $path_se
 	}
 
 	// Set site & network
-	$site         = get_blog_details( $alias->site_id );
+	$site         = wp_site_aliases_get_site_details( $alias->site_id );
 	$current_site = get_network( $site->site_id );
 
 	// We found a network, now check for the site. Replace mapped domain with

@@ -35,6 +35,7 @@ function _wp_site_aliases() {
 	require_once $plugin_path . 'includes/classes/class-wp-site-aliases-db-tables.php';
 
 	// Required Files
+	require_once $plugin_path . 'includes/functions/abstraction.php';
 	require_once $plugin_path . 'includes/functions/admin.php';
 	require_once $plugin_path . 'includes/functions/assets.php';
 	require_once $plugin_path . 'includes/functions/capabilities.php';
@@ -42,6 +43,13 @@ function _wp_site_aliases() {
 	require_once $plugin_path . 'includes/functions/common.php';
 	require_once $plugin_path . 'includes/functions/metadata.php';
 	require_once $plugin_path . 'includes/functions/hooks.php';
+
+	// Single-site shims
+	if ( ! is_multisite() ) {
+		require_once ABSPATH . WPINC . '/ms-blogs.php';
+		require_once ABSPATH . WPINC . '/class-wp-site.php';
+		require_once ABSPATH . WPINC . '/class-wp-network.php';
+	}
 
 	// Register database table
 	if ( empty( $GLOBALS['wpdb']->blog_aliases ) ) {
