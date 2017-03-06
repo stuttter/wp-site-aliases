@@ -246,4 +246,4 @@ final class WP_Site_Aliases_DB {
 function wp_site_aliases_db() {
 	new WP_Site_Aliases_DB();
 }
-add_action( 'muplugins_loaded', 'wp_site_aliases_db', -PHP_INT_MAX );
+add_action( 'plugins_loaded', 'wp_site_aliases_db', -PHP_INT_MAX );
