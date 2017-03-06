@@ -60,6 +60,12 @@ function update_site_alias_cache( $aliases = array() ) {
  * @param int|WP_Site_Alias $alias Alias ID or alias object to remove from the cache
  */
 function clean_blog_alias_cache( $alias ) {
+	global $_wp_suspend_cache_invalidation;
+
+	// Bail if cache invalidation is suspended
+	if ( ! empty( $_wp_suspend_cache_invalidation ) ) {
+		return;
+	}
 
 	// Get alias, and bail if not found
 	$alias = WP_Site_Alias::get_instance( $alias );
