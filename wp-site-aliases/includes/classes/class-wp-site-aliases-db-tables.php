@@ -52,8 +52,8 @@ final class WP_Site_Aliases_DB {
 		$this->db = $GLOBALS['wpdb'];
 
 		// Force table on to the global database object
-		add_action( 'init',           array( $this, 'add_tables_to_db_object' ) );
-		add_action( 'switch_to_blog', array( $this, 'add_tables_to_db_object' ) );
+		add_action( 'init',        array( $this, 'add_tables_to_db_object' ) );
+		add_action( 'switch_blog', array( $this, 'add_tables_to_db_object' ) );
 
 		// Check if DB needs upgrading
 		if ( is_admin() ) {
