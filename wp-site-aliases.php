@@ -2,13 +2,13 @@
 
 /**
  * Plugin Name: WP Site Aliases
- * Plugin URI:  http://wordpress.org/plugins/wp-site-aliases/
+ * Plugin URI:  https://wordpress.org/plugins/wp-site-aliases/
  * Author:      John James Jacoby
  * Author URI:  https://profiles.wordpress.org/johnjamesjacoby/
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Description: User-defined site-aliases for your multisite installation
- * Version:     3.0.0
+ * Version:     5.0.0
  * Text Domain: wp-site-aliases
  * Domain Path: /wp-site-aliases/assets/languages/
  */
@@ -30,9 +30,11 @@ function _wp_site_aliases() {
 	$plugin_path = wp_site_aliases_get_plugin_path();
 
 	// Classes
+	require_once $plugin_path . 'includes/classes/class-wp-db-table.php';
+	require_once $plugin_path . 'includes/classes/class-wp-db-table-site-aliases.php';
+	require_once $plugin_path . 'includes/classes/class-wp-db-table-site-aliasmeta.php';
 	require_once $plugin_path . 'includes/classes/class-wp-site-alias.php';
 	require_once $plugin_path . 'includes/classes/class-wp-site-alias-query.php';
-	require_once $plugin_path . 'includes/classes/class-wp-site-aliases-db-tables.php';
 
 	// Required Files
 	require_once $plugin_path . 'includes/functions/abstraction.php';
@@ -51,20 +53,16 @@ function _wp_site_aliases() {
 		require_once ABSPATH . WPINC . '/class-wp-network.php';
 	}
 
-	// Register database table
-	if ( empty( $GLOBALS['wpdb']->blog_aliases ) ) {
-		$GLOBALS['wpdb']->blog_aliases       = "{$GLOBALS['wpdb']->base_prefix}blog_aliases";
-		$GLOBALS['wpdb']->blog_aliasmeta     = "{$GLOBALS['wpdb']->base_prefix}blog_aliasmeta";
-		$GLOBALS['wpdb']->ms_global_tables[] = 'blog_aliases';
-		$GLOBALS['wpdb']->ms_global_tables[] = 'blog_aliasmeta';
-	}
+	// Tables
+	new WP_DB_Table_Site_Aliasmeta();
+	new WP_DB_Table_Site_Aliases();
 
 	// Register global cache group
 	wp_cache_add_global_groups( array( 'blog-aliases', 'blog_alias_meta' ) );
 }
 
 /**
- * Return the path to the plugin's root file
+ * Return the path to the plugin root file
  *
  * @since 1.0.0
  *
@@ -75,7 +73,7 @@ function wp_site_aliases_get_plugin_file() {
 }
 
 /**
- * Return the path to the plugin's directory
+ * Return the path to the plugin directory
  *
  * @since 1.0.0
  *
@@ -86,7 +84,7 @@ function wp_site_aliases_get_plugin_path() {
 }
 
 /**
- * Return the plugin's URL
+ * Return the plugin URL
  *
  * @since 1.0.0
  *
@@ -104,5 +102,5 @@ function wp_site_aliases_get_plugin_url() {
  * @return int
  */
 function wp_site_aliases_get_asset_version() {
-	return 201612060003;
+	return 201703150001;
 }

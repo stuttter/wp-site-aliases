@@ -1,10 +1,13 @@
 <?php
+
 /**
- * Site API: WP_Site_Alias_Query class
+ * Site Aliases: WP_Site_Alias_Query class
  *
  * @package Plugins/Sites/Aliases/Queries
- * @since 1.0.0
  */
+
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Core class used for querying aliases.

@@ -3,7 +3,7 @@ Contributors: johnjamesjacoby, stuttter
 Tags: blog, site, meta, multisite, alias, domain, mapping
 Requires at least: 4.5
 Tested up to: 4.8
-Stable tag: 4.0.0
+Stable tag: 5.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9Q4F4EL5YJ62J
@@ -74,7 +74,10 @@ http://github.com/stuttter/wp-site-aliases/
 
 == Changelog ==
 
-= [4.0.0] - 2017-03-17 =
+= [5.0.0] - 2017-03-17 =
+* Extend the WP_DB_Table base class
+
+= [4.0.0] - 2017-02-17 =
 * Single-site support
 
 = [3.0.0] - 2016-12-06 =
