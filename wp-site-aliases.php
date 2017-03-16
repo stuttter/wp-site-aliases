@@ -48,9 +48,21 @@ function _wp_site_aliases() {
 
 	// Single-site shims
 	if ( ! is_multisite() ) {
-		require_once ABSPATH . WPINC . '/ms-blogs.php';
-		require_once ABSPATH . WPINC . '/class-wp-site.php';
-		require_once ABSPATH . WPINC . '/class-wp-network.php';
+
+		// Avoid BuddyPress abstraction conflicts
+		if ( ! function_exists( 'update_blog_status' ) ) {
+			require_once ABSPATH . WPINC . '/ms-blogs.php';
+		}
+
+		// Make sure class isn't already shimmed
+		if ( ! class_exists( 'WP_Site' ) ) {
+			require_once ABSPATH . WPINC . '/class-wp-site.php';
+		}
+
+		// Make sure class isn't already shimmed
+		if ( ! class_exists( 'WP_Network' ) ) {
+			require_once ABSPATH . WPINC . '/class-wp-network.php';
+		}
 	}
 
 	// Tables
