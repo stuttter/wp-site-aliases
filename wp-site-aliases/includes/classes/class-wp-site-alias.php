@@ -331,6 +331,12 @@ final class WP_Site_Alias {
 			return new WP_Error( 'wp_site_aliases_alias_delete_failed' );
 		}
 
+		// Delete alias meta
+		$alias_meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->blog_aliasmeta} WHERE blog_alias_id = %d ", $alias_id ) );
+		foreach ( $alias_meta_ids as $mid ) {
+			delete_metadata_by_mid( 'blog_alias', $mid );
+		}
+
 		// Delete the blog alias cache
 		clean_blog_alias_cache( $this );
 
