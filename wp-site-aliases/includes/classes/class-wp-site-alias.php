@@ -332,7 +332,7 @@ final class WP_Site_Alias {
 		}
 
 		// Delete alias meta
-		$alias_meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->blog_aliasmeta} WHERE blog_alias_id = %d ", $alias_id ) );
+		$alias_meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT meta_id FROM {$wpdb->blog_aliasmeta} WHERE blog_alias_id = %d", $alias_id ) );
 		foreach ( $alias_meta_ids as $mid ) {
 			delete_metadata_by_mid( 'blog_alias', $mid );
 		}

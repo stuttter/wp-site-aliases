@@ -73,8 +73,9 @@ function clean_blog_alias_cache( $alias ) {
 		return;
 	}
 
-	// Delete alias from cache group
-	wp_cache_delete( $alias->id , 'blog-aliases' );
+	// Delete alias from cache groups
+	wp_cache_delete( $alias->id , 'blog-aliases'    );
+	wp_cache_delete( $alias->id , 'blog_alias_meta' );
 
 	/**
 	 * Fires immediately after a site alias has been removed from the object cache.
