@@ -8,7 +8,7 @@
  * License:     GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Description: User-defined site-aliases for your multisite installation
- * Version:     5.0.0
+ * Version:     6.0.0
  * Text Domain: wp-site-aliases
  * Domain Path: /wp-site-aliases/assets/languages/
  */
@@ -114,5 +114,5 @@ function wp_site_aliases_get_plugin_url() {
  * @return int
  */
 function wp_site_aliases_get_asset_version() {
-	return 201703150001;
+	return 201704030001;
 }
