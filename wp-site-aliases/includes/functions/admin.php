@@ -487,6 +487,9 @@ function wp_site_aliases_handle_site_actions() {
 				continue;
 			}
 
+			// Add 'created_by' metadata
+			add_site_alias_meta( $alias->id, 'created_by', get_current_user_id() );
+
 			$processed[] = $alias->id;
 
 			break;
