@@ -193,7 +193,8 @@ class WP_Site_Alias_Query {
 			'date_query'        => null, // See WP_Date_Query
 			'meta_query'        => null, // See WP_Meta_Query
 			'no_found_rows'     => true,
-			'update_site_alias_cache' => true,
+			'update_site_alias_cache'      => true,
+			'update_site_alias_meta_cache' => true,
 		);
 
 		if ( ! empty( $query ) ) {
@@ -311,7 +312,7 @@ class WP_Site_Alias_Query {
 
 		// Prime site network caches.
 		if ( $this->query_vars['update_site_alias_cache'] ) {
-			_prime_site_alias_caches( $alias_ids );
+			_prime_site_alias_caches( $alias_ids, $this->query_vars['update_site_alias_meta_cache'] );
 		}
 
 		// Fetch full site alias objects from the primed cache.
