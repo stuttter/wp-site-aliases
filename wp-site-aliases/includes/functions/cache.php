@@ -48,18 +48,14 @@ function update_site_alias_cache( $aliases = array(), $update_meta_cache = true 
 		return;
 	}
 
-	// Setup array for IDs
-	$alias_ids = array();
-
 	// Loop through aliases & add them to cache group
 	foreach ( $aliases as $alias ) {
-		$alias_ids[] = $alias->id;
 		wp_cache_add( $alias->id, $alias, 'blog-aliases' );
 	}
 
 	// Maybe update site alias meta cache
 	if ( true === $update_meta_cache ) {
-		update_site_aliasmeta_cache( $alias_ids );
+		update_site_aliasmeta_cache( wp_list_pluck( $aliases, 'id' ) );
 	}
 }
 
