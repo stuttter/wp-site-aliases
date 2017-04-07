@@ -153,7 +153,9 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		echo "<option value='-1' selected='selected'>" . __( 'Bulk Actions' ) . "</option>\n";
 
 		foreach ( $this->_actions as $name => $title ) {
-			$class = 'edit' == $name ? ' class="hide-if-no-js"' : '';
+			$class = ( 'edit' === $name )
+				? ' class="hide-if-no-js"'
+				: '';
 
 			echo "\t<option value='{$name}'{$class}>{$title}</option>\n";
 		}
