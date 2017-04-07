@@ -310,7 +310,7 @@ class WP_Site_Alias_Query {
 			return $this->aliases;
 		}
 
-		// Prime site network caches.
+		// Prime site alias caches.
 		if ( $this->query_vars['update_site_alias_cache'] ) {
 			_prime_site_alias_caches( $alias_ids, $this->query_vars['update_site_alias_meta_cache'] );
 		}
