@@ -19,16 +19,17 @@ defined( 'ABSPATH' ) || exit;
  * @see update_site_cache()
  * @global wpdb $wpdb WordPress database abstraction object.
  *
- * @param array $ids ID list.
+ * @param array $ids               ID list.
+ * @param bool  $update_meta_cache Whether to update site alias cache. Default true.
  */
-function _prime_site_alias_caches( $ids = array() ) {
+function _prime_site_alias_caches( $ids = array(), $update_meta_cache = true ) {
 	global $wpdb;
 
 	$non_cached_ids = _get_non_cached_ids( $ids, 'blog-aliases' );
 	if ( ! empty( $non_cached_ids ) ) {
 		$fresh_aliases = $wpdb->get_results( sprintf( "SELECT * FROM {$wpdb->blog_aliases} WHERE id IN (%s)", join( ",", array_map( 'intval', $non_cached_ids ) ) ) );
 
-		update_site_alias_cache( $fresh_aliases );
+		update_site_alias_cache( $fresh_aliases, $update_meta_cache );
 	}
 }
 
@@ -37,18 +38,28 @@ function _prime_site_alias_caches( $ids = array() ) {
  *
  * @since 1.0.0
  *
- * @param array $aliases Array of site alias objects.
+ * @param array $aliases           Array of site alias objects.
+ * @param bool  $update_meta_cache Whether to update site alias cache. Default true.
  */
-function update_site_alias_cache( $aliases = array() ) {
+function update_site_alias_cache( $aliases = array(), $update_meta_cache = true ) {
 
 	// Bail if no aliases
 	if ( empty( $aliases ) ) {
 		return;
 	}
 
+	// Setup array for IDs
+	$alias_ids = array();
+
 	// Loop through aliases & add them to cache group
 	foreach ( $aliases as $alias ) {
+		$alias_ids[] = $alias->id;
 		wp_cache_add( $alias->id, $alias, 'blog-aliases' );
+	}
+
+	// Maybe update site alias meta cache
+	if ( true === $update_meta_cache ) {
+		update_site_aliasmeta_cache( $alias_ids );
 	}
 }
 

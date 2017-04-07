@@ -75,3 +75,20 @@ function get_site_alias_meta( $id, $meta_key = '', $single = false ) {
 function update_site_alias_meta( $id, $meta_key, $meta_value, $prev_value = '' ) {
 	return update_metadata( 'blog_alias', $id, $meta_key, $meta_value, $prev_value );
 }
+
+/**
+ * Updates metadata cache for list of site alias IDs.
+ *
+ * Performs SQL query to retrieve the metadata for the site alias IDs and
+ * updates the metadata cache for the site aliases. Therefore, the functions,
+ * which call this function, do not need to perform SQL queries on their own.
+ *
+ * @since 6.1.0
+ *
+ * @param array $ids List of site alias IDs.
+ * @return array|false Returns false if there is nothing to update or an array
+ *                     of metadata.
+ */
+function update_site_aliasmeta_cache( $ids ) {
+	return update_meta_cache( 'blog_alias', $ids );
+}
