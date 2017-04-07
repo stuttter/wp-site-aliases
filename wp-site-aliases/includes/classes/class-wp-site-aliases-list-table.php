@@ -148,9 +148,9 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 			return;
 		}
 
-		echo "<label for='bulk-action-selector-" . esc_attr( $which ) . "' class='screen-reader-text'>" . __( 'Select bulk action' ) . "</label>";
+		echo "<label for='bulk-action-selector-" . esc_attr( $which ) . "' class='screen-reader-text'>" . __( 'Select bulk action', 'wp-site-aliases' ) . "</label>";
 		echo "<select name='bulk_action$two' id='bulk-action-selector-" . esc_attr( $which ) . "'>\n";
-		echo "<option value='-1' selected='selected'>" . __( 'Bulk Actions' ) . "</option>\n";
+		echo "<option value='-1' selected='selected'>" . __( 'Bulk Actions', 'wp-site-aliases' ) . "</option>\n";
 
 		foreach ( $this->_actions as $name => $title ) {
 			$class = ( 'edit' === $name )
@@ -161,7 +161,7 @@ final class WP_Site_Aliases_List_Table extends WP_List_Table {
 		}
 
 		echo "</select>\n";
-		submit_button( __( 'Apply' ), 'action', false, false, array( 'id' => "doaction{$two}" ) );
+		submit_button( __( 'Apply', 'wp-site-aliases' ), 'action', false, false, array( 'id' => "doaction{$two}" ) );
 		echo "\n";
 	}
 
