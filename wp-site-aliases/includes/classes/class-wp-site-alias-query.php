@@ -273,68 +273,73 @@ class WP_Site_Alias_Query {
 			wp_cache_set( 'last_changed', $last_changed, 'blog-aliases' );
 		}
 
+		// Check the cache
 		$cache_key   = "get_site_aliases:{$key}:{$last_changed}";
 		$cache_value = wp_cache_get( $cache_key, 'blog-aliases' );
 
+		// No cache value
 		if ( false === $cache_value ) {
 			$alias_ids = $this->get_alias_ids();
-			if ( $alias_ids ) {
+
+			// Set the number of found aliases (make sure it's not a count)
+			if ( ! empty( $alias_ids ) && is_array( $alias_ids ) ) {
 				$this->set_found_site_aliases( $alias_ids );
 			}
 
+			// Format the cached value
 			$cache_value = array(
 				'alias_ids'          => $alias_ids,
-				'found_site_aliases' => $this->found_site_aliases,
+				'found_site_aliases' => intval( $this->found_site_aliases ),
 			);
+
+			// Add value to the cache
 			wp_cache_add( $cache_key, $cache_value, 'blog-aliases' );
+
+		// Value exists in cache
 		} else {
-			$alias_ids = $cache_value['alias_ids'];
-			$this->found_site_aliases = $cache_value['found_site_aliases'];
+			$alias_ids                = $cache_value['alias_ids'];
+			$this->found_site_aliases = intval( $cache_value['found_site_aliases'] );
 		}
 
+		// Pagination
 		if ( $this->found_site_aliases && $this->query_vars['number'] ) {
 			$this->max_num_pages = ceil( $this->found_site_aliases / $this->query_vars['number'] );
 		}
 
-		// If querying for a count only, there's nothing more to do.
+		// Return an int of the count
 		if ( $this->query_vars['count'] ) {
-			// $alias_ids is actually a count in this case.
 			return intval( $alias_ids );
 		}
 
+		// Cast to integers
 		$alias_ids = array_map( 'intval', $alias_ids );
-
-		if ( 'ids' == $this->query_vars['fields'] ) {
-			$this->aliases = $alias_ids;
-
-			return $this->aliases;
-		}
 
 		// Prime site alias caches.
 		if ( $this->query_vars['update_site_alias_cache'] ) {
 			_prime_site_alias_caches( $alias_ids, $this->query_vars['update_site_alias_meta_cache'] );
 		}
 
-		// Fetch full site alias objects from the primed cache.
-		$_aliases = array();
-		foreach ( $alias_ids as $alias_id ) {
-			$_alias = get_site_alias( $alias_id );
-			if ( ! empty( $_alias ) ) {
-				$_aliases[] = $_alias;
-			}
+		// Return the IDs
+		if ( 'ids' === $this->query_vars['fields'] ) {
+			$this->aliases = $alias_ids;
+
+			return $this->aliases;
 		}
+
+		// Get site alias instances from IDs.
+		$_aliases = array_map( 'get_site_alias', $alias_ids );
 
 		/**
 		 * Filters the site query results.
 		 *
 		 * @since 1.0.0
 		 *
-		 * @param array         $results An array of aliases.
+		 * @param array               $results An array of aliases.
 		 * @param WP_Site_Alias_Query &$this   Current instance of WP_Site_Alias_Query, passed by reference.
 		 */
 		$_aliases = apply_filters_ref_array( 'the_site_aliases', array( $_aliases, &$this ) );
 
-		// Convert to WP_Site_Alias instances.
+		// Make sure aliases are still site alias instances.
 		$this->aliases = array_map( 'get_site_alias', $_aliases );
 
 		return $this->aliases;
@@ -614,7 +619,7 @@ class WP_Site_Alias_Query {
 
 		$alias_ids = $this->db->get_col( $this->request );
 
-		return array_map( 'intval', $alias_ids );
+		return wp_parse_id_list( $alias_ids );
 	}
 
 	/**
