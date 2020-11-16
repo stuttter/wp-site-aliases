@@ -504,7 +504,7 @@ function wp_site_aliases_handle_site_actions() {
 			// Error messages
 			if ( is_wp_error( $params ) ) {
 				$args['did_action'] = $params->get_error_code();
-				continue;
+				break;
 			}
 
 			$alias_id = $alias_ids[0];
@@ -513,7 +513,7 @@ function wp_site_aliases_handle_site_actions() {
 			// Error messages
 			if ( is_wp_error( $alias ) ) {
 				$args['did_action'] = $alias->get_error_code();
-				continue;
+				break;
 			}
 
 			// Update
@@ -522,7 +522,7 @@ function wp_site_aliases_handle_site_actions() {
 			// Error messages
 			if ( is_wp_error( $result ) ) {
 				$args['did_action'] = $result->get_error_code();
-				continue;
+				break;
 			}
 
 			$processed[] = $alias_id;
