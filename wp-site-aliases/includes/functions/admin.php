@@ -417,6 +417,7 @@ function wp_site_aliases_handle_site_actions() {
 					$processed[] = $alias_id;
 				}
 			}
+
 			break;
 
 		// Bulk deactivate
@@ -435,6 +436,7 @@ function wp_site_aliases_handle_site_actions() {
 					$processed[] = $alias_id;
 				}
 			}
+
 			break;
 
 		// Single/Bulk Delete
@@ -470,7 +472,7 @@ function wp_site_aliases_handle_site_actions() {
 			// Error
 			if ( is_wp_error( $params ) ) {
 				$args['did_action'] = $params->get_error_code();
-				continue;
+				break;
 			}
 
 			// Add
@@ -484,7 +486,7 @@ function wp_site_aliases_handle_site_actions() {
 			// Bail if an error occurred
 			if ( is_wp_error( $alias ) ) {
 				$args['did_action'] = $alias->get_error_code();
-				continue;
+				break;
 			}
 
 			// Add 'created_by' metadata
