@@ -1,7 +1,7 @@
 === WP Site Aliases ===
 Contributors: johnjamesjacoby, stuttter
 Tags: blog, site, meta, multisite, alias, domain, mapping
-Requires at least: 4.7
+Requires at least: 4.5
 Tested up to: 4.8
 Stable tag: 7.0.0
 License: GPLv2 or later
