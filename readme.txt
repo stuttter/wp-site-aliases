@@ -8,6 +8,8 @@ License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=9Q4F4EL5YJ62J
 
+Map custom domains to sites in a WordPress multisite network.
+
 == Description ==
 
 The best way to allow custom domains in your WordPress Multisite installation
